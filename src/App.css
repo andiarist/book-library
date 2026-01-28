@@ -61,8 +61,14 @@ body {
   margin-top: 0;
   margin-bottom: 1.5rem;
 }
+.search-mode-selector {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 8px;
+}
 
-.isbn-search-form {
+.isbn-search-form,
+.text-search-form {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -78,7 +84,8 @@ body {
   font-weight: 500;
 }
 
-.isbn-input {
+.isbn-input,
+.text-search-input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #444;
@@ -88,12 +95,14 @@ body {
   font-size: 1rem;
 }
 
-.isbn-input:focus {
+.isbn-input:focus,
+.text-search-input:focus {
   outline: none;
   border-color: #646cff;
 }
 
-.isbn-input:disabled {
+.isbn-input:disabled,
+.text-search-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
