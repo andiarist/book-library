@@ -4,12 +4,11 @@ import { BookCard } from './components/BookCard';
 import { useBookMetadata } from './hooks/useBookMetadata';
 import './App.css';
 import { TitleSearchForm } from './components/TitleSearchForm';
-import { Book, BookMetadata } from './types/book';
+import { Book, BookMetadata, SearchMode } from './types/book';
 import { BookList } from './components/BookList';
 import { LibraryBookCard } from './components/LibraryBookCard';
 import { BookDetail } from './components/BookDetail';
-
-type SearchMode = 'isbn' | 'text';
+import { ModeSearchBtn } from './components/ModeSearchBtn';
 
 function App() {
   const {
@@ -63,6 +62,11 @@ function App() {
     reset();
   };
 
+  const searchModeOnClick = (mode: SearchMode) => {
+    setSearchMode(mode);
+    handleReset();
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -73,7 +77,18 @@ function App() {
       <main className="app-main">
         <section className="search-section">
           <div className="search-mode-selector">
-            <button
+            <ModeSearchBtn
+              searchModeOnClick={searchModeOnClick}
+              searchMode="isbn"
+              searchModeSelected={searchMode}
+            />
+            <ModeSearchBtn
+              searchModeOnClick={searchModeOnClick}
+              searchMode="text"
+              searchModeSelected={searchMode}
+            />
+
+            {/* <button
               className={searchMode === 'isbn' ? 'active' : ''}
               onClick={() => {
                 setSearchMode('isbn');
@@ -90,7 +105,7 @@ function App() {
               }}
             >
               Buscar por texto
-            </button>
+            </button> */}
           </div>
 
           {searchMode === 'isbn' ? (
@@ -150,14 +165,15 @@ function App() {
             </div>
           )}
 
-          {!loading &&
-            searchResults.length === 0 &&
-            !metadata &&
-            (searchMode === 'text' ? (
+          {/* {
+            !loading && searchResults.length === 0 && !metadata && (
+              // (searchMode === 'text' ? (
               <div className="empty-message">
                 Usa el formulario para buscar libros por título o autor
               </div>
-            ) : null)}
+            )
+            // ) : null)
+          } */}
         </section>
 
         <section className="library-section">

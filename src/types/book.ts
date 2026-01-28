@@ -35,3 +35,5 @@ export interface APIError {
   source: 'google-books' | 'open-library' | 'local';
   statusCode?: number;
 }
+
+export type SearchMode = 'isbn' | 'text';

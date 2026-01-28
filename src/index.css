@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -31,3 +33,29 @@ body {
     background-color: #ffffff;
   }
 }
+
+/* @layer components {
+  .btn {
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: rgb(99 102 241);
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    color: rgb(255 255 255);
+    transition-property:
+      color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  .btn:hover:not(:disabled) {
+    background-color: rgb(79 70 229);
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+} */

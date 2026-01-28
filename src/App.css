@@ -72,7 +72,7 @@ body {
   border-radius: 8px;
 }
 
-.search-mode-selector button {
+/* .search-mode-selector button {
   flex: 1;
   padding: 0.75rem 1.5rem;
   background: transparent;
@@ -93,7 +93,7 @@ body {
 .search-mode-selector button.active {
   background: #646cff;
   color: white;
-}
+} */
 
 /* Search Forms */
 .isbn-search-form,
@@ -136,7 +136,7 @@ body {
   cursor: not-allowed;
 }
 
-button {
+/* button {
   padding: 0.75rem 1.5rem;
   background: #646cff;
   color: white;
@@ -155,7 +155,7 @@ button:hover:not(:disabled) {
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
+} */
 
 .error-message {
   padding: 1rem;
@@ -622,7 +622,7 @@ button:disabled {
     background: #e8e8e8;
   }
 
-  .search-mode-selector button:hover {
+  /* .search-mode-selector button:hover {
     background: #d8d8d8;
-  }
+  } */
 }
