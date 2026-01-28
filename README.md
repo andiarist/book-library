@@ -28,9 +28,10 @@ Una aplicación para gestionar tu colección de libros con búsqueda de metadato
 - Node.js >= 18
 - pnpm >= 8 (Recomendado)
 
-> 💡 **¿Primera vez con pnpm?** Lee la [Guía Rápida de pnpm](./PNPM_GUIDE.md) para instalación y comandos útiles.
+> 💡 **¿Primera vez con pnpm?** Lee la [Guía Rápida de pnpm](./docs/PNPM_GUIDE.md) para instalación y comandos útiles.
 
 Si no tienes pnpm instalado:
+
 ```bash
 npm install -g pnpm
 # o
@@ -43,6 +44,7 @@ corepack prepare pnpm@latest --activate
 ### Opción 1: Setup Automático (Recomendado)
 
 **Linux/macOS:**
+
 ```bash
 git clone <tu-repo>
 cd book-library
@@ -51,6 +53,7 @@ chmod +x setup.sh
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 git clone <tu-repo>
 cd book-library
@@ -58,6 +61,7 @@ cd book-library
 ```
 
 El script automáticamente:
+
 - ✅ Verifica Node.js y pnpm
 - ✅ Instala dependencias
 - ✅ Crea archivo `.env`
@@ -66,17 +70,20 @@ El script automáticamente:
 ### Opción 2: Setup Manual
 
 1. Clona el repositorio:
+
 ```bash
 git clone <tu-repo>
 cd book-library
 ```
 
 2. Instala las dependencias:
+
 ```bash
 pnpm install
 ```
 
 3. (Opcional) Configura tu API key de Google Books:
+
 ```bash
 cp .env.example .env
 # Edita .env y añade tu VITE_GOOGLE_BOOKS_API_KEY
@@ -167,13 +174,14 @@ El reporte de coverage se genera en formato LCOV en `coverage/lcov.info`, listo 
 
 ## 🔐 Variables de Entorno
 
-| Variable | Descripción | Obligatoria |
-|----------|-------------|-------------|
+| Variable                    | Descripción             | Obligatoria      |
+| --------------------------- | ----------------------- | ---------------- |
 | `VITE_GOOGLE_BOOKS_API_KEY` | API key de Google Books | No (recomendada) |
 
 ## 🗺️ Roadmap
 
 ### Fase 1: Prototipo Web ✅
+
 - [x] Setup del proyecto
 - [x] Integración con APIs
 - [x] Búsqueda por ISBN
@@ -181,6 +189,7 @@ El reporte de coverage se genera en formato LCOV en `coverage/lcov.info`, listo 
 - [x] Testing
 
 ### Fase 2: Tauri Desktop 🔄
+
 - [ ] Migración a Tauri
 - [ ] Lectura de carpetas locales
 - [ ] Extracción de metadatos de EPUB/PDF
@@ -188,13 +197,14 @@ El reporte de coverage se genera en formato LCOV en `coverage/lcov.info`, listo 
 - [ ] Gestión completa de biblioteca
 
 ### Fase 3: Móvil 📱
+
 - [ ] Escaneo de códigos de barras
 - [ ] Sincronización entre dispositivos
 - [ ] App móvil (RN/Expo o Tauri Mobile)
 
 ## 🤝 Contribuir
 
-> 📖 Lee la [Guía de Desarrollo](./DEVELOPMENT.md) para mejores prácticas, testing, debugging y más.
+> 📖 Lee la [Guía de Desarrollo](./docs/DEVELOPMENT.md) para mejores prácticas, testing, debugging y más.
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -208,11 +218,11 @@ MIT
 
 ## 📚 Documentación
 
-- **[README.md](./README.md)** - Este archivo (visión general)
-- **[PNPM_GUIDE.md](./PNPM_GUIDE.md)** - Guía completa de pnpm
-- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guía de desarrollo y mejores prácticas
-- **[API_EXAMPLES.md](./API_EXAMPLES.md)** - Ejemplos de uso de servicios y hooks
-- **[TAURI_MIGRATION.md](./TAURI_MIGRATION.md)** - Guía para migrar a Tauri (Fase 2)
+- **[README.md](./docs/README.md)** - Este archivo (visión general)
+- **[PNPM_GUIDE.md](./docs/PNPM_GUIDE.md)** - Guía completa de pnpm
+- **[DEVELOPMENT.md](./docs/DEVELOPMENT.md)** - Guía de desarrollo y mejores prácticas
+- **[API_EXAMPLES.md](./docs/API_EXAMPLES.md)** - Ejemplos de uso de servicios y hooks
+- **[TAURI_MIGRATION.md](./docs/TAURI_MIGRATION.md)** - Guía para migrar a Tauri (Fase 2)
 
 ## 🔗 Enlaces Útiles
 

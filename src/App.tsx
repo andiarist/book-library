@@ -4,8 +4,10 @@ import { BookCard } from './components/BookCard';
 import { useBookMetadata } from './hooks/useBookMetadata';
 import './App.css';
 import { TitleSearchForm } from './components/TitleSearchForm';
-import { BookMetadata } from './types/book';
+import { Book, BookMetadata } from './types/book';
 import { BookList } from './components/BookList';
+import { LibraryBookCard } from './components/LibraryBookCard';
+import { BookDetail } from './components/BookDetail';
 
 type SearchMode = 'isbn' | 'text';
 
@@ -19,18 +21,34 @@ function App() {
     search,
     reset,
   } = useBookMetadata();
-  const [library, setLibrary] = useState<BookMetadata[]>([]);
+  const [library, setLibrary] = useState<Book[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>('isbn');
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
-  const handleAddToLibrary = (book: BookMetadata) => {
+  const metadataToBook = (metadata: BookMetadata): Book => {
+    return {
+      id: crypto.randomUUID(),
+      ...metadata,
+      addedAt: new Date().toISOString(),
+      lastModified: new Date().toISOString(),
+    };
+  };
+
+  const handleAddToLibrary = (bookMetadata: BookMetadata) => {
     // Verificar si ya existe en la biblioteca
     const exists = library.some(
-      (b) => b.isbn && book.isbn && b.isbn === book.isbn
+      (b) => b.isbn && bookMetadata.isbn && b.isbn === bookMetadata.isbn
     );
 
     if (!exists) {
+      const book = metadataToBook(bookMetadata);
       setLibrary([...library, book]);
     }
+  };
+
+  const handleDeleteFromLibrary = (bookId: string) => {
+    setLibrary(library.filter((book) => book.id !== bookId));
+    setSelectedBook(null);
   };
 
   const handleISBNSearch = async (isbn: string) => {
@@ -141,7 +159,44 @@ function App() {
               </div>
             ) : null)}
         </section>
-        {/* <section className="search-section">
+
+        <section className="library-section">
+          <h2>Mi Biblioteca ({library.length})</h2>
+          {library.length === 0 ? (
+            <p className="empty-message">
+              Aún no has añadido ningún libro. Busca por ISBN o texto para
+              empezar.
+            </p>
+          ) : (
+            <div className="library-grid">
+              {library.map((book) => (
+                <div key={book.id} className="library-item">
+                  <LibraryBookCard
+                    book={book}
+                    onClick={() => setSelectedBook(book)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+      {/* Modal de detalle del libro */}
+      {selectedBook && (
+        <BookDetail
+          book={selectedBook}
+          onClose={() => setSelectedBook(null)}
+          onDelete={() => handleDeleteFromLibrary(selectedBook.id)}
+        />
+      )}
+    </div>
+  );
+}
+
+export default App;
+
+{
+  /* <section className="search-section">
           <h2>Buscar libro por ISBN</h2>
           <ISBNSearchForm onSearch={searchByISBN} loading={loading} />
 
@@ -178,27 +233,5 @@ function App() {
               <BookCard book={metadata} onAdd={handleAddToLibrary} />
             </div>
           )}
-        </section> */}
-
-        <section className="library-section">
-          <h2>Mi Biblioteca ({library.length})</h2>
-          {library.length === 0 ? (
-            <p className="empty-message">
-              Aún no has añadido ningún libro. Busca por ISBN para empezar.
-            </p>
-          ) : (
-            <div className="library-grid">
-              {library.map((book, index) => (
-                <div key={book.isbn || index} className="library-item">
-                  <BookCard book={book} />
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
-  );
+        </section> */
 }
-
-export default App;
