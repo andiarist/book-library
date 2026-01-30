@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { Button } from './Button';
 
 interface TitleSearchFormProps {
   onSearch: (query: string) => void;
@@ -34,9 +35,9 @@ export function TitleSearchForm({
           className="text-search-input"
         />
       </div>
-      <button type="submit" disabled={loading || !query.trim()}>
+      <Button type="submit" disabled={loading || !query.trim()}>
         {loading ? 'Buscando...' : 'Buscar'}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { Button } from './Button';
 
 interface ISBNSearchFormProps {
   onSearch: (isbn: string) => void;
@@ -29,9 +30,9 @@ export function ISBNSearchForm({ onSearch, loading }: ISBNSearchFormProps) {
           className="isbn-input"
         />
       </div>
-      <button type="submit" disabled={loading || !isbn.trim()}>
+      <Button type="submit" disabled={loading || !isbn.trim()}>
         {loading ? 'Buscando...' : 'Buscar'}
-      </button>
+      </Button>
     </form>
   );
 }
