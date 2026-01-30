@@ -7,6 +7,7 @@ interface BookDetailProps {
   book: Book;
   onClose: () => void;
   onDelete?: () => void;
+  onEdit?: () => void;
 }
 
 interface InfoFieldProps {
@@ -94,9 +95,20 @@ function BookInformation({ book }: BookInformationProps) {
     },
     { key: 'pageCount', label: 'Páginas', value: book.pageCount },
     { key: 'language', label: 'Idioma', value: book.language },
+    { key: 'saga', label: 'Saga', value: book.saga },
+    { key: 'sagaNumber', label: 'Número en la saga', value: book.sagaNumber },
+    {
+      key: 'format',
+      label: 'Formato',
+      value: book.format
+        ? book.format === 'digital'
+          ? 'Digital'
+          : 'Físico'
+        : undefined,
+    },
     {
       key: 'fileFormat',
-      label: 'Formato',
+      label: 'Formato de archivo',
       value: book.fileFormat?.toUpperCase(),
     },
     { key: 'filePath', label: 'Ruta del archivo', value: book.filePath },
@@ -161,7 +173,12 @@ function BookMetadata({ addedAt, lastModified }: BookMetadataProps) {
   );
 }
 
-export function BookDetail({ book, onClose, onDelete }: BookDetailProps) {
+export function BookDetail({
+  book,
+  onClose,
+  onDelete,
+  onEdit,
+}: BookDetailProps) {
   return (
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
@@ -198,11 +215,18 @@ export function BookDetail({ book, onClose, onDelete }: BookDetailProps) {
             />
           </div>
 
-          {onDelete && (
-            <div className="mt-8 flex justify-end border-t border-t-gray-500 pt-8">
-              <Button variant="danger" onClick={onDelete}>
-                🗑️ Eliminar de la biblioteca
-              </Button>
+          {(onEdit || onDelete) && (
+            <div className="mt-8 flex justify-end gap-3 border-t border-t-gray-500 pt-8">
+              {onEdit && (
+                <Button variant="primary" onClick={onEdit}>
+                  ✏️ Editar
+                </Button>
+              )}
+              {onDelete && (
+                <Button variant="danger" onClick={onDelete}>
+                  🗑️ Eliminar de la biblioteca
+                </Button>
+              )}
             </div>
           )}
         </div>

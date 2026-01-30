@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import { BookCard } from './components/BookCard';
 import { BookDetail } from './components/BookDetail';
+import { BookEditModal, BookEditData } from './components/BookEditModal';
 import { BookList } from './components/BookList';
 import { Button } from './components/Button';
 import { LibraryBookCard } from './components/LibraryBookCard';
@@ -23,25 +24,57 @@ function App() {
   const [library, setLibrary] = useState<Book[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>('isbn');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [editingBook, setEditingBook] = useState<BookMetadata | null>(null);
+  const [editingExistingBook, setEditingExistingBook] = useState<Book | null>(
+    null
+  );
 
-  const metadataToBook = (metadata: BookMetadata): Book => {
+  const metadataToBook = (data: BookEditData): Book => {
     return {
       id: crypto.randomUUID(),
-      ...metadata,
+      ...data,
       addedAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),
     };
   };
 
   const handleAddToLibrary = (bookMetadata: BookMetadata) => {
+    // Abrir modal para editar metadata antes de añadir
+    setEditingBook(bookMetadata);
+  };
+
+  const handleSaveBook = (data: BookEditData) => {
     // Verificar si ya existe en la biblioteca
     const exists = library.some(
-      (b) => b.isbn && bookMetadata.isbn && b.isbn === bookMetadata.isbn
+      (b) => b.isbn && data.isbn && b.isbn === data.isbn
     );
 
     if (!exists) {
-      const book = metadataToBook(bookMetadata);
+      const book = metadataToBook(data);
       setLibrary([...library, book]);
+      setEditingBook(null);
+      handleReset();
+    }
+  };
+
+  const handleEditExistingBook = (book: Book) => {
+    setEditingExistingBook(book);
+    setSelectedBook(null);
+  };
+
+  const handleUpdateBook = (data: BookEditData) => {
+    if (editingExistingBook) {
+      const updatedBook: Book = {
+        ...editingExistingBook,
+        ...data,
+        lastModified: new Date().toISOString(),
+      };
+      setLibrary(
+        library.map((book) =>
+          book.id === editingExistingBook.id ? updatedBook : book
+        )
+      );
+      setEditingExistingBook(null);
     }
   };
 
@@ -166,10 +199,7 @@ function App() {
                   </div>
                   <BookCard
                     book={metadata}
-                    onAdd={() => {
-                      handleAddToLibrary(metadata);
-                      handleReset();
-                    }}
+                    onAdd={() => handleAddToLibrary(metadata)}
                   />
                 </div>
               )}
@@ -191,9 +221,7 @@ function App() {
                     </div>
                     <BookList
                       books={searchResults}
-                      onAddBook={(book) => {
-                        handleAddToLibrary(book);
-                      }}
+                      onAddBook={(book) => handleAddToLibrary(book)}
                     />
                   </div>
                 )}
@@ -207,6 +235,25 @@ function App() {
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
           onDelete={() => handleDeleteFromLibrary(selectedBook.id)}
+          onEdit={() => handleEditExistingBook(selectedBook)}
+        />
+      )}
+
+      {/* Modal de edición antes de añadir a biblioteca */}
+      {editingBook && (
+        <BookEditModal
+          bookMetadata={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={handleSaveBook}
+        />
+      )}
+
+      {/* Modal de edición de libro existente */}
+      {editingExistingBook && (
+        <BookEditModal
+          existingBook={editingExistingBook}
+          onClose={() => setEditingExistingBook(null)}
+          onSave={handleUpdateBook}
         />
       )}
     </div>

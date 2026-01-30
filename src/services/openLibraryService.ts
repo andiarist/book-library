@@ -61,7 +61,7 @@ export class OpenLibraryService {
   static getCoverUrl(
     isbn: string,
     size: 'S' | 'M' | 'L' = 'M'
-  ): string | null {
+  ): string | undefined {
     const cleanISBN = isbn.replace(/[-\s]/g, '');
     return `${OPEN_LIBRARY_API}/covers/isbn/${cleanISBN}-${size}.jpg`;
   }
@@ -80,7 +80,8 @@ export class OpenLibraryService {
     return {
       isbn,
       title: book.title,
-      authors: book.authors?.map((author) => author.name || '').filter(Boolean) || [],
+      authors:
+        book.authors?.map((author) => author.name || '').filter(Boolean) || [],
       publisher: book.publishers?.[0],
       publishedDate: book.publish_date,
       pageCount: book.number_of_pages,
