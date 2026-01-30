@@ -1,5 +1,6 @@
 import { BookMetadata } from '@/types/book';
 import { Button } from './Button';
+import { BookInfoItem } from './BookInfoItem';
 
 interface BookCardProps {
   book: BookMetadata;
@@ -7,9 +8,6 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, onAdd }: BookCardProps) {
-  console.log(book);
-  console.log('pageCount:', book.pageCount, 'type:', typeof book.pageCount);
-
   return (
     <div className="flex h-full flex-col gap-4 rounded-lg bg-emerald-600 p-6">
       {book.imageUrl && (
@@ -21,46 +19,40 @@ export function BookCard({ book, onAdd }: BookCardProps) {
       )}
       <div className="flex-1">
         <h3 className="mt-0 mb-3 text-lg leading-5">{book.title}</h3>
+
         {book.authors.length > 0 && (
-          <p className="authors">
-            <strong>Autor(es):</strong> {book.authors.join(', ')}
-          </p>
+          <BookInfoItem label="Autor(es)" value={book.authors.join(', ')} />
         )}
-        {book.isbn && (
-          <p className="mx-0 my-2 text-base leading-1.5">
-            <strong>ISBN:</strong> {book.isbn}
-          </p>
-        )}
+
+        {book.isbn && <BookInfoItem label="ISBN" value={book.isbn} />}
+
         {book.publisher && (
-          <p className="mx-0 my-2 text-base leading-1.5">
-            <strong>Editorial:</strong> {book.publisher}
-          </p>
+          <BookInfoItem label="Editorial" value={book.publisher} />
         )}
+
         {book.publishedDate && (
-          <p className="text-base-date mx-0 my-2 leading-1.5">
-            <strong>Fecha de publicación:</strong> {book.publishedDate}
-          </p>
+          <BookInfoItem
+            label="Fecha de publicación"
+            value={book.publishedDate}
+          />
         )}
+
         {book.pageCount !== undefined && book.pageCount > 0 && (
-          <p className="mx-0 my-2 text-base leading-1.5">
-            <strong>Páginas:</strong> {book.pageCount}
-          </p>
+          <BookInfoItem label="Páginas" value={book.pageCount} />
         )}
+
         {book.categories && book.categories.length > 0 && (
-          <p className="mx-0 my-2 text-base leading-1.5">
-            <strong>Categorías:</strong> {book.categories.join(', ')}
-          </p>
+          <BookInfoItem label="Categorías" value={book.categories.join(', ')} />
         )}
+
         {book.description && (
           <p className="mt-4 line-clamp-3 text-sm text-gray-300">
             {book.description}
           </p>
         )}
+
         {onAdd && (
-          <Button
-            onClick={onAdd}
-            className="mt-4 w-full bg-green-300 hover:bg-green-500"
-          >
+          <Button variant="success" onClick={onAdd} fullWidth className="mt-4">
             Añadir a biblioteca
           </Button>
         )}

@@ -1,5 +1,7 @@
 import { Book } from '@/types/book';
+import { formatDate } from '@/helpers/dateFormatter';
 import { Button } from './Button';
+import { cn } from '@/helpers/cn';
 
 interface BookDetailProps {
   book: Book;
@@ -7,16 +9,159 @@ interface BookDetailProps {
   onDelete?: () => void;
 }
 
-export function BookDetail({ book, onClose, onDelete }: BookDetailProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
+interface InfoFieldProps {
+  label: string;
+  value: string | number;
+}
 
+function InfoField({ label, value }: InfoFieldProps) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-sm font-medium text-gray-400">{label}:</span>
+      <span className="text-sm text-white">{value}</span>
+    </div>
+  );
+}
+
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+function Section({ title, children }: SectionProps) {
+  return (
+    <div>
+      <h3 className="m-0 mb-4 text-xl text-blue-300">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+interface BookHeaderProps {
+  book: Book;
+}
+
+function BookHeader({ book }: BookHeaderProps) {
+  return (
+    <div className="mb-8 flex gap-8 border-b-gray-400 pb-8">
+      {book.imageUrl && (
+        <img
+          src={book.imageUrl}
+          alt={`Portada de ${book.title}`}
+          className="h-auto w-52 shrink-0 rounded-lg object-cover shadow-lg shadow-black/30"
+        />
+      )}
+      <div className="flex-1">
+        <h2 className="leading-1.2 m-0 mb-4 text-3xl">{book.title}</h2>
+        {book.authors.length > 0 && (
+          <p className="m-0 mb-2 text-lg text-gray-300">
+            {book.authors.join(', ')}
+          </p>
+        )}
+        {book.isbn && (
+          <p className="mx-0 my-2 text-base text-gray-500">
+            <strong>ISBN:</strong> {book.isbn}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface BookDescriptionProps {
+  description: string;
+}
+
+function BookDescription({ description }: BookDescriptionProps) {
+  return (
+    <Section title="Descripción">
+      <p className="m-0 leading-7 text-gray-300">{description}</p>
+    </Section>
+  );
+}
+
+interface BookInformationProps {
+  book: Book;
+}
+
+function BookInformation({ book }: BookInformationProps) {
+  const fields = [
+    { key: 'publisher', label: 'Editorial', value: book.publisher },
+    {
+      key: 'publishedDate',
+      label: 'Fecha de publicación',
+      value: book.publishedDate,
+    },
+    { key: 'pageCount', label: 'Páginas', value: book.pageCount },
+    { key: 'language', label: 'Idioma', value: book.language },
+    {
+      key: 'fileFormat',
+      label: 'Formato',
+      value: book.fileFormat?.toUpperCase(),
+    },
+    { key: 'filePath', label: 'Ruta del archivo', value: book.filePath },
+  ].filter((field) => field.value);
+
+  if (fields.length === 0) return null;
+
+  return (
+    <Section title="Información">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+        {fields.map((field) => (
+          <InfoField
+            key={field.key}
+            label={field.label}
+            value={field.value as string | number}
+          />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+interface BookCategoriesProps {
+  categories: string[];
+}
+
+function BookCategories({ categories }: BookCategoriesProps) {
+  if (!categories || categories.length === 0) return null;
+
+  return (
+    <Section title="Categorías">
+      <div className="flex flex-wrap gap-2">
+        {categories.map((category, index) => (
+          <span
+            key={index}
+            className="bg-gra border border-gray-400 px-4 py-2 text-sm text-gray-200"
+          >
+            {category}
+          </span>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+interface BookMetadataProps {
+  addedAt: string;
+  lastModified: string;
+}
+
+function BookMetadata({ addedAt, lastModified }: BookMetadataProps) {
+  return (
+    <Section title="Metadata">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+        <InfoField label="Añadido" value={formatDate(addedAt)} />
+        <InfoField
+          label="Última modificación"
+          value={formatDate(lastModified)}
+        />
+      </div>
+    </Section>
+  );
+}
+
+export function BookDetail({ book, onClose, onDelete }: BookDetailProps) {
   return (
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
@@ -27,153 +172,37 @@ export function BookDetail({ book, onClose, onDelete }: BookDetailProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <Button
-          className="absolute top-4 right-4 z-1 flex h-32 w-8 cursor-pointer items-center justify-center rounded-full border-0 bg-gray-700 text-lg text-white transition-colors duration-200 hover:bg-gray-900"
+          className={cn(
+            'absolute top-4 right-4 z-1 h-32 w-8',
+            'flex items-center justify-center',
+            'rounded-full border-0 text-lg text-white transition-colors duration-200',
+            'cursor-pointer bg-gray-700 hover:bg-gray-900'
+          )}
           onClick={onClose}
         >
           ✕
         </Button>
 
         <div className="p-8">
-          <div className="mb-8 flex gap-8 border-b-gray-400 pb-8">
-            {book.imageUrl && (
-              <img
-                src={book.imageUrl}
-                alt={`Portada de ${book.title}`}
-                className="h-auto w-52 shrink-0 rounded-lg object-cover shadow-lg shadow-black/30"
-              />
-            )}
-            <div className="flex-1">
-              <h2 className="leading-1.2 m-0 mb-4 text-3xl">{book.title}</h2>
-              {book.authors.length > 0 && (
-                <p className="m-0 mb-2 text-lg text-gray-300">
-                  {book.authors.join(', ')}
-                </p>
-              )}
-              {book.isbn && (
-                <p className="mx-0 my-2 text-base text-gray-500">
-                  <strong>ISBN:</strong> {book.isbn}
-                </p>
-              )}
-            </div>
-          </div>
+          <BookHeader book={book} />
 
           <div className="flex flex-col gap-8">
             {book.description && (
-              <div className="">
-                <h3 className="m-0 mb-4 text-xl text-blue-300">Descripción</h3>
-                <p className="m-0 leading-7 text-gray-300">
-                  {book.description}
-                </p>
-              </div>
+              <BookDescription description={book.description} />
             )}
-
-            <div className="">
-              <h3 className="m-0 mb-4 text-xl text-blue-300">Información</h3>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-                {book.publisher && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Editorial:
-                    </span>
-                    <span className="text-sm text-white">{book.publisher}</span>
-                  </div>
-                )}
-                {book.publishedDate && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Fecha de publicación:
-                    </span>
-                    <span className="text-sm text-white">
-                      {book.publishedDate}
-                    </span>
-                  </div>
-                )}
-                {book.pageCount && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Páginas:
-                    </span>
-                    <span className="text-sm text-white">{book.pageCount}</span>
-                  </div>
-                )}
-                {book.language && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Idioma:
-                    </span>
-                    <span className="text-sm text-white">{book.language}</span>
-                  </div>
-                )}
-                {book.fileFormat && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Formato:
-                    </span>
-                    <span className="text-sm text-white">
-                      {book.fileFormat.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                {book.filePath && (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-gray-400">
-                      Ruta del archivo:
-                    </span>
-                    <span className="file-path text-sm text-white">
-                      {book.filePath}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {book.categories && book.categories.length > 0 && (
-              <div className="">
-                <h3 className="m-0 mb-4 text-xl text-blue-300">Categorías</h3>
-                <div className="flex flex-wrap gap-2">
-                  {book.categories.map((category, index) => (
-                    <span
-                      key={index}
-                      className="bg-gra border border-gray-400 px-4 py-2 text-sm text-gray-200"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="">
-              <h3 className="m-0 mb-4 text-xl text-blue-300">Metadata</h3>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-gray-400">
-                    Añadido:
-                  </span>
-                  <span className="text-sm text-white">
-                    {formatDate(book.addedAt)}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-gray-400">
-                    Última modificación:
-                  </span>
-                  <span className="text-sm text-white">
-                    {formatDate(book.lastModified)}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <BookInformation book={book} />
+            <BookCategories categories={book.categories || []} />
+            <BookMetadata
+              addedAt={book.addedAt}
+              lastModified={book.lastModified}
+            />
           </div>
 
           {onDelete && (
             <div className="mt-8 flex justify-end border-t border-t-gray-500 pt-8">
-              <button
-                className="bg-red-400 px-6 py-3 hover:bg-red-500"
-                onClick={onDelete}
-              >
+              <Button variant="danger" onClick={onDelete}>
                 🗑️ Eliminar de la biblioteca
-              </button>
+              </Button>
             </div>
           )}
         </div>

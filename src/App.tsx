@@ -1,16 +1,14 @@
 import { useState } from 'react';
-import { ISBNSearchForm } from './components/ISBNSearchForm';
-import { BookCard } from './components/BookCard';
-import { useBookMetadata } from './hooks/useBookMetadata';
 import './App.css';
-import { TitleSearchForm } from './components/TitleSearchForm';
-import { Book, BookMetadata, SearchMode } from './types/book';
-import { BookList } from './components/BookList';
-import { LibraryBookCard } from './components/LibraryBookCard';
+import { BookCard } from './components/BookCard';
 import { BookDetail } from './components/BookDetail';
-import { ModeSearchBtn } from './components/ModeSearchBtn';
+import { BookList } from './components/BookList';
 import { Button } from './components/Button';
+import { LibraryBookCard } from './components/LibraryBookCard';
+import { ModeSearchBtn } from './components/ModeSearchBtn';
 import { SearchForm } from './components/SearchForm';
+import { useBookMetadata } from './hooks/useBookMetadata';
+import { Book, BookMetadata, SearchMode } from './types/book';
 
 function App() {
   const {
@@ -81,10 +79,7 @@ function App() {
         <p className="text-xl text-gray-400">Gestiona tu colección de libros</p>
       </header>
 
-      <main
-      //className="mx-auto mt-10 w-full max-w-2xl p-4"
-      //className="app-main"
-      >
+      <main>
         <div className="flex border-b border-gray-200">
           {tabs.map((tab) => (
             <button
@@ -99,26 +94,6 @@ function App() {
               {tab.label}
             </button>
           ))}
-          {/* <button
-            onClick={() => setActiveTab('tab1')}
-            className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'tab1'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Biblioteca
-          </button>
-          <button
-            onClick={() => setActiveTab('tab2')}
-            className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-              activeTab === 'tab2'
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Búsqueda
-          </button> */}
         </div>
 
         <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
@@ -167,14 +142,6 @@ function App() {
                     : handleTextSearch(query)
                 }
               />
-              {/* {searchMode === 'isbn' ? (
-                <ISBNSearchForm onSearch={handleISBNSearch} loading={loading} />
-              ) : (
-                <TitleSearchForm
-                  onSearch={handleTextSearch}
-                  loading={loading}
-                />
-              )} */}
 
               {error && (
                 <div className="mx-4 my-0 rounded-sm bg-red-500 p-4 text-white">
@@ -193,10 +160,7 @@ function App() {
                 <div className="mt-8">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="m-0">Resultado:</h3>
-                    <Button
-                      onClick={handleReset}
-                      className="bg-gray-400 px-2 py-4 text-sm hover:bg-gray-600"
-                    >
+                    <Button variant="secondary" size="sm" onClick={handleReset}>
                       Nueva búsqueda
                     </Button>
                   </div>
@@ -218,8 +182,9 @@ function App() {
                     <div className="mb-4 flex items-center justify-between">
                       <h3 className="m-0">Resultado:</h3>
                       <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={handleReset}
-                        className="bg-gray-400 px-2 py-4 text-sm hover:bg-gray-600"
                       >
                         Nueva búsqueda
                       </Button>
@@ -232,122 +197,9 @@ function App() {
                     />
                   </div>
                 )}
-
-              {/* {
-            !loading && searchResults.length === 0 && !metadata && (
-              // (searchMode === 'text' ? (
-              <div className="empty-message">
-                Usa el formulario para buscar libros por título o autor
-              </div>
-            )
-            // ) : null)
-          } */}
             </section>
           )}
         </div>
-
-        {/* <section className="search-section">
-          <div className="search-mode-selector">
-            <ModeSearchBtn
-              searchModeOnClick={searchModeOnClick}
-              searchMode="isbn"
-              isActive={searchMode === 'isbn'}
-            />
-            <ModeSearchBtn
-              searchModeOnClick={searchModeOnClick}
-              searchMode="text"
-              isActive={searchMode === 'text'}
-            />
-          </div>
-
-          {searchMode === 'isbn' ? (
-            <>
-              <h2>Buscar libro por ISBN</h2>
-              <ISBNSearchForm onSearch={handleISBNSearch} loading={loading} />
-            </>
-          ) : (
-            <>
-              <h2>Buscar libros</h2>
-              <TitleSearchForm onSearch={handleTextSearch} loading={loading} />
-            </>
-          )}
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {/* Resultados de búsqueda por ISBN (un solo libro) */}
-        {/* {!loading && metadata && searchMode === 'isbn' && (
-            <div className="search-result">
-              <div className="result-header">
-                <h3>Resultado:</h3>
-                <Button onClick={handleReset} className="reset-button">
-                  Nueva búsqueda
-                </Button>
-              </div>
-              <BookCard
-                book={metadata}
-                onAdd={() => {
-                  handleAddToLibrary(metadata);
-                  handleReset();
-                }}
-              />
-            </div>
-          )} */}
-
-        {/* Resultados de búsqueda por texto (múltiples libros) */}
-        {/* {!loading && searchResults.length > 0 && searchMode === 'text' && (
-            <div className="search-result">
-              <div className="result-header">
-                <h3>Resultados:</h3>
-                <Button onClick={handleReset} className="reset-button">
-                  Nueva búsqueda
-                </Button>
-              </div>
-              <BookList
-                books={searchResults}
-                onAddBook={(book) => {
-                  handleAddToLibrary(book);
-                }}
-              />
-            </div>
-          )} */}
-
-        {/* {
-            !loading && searchResults.length === 0 && !metadata && (
-              // (searchMode === 'text' ? (
-              <div className="empty-message">
-                Usa el formulario para buscar libros por título o autor
-              </div>
-            )
-            // ) : null)
-          } */}
-        {/* </section>  */}
-
-        {/* <section className="library-section">
-          <h2>Mi Biblioteca ({library.length})</h2>
-          {library.length === 0 ? (
-            <p className="empty-message">
-              Aún no has añadido ningún libro. Busca por ISBN o texto para
-              empezar.
-            </p>
-          ) : (
-            <div className="library-grid">
-              {library.map((book) => (
-                <div key={book.id} className="library-item">
-                  <LibraryBookCard
-                    book={book}
-                    onClick={() => setSelectedBook(book)}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </section> */}
       </main>
       {/* Modal de detalle del libro */}
       {selectedBook && (
@@ -362,63 +214,3 @@ function App() {
 }
 
 export default App;
-
-// {/* <button
-//           className={searchMode === 'isbn' ? 'active' : ''}
-//           onClick={() => {
-//             setSearchMode('isbn');
-//             handleReset();
-//           }}
-//         >
-//           Buscar por ISBN
-//         </button>
-//         <button
-//           className={searchMode === 'text' ? 'active' : ''}
-//           onClick={() => {
-//             setSearchMode('text');
-//             handleReset();
-//           }}
-//         >
-//           Buscar por texto
-//         </button> */}
-
-{
-  /* <section className="search-section">
-          <h2>Buscar libro por ISBN</h2>
-          <ISBNSearchForm onSearch={searchByISBN} loading={loading} />
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {metadata && (
-            <div className="search-result">
-              <h3>Resultado:</h3>
-              <BookCard book={metadata} onAdd={handleAddToLibrary} />
-            </div>
-          )}
-        </section>
-        <section className="search-section">
-          <h2>Buscar libro por Título</h2>
-          <TitleSearchForm onSearch={search} loading={loading} />
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {metadata && (
-            <div className="search-result">
-              <h3>Resultado:</h3>
-              <BookCard book={metadata} onAdd={handleAddToLibrary} />
-            </div>
-          )}
-        </section> */
-}

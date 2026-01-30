@@ -1,5 +1,6 @@
 import { useState, FormEvent, useEffect } from 'react';
 import { Button } from './Button';
+import { Input } from './Input';
 import { SearchMode } from '@/types/book';
 
 interface SearchFormProps {
@@ -25,12 +26,10 @@ export function SearchForm({ onSearch, mode, loading }: SearchFormProps) {
   return (
     <form onSubmit={handleSubmit} className="mb-4 flex gap-4">
       <div className="flex-1">
-        <label htmlFor="isbn-input" className="mb-2 block font-medium">
-          {mode === 'isbn' ? 'ISBN' : 'Búsqueda por texto'}
-        </label>
-        <input
+        <Input
           id={`${mode}-input`}
           type="text"
+          label={mode === 'isbn' ? 'ISBN' : 'Búsqueda por texto'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={
@@ -39,7 +38,6 @@ export function SearchForm({ onSearch, mode, loading }: SearchFormProps) {
               : 'Buscar por título, autor...'
           }
           disabled={loading}
-          className="w-full rounded-sm border border-gray-400 p-3 text-base focus:border-sky-400 focus:outline-0 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
       <Button type="submit" disabled={loading || !query.trim()}>
