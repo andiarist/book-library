@@ -10,8 +10,8 @@ Proyecto fullstack para gestionar una biblioteca de libros (API + frontend).
 
 ## Requisitos
 
-- Node.js (v18+ recomendado)
-- pnpm
+- Node.js (v20.19+, v22.12+, v24.0+)
+- pnpm (10+)
 
 ## Instalación
 

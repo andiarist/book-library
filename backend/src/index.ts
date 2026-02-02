@@ -1,25 +1,15 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { PrismaClient } from './generated/prisma/client';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
 
 import axios from 'axios';
 import { normalizeString } from './utils/formatters';
+import prisma from './lib/prisma';
+import { BookInput } from './types/books';
 
 dotenv.config();
 
 const app = express();
-
-// Configurar el adapter de LibSQL directamente con la configuración
-const adapter = new PrismaLibSql({
-  url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
-});
-
-// Instanciar Prisma con el adapter
-const prisma = new PrismaClient({ adapter });
-
-console.log('✅ Prisma Client inicializado correctamente');
 
 const PORT = process.env.PORT || 3001;
 
@@ -220,17 +210,7 @@ app.get(
   },
 );
 // --- ENDPOINT DE GUARDADO (CON NORMALIZACIÓN) ---
-interface BookInput {
-  title: string;
-  isbn?: string;
-  authors: string[];
-  categories?: string[];
-  publisher?: string;
-  publishYear?: number;
-  seriesName?: string;
-  seriesOrder?: number;
-  format?: 'EPUB' | 'PDF' | 'PHYSICAL' | 'MOBI' | 'AZW3';
-}
+
 app.post('/api/books', async (req: Request, res: Response) => {
   try {
     const {
