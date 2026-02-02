@@ -13,6 +13,10 @@ export interface Book {
   // Metadata for local files
   filePath?: string;
   fileFormat?: 'epub' | 'pdf';
+  // Campos adicionales
+  saga?: string;
+  sagaNumber?: number;
+  format?: 'digital' | 'fisico';
   addedAt: string;
   lastModified: string;
 }
@@ -35,3 +39,5 @@ export interface APIError {
   source: 'google-books' | 'open-library' | 'local';
   statusCode?: number;
 }
+
+export type SearchMode = 'isbn' | 'text';

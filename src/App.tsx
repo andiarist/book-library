@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { ISBNSearchForm } from './components/ISBNSearchForm';
-import { BookCard } from './components/BookCard';
-import { useBookMetadata } from './hooks/useBookMetadata';
 import './App.css';
-import { TitleSearchForm } from './components/TitleSearchForm';
-import { Book, BookMetadata } from './types/book';
-import { BookList } from './components/BookList';
-import { LibraryBookCard } from './components/LibraryBookCard';
+import { BookCard } from './components/BookCard';
 import { BookDetail } from './components/BookDetail';
-
-type SearchMode = 'isbn' | 'text';
+import { BookEditModal, BookEditData } from './components/BookEditModal';
+import { BookList } from './components/BookList';
+import { Button } from './components/Button';
+import { LibraryBookCard } from './components/LibraryBookCard';
+import { ModeSearchBtn } from './components/ModeSearchBtn';
+import { SearchForm } from './components/SearchForm';
+import { useBookMetadata } from './hooks/useBookMetadata';
+import { Book, BookMetadata, SearchMode } from './types/book';
 
 function App() {
   const {
@@ -24,25 +24,57 @@ function App() {
   const [library, setLibrary] = useState<Book[]>([]);
   const [searchMode, setSearchMode] = useState<SearchMode>('isbn');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [editingBook, setEditingBook] = useState<BookMetadata | null>(null);
+  const [editingExistingBook, setEditingExistingBook] = useState<Book | null>(
+    null
+  );
 
-  const metadataToBook = (metadata: BookMetadata): Book => {
+  const metadataToBook = (data: BookEditData): Book => {
     return {
       id: crypto.randomUUID(),
-      ...metadata,
+      ...data,
       addedAt: new Date().toISOString(),
       lastModified: new Date().toISOString(),
     };
   };
 
   const handleAddToLibrary = (bookMetadata: BookMetadata) => {
+    // Abrir modal para editar metadata antes de añadir
+    setEditingBook(bookMetadata);
+  };
+
+  const handleSaveBook = (data: BookEditData) => {
     // Verificar si ya existe en la biblioteca
     const exists = library.some(
-      (b) => b.isbn && bookMetadata.isbn && b.isbn === bookMetadata.isbn
+      (b) => b.isbn && data.isbn && b.isbn === data.isbn
     );
 
     if (!exists) {
-      const book = metadataToBook(bookMetadata);
+      const book = metadataToBook(data);
       setLibrary([...library, book]);
+      setEditingBook(null);
+      handleReset();
+    }
+  };
+
+  const handleEditExistingBook = (book: Book) => {
+    setEditingExistingBook(book);
+    setSelectedBook(null);
+  };
+
+  const handleUpdateBook = (data: BookEditData) => {
+    if (editingExistingBook) {
+      const updatedBook: Book = {
+        ...editingExistingBook,
+        ...data,
+        lastModified: new Date().toISOString(),
+      };
+      setLibrary(
+        library.map((book) =>
+          book.id === editingExistingBook.id ? updatedBook : book
+        )
+      );
+      setEditingExistingBook(null);
     }
   };
 
@@ -63,123 +95,139 @@ function App() {
     reset();
   };
 
+  const searchModeOnClick = (mode: SearchMode) => {
+    setSearchMode(mode);
+    handleReset();
+  };
+  const [activeTab, setActiveTab] = useState<'tab1' | 'tab2'>('tab1');
+  const tabs: { id: 'tab1' | 'tab2'; label: string }[] = [
+    { id: 'tab1', label: 'Biblioteca' },
+    { id: 'tab2', label: 'Búsqueda' },
+  ];
+
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>📚 Biblioteca Personal</h1>
-        <p>Gestiona tu colección de libros</p>
+    <div className="mx-auto my-0 w-full max-w-9/10 p-8">
+      <header className="mb-12 text-center">
+        <h1 className="my-2 text-5xl">📚 Biblioteca Personal</h1>
+        <p className="text-xl text-gray-400">Gestiona tu colección de libros</p>
       </header>
 
-      <main className="app-main">
-        <section className="search-section">
-          <div className="search-mode-selector">
+      <main>
+        <div className="flex border-b border-gray-200">
+          {tabs.map((tab) => (
             <button
-              className={searchMode === 'isbn' ? 'active' : ''}
-              onClick={() => {
-                setSearchMode('isbn');
-                handleReset();
-              }}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`cursor-pointer px-4 py-2 text-lg font-semibold transition-colors duration-200 ${
+                activeTab === tab.id
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
-              Buscar por ISBN
+              {tab.label}
             </button>
-            <button
-              className={searchMode === 'text' ? 'active' : ''}
-              onClick={() => {
-                setSearchMode('text');
-                handleReset();
-              }}
-            >
-              Buscar por texto
-            </button>
-          </div>
+          ))}
+        </div>
 
-          {searchMode === 'isbn' ? (
-            <>
-              <h2>Buscar libro por ISBN</h2>
-              <ISBNSearchForm onSearch={handleISBNSearch} loading={loading} />
-            </>
-          ) : (
-            <>
-              <h2>Buscar libros</h2>
-              <TitleSearchForm onSearch={handleTextSearch} loading={loading} />
-            </>
+        <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+          {activeTab === 'tab1' && (
+            <section className="animate-fadeIn p-6">
+              <h2 className="text-lg">Mi Biblioteca ({library.length})</h2>
+              {library.length === 0 ? (
+                <p className="p-8 text-center text-gray-500 italic">
+                  Aún no has añadido ningún libro. Busca por ISBN o texto para
+                  empezar.
+                </p>
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+                  {library.map((book) => (
+                    <div key={book.id} className="h-full">
+                      <LibraryBookCard
+                        book={book}
+                        onClick={() => setSelectedBook(book)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
           )}
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {/* Resultados de búsqueda por ISBN (un solo libro) */}
-          {!loading && metadata && searchMode === 'isbn' && (
-            <div className="search-result">
-              <div className="result-header">
-                <h3>Resultado:</h3>
-                <button onClick={handleReset} className="reset-button">
-                  Nueva búsqueda
-                </button>
+          {activeTab === 'tab2' && (
+            <section className="animate-fadeIn rounded-lg p-8">
+              <div className="mb-8 flex gap-2 p-2">
+                <ModeSearchBtn
+                  searchModeOnClick={searchModeOnClick}
+                  searchMode="isbn"
+                  isActive={searchMode === 'isbn'}
+                />
+                <ModeSearchBtn
+                  searchModeOnClick={searchModeOnClick}
+                  searchMode="text"
+                  isActive={searchMode === 'text'}
+                />
               </div>
-              <BookCard
-                book={metadata}
-                onAdd={() => {
-                  handleAddToLibrary(metadata);
-                  handleReset();
-                }}
+              <SearchForm
+                loading={loading}
+                mode={searchMode}
+                onSearch={(query) =>
+                  searchMode === 'isbn'
+                    ? handleISBNSearch(query)
+                    : handleTextSearch(query)
+                }
               />
-            </div>
-          )}
 
-          {/* Resultados de búsqueda por texto (múltiples libros) */}
-          {!loading && searchResults.length > 0 && searchMode === 'text' && (
-            <div className="search-result">
-              <div className="result-header">
-                <h3>Resultados:</h3>
-                <button onClick={handleReset} className="reset-button">
-                  Nueva búsqueda
-                </button>
-              </div>
-              <BookList
-                books={searchResults}
-                onAddBook={(book) => {
-                  handleAddToLibrary(book);
-                }}
-              />
-            </div>
-          )}
+              {error && (
+                <div className="mx-4 my-0 rounded-sm bg-red-500 p-4 text-white">
+                  <strong>Error:</strong> {error.message}
+                </div>
+              )}
 
-          {!loading &&
-            searchResults.length === 0 &&
-            !metadata &&
-            (searchMode === 'text' ? (
-              <div className="empty-message">
-                Usa el formulario para buscar libros por título o autor
-              </div>
-            ) : null)}
-        </section>
+              {loading && (
+                <div className="p-8 text-center text-gray-400 italic">
+                  Buscando metadatos...
+                </div>
+              )}
 
-        <section className="library-section">
-          <h2>Mi Biblioteca ({library.length})</h2>
-          {library.length === 0 ? (
-            <p className="empty-message">
-              Aún no has añadido ningún libro. Busca por ISBN o texto para
-              empezar.
-            </p>
-          ) : (
-            <div className="library-grid">
-              {library.map((book) => (
-                <div key={book.id} className="library-item">
-                  <LibraryBookCard
-                    book={book}
-                    onClick={() => setSelectedBook(book)}
+              {/* Resultados de búsqueda por ISBN (un solo libro) */}
+              {!loading && metadata && searchMode === 'isbn' && (
+                <div className="mt-8">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="m-0">Resultado:</h3>
+                    <Button variant="secondary" size="sm" onClick={handleReset}>
+                      Nueva búsqueda
+                    </Button>
+                  </div>
+                  <BookCard
+                    book={metadata}
+                    onAdd={() => handleAddToLibrary(metadata)}
                   />
                 </div>
-              ))}
-            </div>
+              )}
+
+              {/* Resultados de búsqueda por texto (múltiples libros) */}
+              {!loading &&
+                searchResults.length > 0 &&
+                searchMode === 'text' && (
+                  <div className="mt-8">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="m-0">Resultado:</h3>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleReset}
+                      >
+                        Nueva búsqueda
+                      </Button>
+                    </div>
+                    <BookList
+                      books={searchResults}
+                      onAddBook={(book) => handleAddToLibrary(book)}
+                    />
+                  </div>
+                )}
+            </section>
           )}
-        </section>
+        </div>
       </main>
       {/* Modal de detalle del libro */}
       {selectedBook && (
@@ -187,6 +235,25 @@ function App() {
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
           onDelete={() => handleDeleteFromLibrary(selectedBook.id)}
+          onEdit={() => handleEditExistingBook(selectedBook)}
+        />
+      )}
+
+      {/* Modal de edición antes de añadir a biblioteca */}
+      {editingBook && (
+        <BookEditModal
+          bookMetadata={editingBook}
+          onClose={() => setEditingBook(null)}
+          onSave={handleSaveBook}
+        />
+      )}
+
+      {/* Modal de edición de libro existente */}
+      {editingExistingBook && (
+        <BookEditModal
+          existingBook={editingExistingBook}
+          onClose={() => setEditingExistingBook(null)}
+          onSave={handleUpdateBook}
         />
       )}
     </div>
@@ -194,44 +261,3 @@ function App() {
 }
 
 export default App;
-
-{
-  /* <section className="search-section">
-          <h2>Buscar libro por ISBN</h2>
-          <ISBNSearchForm onSearch={searchByISBN} loading={loading} />
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {metadata && (
-            <div className="search-result">
-              <h3>Resultado:</h3>
-              <BookCard book={metadata} onAdd={handleAddToLibrary} />
-            </div>
-          )}
-        </section>
-        <section className="search-section">
-          <h2>Buscar libro por Título</h2>
-          <TitleSearchForm onSearch={search} loading={loading} />
-
-          {error && (
-            <div className="error-message">
-              <strong>Error:</strong> {error.message}
-            </div>
-          )}
-
-          {loading && <div className="loading">Buscando metadatos...</div>}
-
-          {metadata && (
-            <div className="search-result">
-              <h3>Resultado:</h3>
-              <BookCard book={metadata} onAdd={handleAddToLibrary} />
-            </div>
-          )}
-        </section> */
-}
