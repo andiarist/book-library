@@ -1,3 +1,39 @@
+
+# --- Generales ---
+.vscode/*
+!.vscode/extensions.json
+node_modules/
+.DS_Store
+dist/
+.env
+
+# --- Frontend (React/Vite) ---
+frontend/dist/
+frontend/node_modules/
+frontend/.env.local
+frontend/coverage
+
+# --- Backend (Node/Prisma) ---
+backend/node_modules/
+backend/dist/
+backend/.env
+
+# Bases de Datos (Muy importante con Prisma 7)
+backend/prisma/*.db
+backend/prisma/*.db-journal
+backend/dev.db
+*.db
+backend/src/generated/
+
+# --- Almacenamiento Local ---
+# Ignoramos las portadas reales pero mantenemos la carpeta
+backend/storage/covers/*
+!backend/storage/covers/.gitkeep
+
+
+
+
+
 # Logs
 logs
 *.log
