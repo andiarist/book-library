@@ -33,6 +33,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/books/search/text:
+    get:
+      summary: Buscar libros por texto
+      description: |
+        Busca libros en Google Books y Open Library usando términos de búsqueda libre.
+        Los resultados se deduплican automáticamente y se ordenan por relevancia.
+        Retorna máximo 15 resultados combinados de ambas fuentes.
+      tags:
+        - Search
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+            minLength: 3
+          description: Término de búsqueda (mínimo 3 caracteres)
+          example: 'el señor de los anillos'
+      responses:
+        '200':
+          description: Lista de libros encontrados (deduplicados y ordenados por relevancia)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookMetadata'
+              example:
+                - title: 'El Señor de los Anillos'
+                  authors: ['J.R.R. Tolkien']
+                  categories: ['Fantasía', 'Aventura']
+                  publisher: 'HarperCollins'
+                  publishYear: 1954
+                  imageUrl: 'https://books.google.com/books/content?id=xxx'
+                - title: 'El Hobbit'
+                  authors: ['J.R.R. Tolkien']
+                  categories: ['Fantasía']
+                  publisher: 'HarperCollins'
+                  publishYear: 1937
+                  imageUrl: 'https://books.google.com/books/content?id=yyy'
+        '400':
+          description: Query inválido (menos de 3 caracteres)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/books:
     get:
       summary: Obtener todos los libros

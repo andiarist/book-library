@@ -1,16 +1,3 @@
-## 📘 Documento de referencia — Arquitectura Backend con **Node.js + Express + TypeScript + Prisma**
-
-A continuación tienes un **documento completo en Markdown**, pensado como **guía teórica + práctica**, que recoge **todo lo que hemos visto hasta ahora**, de forma ordenada y reutilizable.
-
-👉 Puedes:
-
-- Guardarlo como `ARCHITECTURE.md`
-- Convertirlo a **PDF** más adelante (con tools como `pandoc`)
-- Usarlo como **documentación del proyecto**
-- Volver a él cuando el proyecto crezca
-
----
-
 # 🏗️ Arquitectura Backend Limpia
 
 **Node.js · Express · TypeScript · Prisma**

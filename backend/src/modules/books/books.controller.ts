@@ -13,6 +13,19 @@ export const searchBookByIsbnController = async (
   }
 };
 
+export const searchBooksByTextController = async (
+  req: Request,
+  res: Response,
+) => {
+  const query = req.query.q as string;
+  if (!query) {
+    return res.status(400).json({ message: 'Query parameter "q" is required' });
+  }
+
+  const results = await service.searchBookByText(query);
+  res.json(results);
+};
+
 export const getAllBooksController = async (_: Request, res: Response) => {
   res.json(await service.getAllBooks());
 };
@@ -46,4 +59,24 @@ export const getBooksBySeriesController = async (
 export const createBookController = async (req: Request, res: Response) => {
   const book = await service.createBook(req.body);
   res.status(201).json(book);
+};
+
+export const updateBookController = async (req: Request, res: Response) => {
+  const bookId = Number(req.params.id);
+
+  if (Number.isNaN(bookId)) {
+    return res.status(400).json({ message: 'Invalid book ID' });
+  }
+
+  const book = await service.updateBook(bookId, req.body);
+  res.json(book);
+};
+
+export const deleteBookController = async (req: Request, res: Response) => {
+  const bookId = Number(req.params.id);
+  if (Number.isNaN(bookId)) {
+    return res.status(400).json({ message: 'Invalid book ID' });
+  }
+  await service.deleteBook(bookId);
+  res.status(204).send();
 };

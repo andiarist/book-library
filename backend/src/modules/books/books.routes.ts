@@ -7,16 +7,22 @@ import {
   getBooksByAuthorController,
   getBooksBySeriesController,
   createBookController,
+  updateBookController,
+  deleteBookController,
+  searchBooksByTextController,
 } from './books.controller';
 
 const router = Router();
 
 router.get('/search/isbn/:isbn', searchBookByIsbnController);
-router.get('/', getAllBooksController);
-router.get('/:id', getBookByIdController);
+router.get('/search/text', searchBooksByTextController);
 router.get('/category/:categoryName', getBooksByCategoryController);
 router.get('/author/:authorName', getBooksByAuthorController);
 router.get('/series/:seriesName', getBooksBySeriesController);
+router.get('/:id', getBookByIdController);
+router.patch('/:id', updateBookController);
+router.delete('/:id', deleteBookController);
+router.get('/', getAllBooksController);
 router.post('/', createBookController);
 
 export default router;

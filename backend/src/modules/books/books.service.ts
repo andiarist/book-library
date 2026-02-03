@@ -1,4 +1,5 @@
 import { normalizeString } from '../../utils/formatters';
+import { deduplicateBooks, sortByRelevance } from '../../utils/bookSearchUtils';
 import * as repo from './books.repository';
 import * as external from './books.external';
 import { CreateBookDTO, UpdateBookDTO } from './books.types';
@@ -15,6 +16,31 @@ export const searchBookByIsbn = async (isbn: string) => {
   }
 
   return book;
+};
+
+export const searchBookByText = async (query: string) => {
+  if (!query || query.trim().length < 3) {
+    throw {
+      status: 400,
+      message:
+        'Debes introducir por lo menos 3 letras para realizar la búsqueda',
+    };
+  }
+
+  // Buscar en ambas fuentes en paralelo
+  const [googleBooks, openLibraryBooks] = await Promise.all([
+    external.searchGoogleBooksByText(query),
+    external.searchOpenLibraryByText(query),
+  ]);
+
+  // Deduplica y combina resultados
+  const deduplicated = deduplicateBooks(googleBooks, openLibraryBooks);
+
+  // Ordena por relevancia (libros con más metadatos primero)
+  const sorted = sortByRelevance(deduplicated);
+
+  // Limitar a 15 resultados para no abrumar al usuario
+  return sorted.slice(0, 15);
 };
 
 export const getAllBooks = () => repo.findAll();
@@ -51,13 +77,10 @@ export const createBook = async (input: CreateBookDTO) => {
   return repo.create(normalized);
 };
 
-export const updateBook = async (
-  bookId: number,
-  input: UpdateBookDTO,
-) => {
+export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
   const existing = await repo.findById(bookId);
   if (!existing) {
-    throw { status: 404, message: "Book not found" };
+    throw { status: 404, message: 'Book not found' };
   }
 
   const data = {
@@ -83,4 +106,12 @@ export const updateBook = async (
   };
 
   return repo.update(bookId, data);
+};
+
+export const deleteBook = async (bookId: number) => {
+  const existing = await repo.findById(bookId);
+  if (!existing) {
+    throw { status: 404, message: 'Book not found' };
+  }
+  await repo.remove(bookId);
 };

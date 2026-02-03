@@ -171,3 +171,7 @@ export const update = async (
     });
   });
 };
+
+export const remove = (bookId: number) => {
+  return prisma.book.delete({ where: { id: bookId } });
+};
