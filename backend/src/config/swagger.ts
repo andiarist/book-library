@@ -190,9 +190,16 @@ export const swaggerSpec = {
           },
           coverPath: {
             type: 'string',
-            description: 'Ruta de la imagen de portada',
-            example: '/uploads/covers/book-123.jpg',
+            description: 'Ruta de la imagen de portada (uso manual)',
+            example: '/covers/book-123.jpg',
             nullable: true,
+          },
+          imageUrl: {
+            type: 'string',
+            format: 'uri',
+            description:
+              'URL externa de la portada (se descargará automáticamente)',
+            example: 'https://books.google.com/books/content?id=xxx',
           },
           seriesName: {
             type: 'string',
@@ -255,8 +262,15 @@ export const swaggerSpec = {
           },
           coverPath: {
             type: 'string',
-            description: 'Ruta de la imagen de portada',
+            description: 'Ruta de la imagen de portada (uso manual)',
             nullable: true,
+          },
+          imageUrl: {
+            type: 'string',
+            format: 'uri',
+            description:
+              'URL externa de la portada (se descargará automáticamente y reemplazará la anterior)',
+            example: 'https://books.google.com/books/content?id=xxx',
           },
           seriesName: {
             type: 'string',

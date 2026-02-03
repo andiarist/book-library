@@ -1,5 +1,10 @@
 import { normalizeString } from '../../utils/formatters';
 import { deduplicateBooks, sortByRelevance } from '../../utils/bookSearchUtils';
+import {
+  downloadAndSaveCover,
+  generateCoverFilename,
+  deleteCover,
+} from '../../utils/coverUtils';
 import * as repo from './books.repository';
 import * as external from './books.external';
 import { CreateBookDTO, UpdateBookDTO } from './books.types';
@@ -61,13 +66,21 @@ export const getBooksBySeries = (name: string) =>
   repo.findBySeries(normalizeString(name));
 
 export const createBook = async (input: CreateBookDTO) => {
+  // Descargar portada si viene imageUrl (desde búsqueda externa)
+  let coverPath: string | null = null;
+
+  if (input.imageUrl) {
+    const filename = generateCoverFilename();
+    coverPath = await downloadAndSaveCover(input.imageUrl, filename);
+  }
+
   const normalized = {
     title: normalizeString(input.title),
     isbn: input.isbn ?? null,
     format: input.format,
     publisher: input.publisher ?? null,
     publishYear: input.publishYear ?? null,
-    coverPath: input.coverPath ?? null,
+    coverPath: coverPath ?? input.coverPath ?? null,
     seriesOrder: input.seriesOrder ?? null,
     authors: input.authors.map(normalizeString),
     categories: input.categories.map(normalizeString),
@@ -83,13 +96,34 @@ export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
     throw { status: 404, message: 'Book not found' };
   }
 
+  // Si viene una nueva imageUrl, descargar la nueva portada
+  let newCoverPath: string | null | undefined = undefined;
+
+  if (input.imageUrl) {
+    const filename = generateCoverFilename();
+    newCoverPath = await downloadAndSaveCover(input.imageUrl, filename);
+
+    // Si se descargó exitosamente y había una portada anterior, eliminarla
+    if (newCoverPath && existing.coverPath) {
+      deleteCover(existing.coverPath);
+    }
+  } else if (input.coverPath !== undefined) {
+    // Si se está actualizando coverPath manualmente
+    newCoverPath = input.coverPath;
+
+    // Si se está eliminando la portada (coverPath = null), borrar archivo anterior
+    if (input.coverPath === null && existing.coverPath) {
+      deleteCover(existing.coverPath);
+    }
+  }
+
   const data = {
     ...(input.title && { title: normalizeString(input.title) }),
     ...(input.isbn !== undefined && { isbn: input.isbn }),
     ...(input.format && { format: input.format }),
     ...(input.publisher !== undefined && { publisher: input.publisher }),
     ...(input.publishYear !== undefined && { publishYear: input.publishYear }),
-    ...(input.coverPath !== undefined && { coverPath: input.coverPath }),
+    ...(newCoverPath !== undefined && { coverPath: newCoverPath }),
     ...(input.seriesOrder !== undefined && { seriesOrder: input.seriesOrder }),
     ...(input.authors && {
       authors: input.authors.map(normalizeString),
@@ -113,5 +147,11 @@ export const deleteBook = async (bookId: number) => {
   if (!existing) {
     throw { status: 404, message: 'Book not found' };
   }
+
+  // Eliminar portada si existe
+  if (existing.coverPath) {
+    deleteCover(existing.coverPath);
+  }
+
   await repo.remove(bookId);
 };

@@ -13,7 +13,7 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
     >
       {book.coverPath && (
         <img
-          src={book.coverPath}
+          src={`${import.meta.env.VITE_API_BASE_URL}${book.coverPath}`}
           alt={`Portada de ${book.title}`}
           className="h-32 w-20 shrink-0 rounded-sm object-cover shadow-md shadow-black/20"
         />
@@ -25,16 +25,16 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
             {book.authors.join(', ')}
           </p>
         )}
-        {/* <div className="mt-auto flex flex-col gap-1">
-          {book.pageCount && (
+        <div className="mt-auto flex flex-col gap-1">
+          {/* {book.pageCount && (
             <span className="meta-item">📖 {book.pageCount} páginas</span>
-          )}
-          {book.fileFormat && (
+          )} */}
+          {book.format && (
             <span className="flex items-center gap-1 text-sm text-gray-600">
-              📄 {book.fileFormat.toUpperCase()}
+              📄 {book.format.toUpperCase()}
             </span>
           )}
-        </div> */}
+        </div>
       </div>
     </div>
   );
