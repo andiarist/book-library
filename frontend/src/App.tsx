@@ -10,6 +10,7 @@ import { ModeSearchBtn } from './components/ModeSearchBtn';
 import { SearchForm } from './components/SearchForm';
 import { useBookMetadata } from './hooks/useBookMetadata';
 import { Book, BookMetadata, SearchMode } from './types/book';
+import LibraryPage from './pages/LibraryPage';
 
 function App() {
   const {
@@ -131,26 +132,27 @@ function App() {
 
         <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
           {activeTab === 'tab1' && (
-            <section className="animate-fadeIn p-6">
-              <h2 className="text-lg">Mi Biblioteca ({library.length})</h2>
-              {library.length === 0 ? (
-                <p className="p-8 text-center text-gray-500 italic">
-                  Aún no has añadido ningún libro. Busca por ISBN o texto para
-                  empezar.
-                </p>
-              ) : (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
-                  {library.map((book) => (
-                    <div key={book.id} className="h-full">
-                      <LibraryBookCard
-                        book={book}
-                        onClick={() => setSelectedBook(book)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
+            <LibraryPage />
+            // <section className="animate-fadeIn p-6">
+            //   <h2 className="text-lg">Mi Biblioteca ({library.length})</h2>
+            //   {library.length === 0 ? (
+            //     <p className="p-8 text-center text-gray-500 italic">
+            //       Aún no has añadido ningún libro. Busca por ISBN o texto para
+            //       empezar.
+            //     </p>
+            //   ) : (
+            //     <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+            //       {library.map((book) => (
+            //         <div key={book.id} className="h-full">
+            //           <LibraryBookCard
+            //             book={book}
+            //             onClick={() => setSelectedBook(book)}
+            //           />
+            //         </div>
+            //       ))}
+            //     </div>
+            //   )}
+            // </section>
           )}
           {activeTab === 'tab2' && (
             <section className="animate-fadeIn rounded-lg p-8">
