@@ -1,0 +1,243 @@
+paths:
+  /api/books/search/isbn/{isbn}:
+    get:
+      summary: Buscar metadatos de un libro por ISBN
+      description: Busca información de un libro en Google Books y Open Library usando su ISBN
+      tags:
+        - Search
+      parameters:
+        - in: path
+          name: isbn
+          required: true
+          schema:
+            type: string
+          description: ISBN del libro (con o sin guiones)
+          example: '978-0261103252'
+      responses:
+        '200':
+          description: Metadatos del libro encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookMetadata'
+        '404':
+          description: Libro no encontrado en bases de datos externas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books:
+    get:
+      summary: Obtener todos los libros
+      description: Retorna la lista completa de libros con sus relaciones (autores, categorías, serie). Ordenados por fecha de creación descendente.
+      tags:
+        - Books
+      responses:
+        '200':
+          description: Lista de libros
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '500':
+          description: Error al obtener libros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Crear un nuevo libro
+      description: Guarda un libro en la base de datos con sus autores, categorías y serie (opcional). Los datos se normalizan automáticamente (minúsculas, sin acentos).
+      tags:
+        - Books
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookDTO'
+            examples:
+              libroFisico:
+                summary: Libro físico simple
+                value:
+                  title: '1984'
+                  isbn: '978-0451524935'
+                  format: 'PHYSICAL'
+                  authors: ['George Orwell']
+                  categories: ['Distopía', 'Ficción']
+                  publisher: 'Signet Classic'
+                  publishYear: 1949
+              libroSaga:
+                summary: Libro de una saga
+                value:
+                  title: 'Harry Potter y la Piedra Filosofal'
+                  isbn: '978-8498382662'
+                  format: 'PHYSICAL'
+                  authors: ['J.K. Rowling']
+                  categories: ['Fantasía', 'Juvenil']
+                  publisher: 'Salamandra'
+                  publishYear: 1997
+                  seriesName: 'Harry Potter'
+                  seriesOrder: 1
+              ebook:
+                summary: eBook
+                value:
+                  title: 'Clean Code'
+                  format: 'EPUB'
+                  authors: ['Robert C. Martin']
+                  categories: ['Programación', 'Software']
+                  publisher: 'Prentice Hall'
+                  publishYear: 2008
+      responses:
+        '201':
+          description: Libro creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Datos inválidos (faltan campos requeridos)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error al guardar en la base de datos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books/{id}:
+    get:
+      summary: Obtener un libro por ID
+      description: Retorna un libro específico con todas sus relaciones (autores, categorías, serie)
+      tags:
+        - Books
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: ID del libro
+          example: 1
+      responses:
+        '200':
+          description: Libro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Libro no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error al obtener libro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books/category/{categoryName}:
+    get:
+      summary: Buscar libros por categoría
+      description: Retorna todos los libros que pertenecen a una categoría específica. La búsqueda es case-insensitive y sin acentos.
+      tags:
+        - Books
+      parameters:
+        - in: path
+          name: categoryName
+          required: true
+          schema:
+            type: string
+          description: Nombre de la categoría
+          example: 'Fantasía'
+      responses:
+        '200':
+          description: Lista de libros de la categoría
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '500':
+          description: Error al buscar libros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books/author/{authorName}:
+    get:
+      summary: Buscar libros por autor
+      description: Retorna todos los libros de un autor. Búsqueda parcial, case-insensitive y sin acentos (ej. "tolkien" encuentra "J.R.R. Tolkien").
+      tags:
+        - Books
+      parameters:
+        - in: path
+          name: authorName
+          required: true
+          schema:
+            type: string
+          description: Nombre o parte del nombre del autor
+          example: 'tolkien'
+      responses:
+        '200':
+          description: Lista de libros del autor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '500':
+          description: Error al buscar libros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/books/series/{seriesName}:
+    get:
+      summary: Obtener libros de una saga/serie
+      description: Retorna todos los libros de una saga ordenados por número de orden (seriesOrder). La búsqueda es case-insensitive y sin acentos.
+      tags:
+        - Books
+      parameters:
+        - in: path
+          name: seriesName
+          required: true
+          schema:
+            type: string
+          description: Nombre de la saga/serie
+          example: 'Harry Potter'
+      responses:
+        '200':
+          description: Lista de libros de la saga
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '500':
+          description: Error al buscar libros
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
