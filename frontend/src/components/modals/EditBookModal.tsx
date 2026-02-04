@@ -14,7 +14,7 @@ interface EditBookModalProps {
   bookMetadata?: BookMetadata;
   existingBook?: Book;
   onClose: () => void;
-  onSave: (data: BookEditData) => void;
+  //onSave: (data: BookEditData) => void;
 }
 export interface BookEditData extends BookMetadata {
   saga?: string;
@@ -26,9 +26,13 @@ export const EditBookModal = ({
   bookMetadata,
   existingBook,
   onClose,
-  onSave,
+  //onSave,
 }: EditBookModalProps) => {
   const { mutateAsync, isPending, error } = useCreateBook();
+  const [duplicateError, setDuplicateError] = useState<{
+    message: string;
+    book?: Book;
+  } | null>(null);
   const [formData, setFormData] = useState<BookEditData>(() => {
     if (bookMetadata) {
       return {
@@ -56,7 +60,8 @@ export const EditBookModal = ({
   };
 
   const handleSaveBook = async () => {
-    //Primero deberíamos comprobar que este libro no está creado ya
+    // Limpiar error previo
+    setDuplicateError(null);
 
     //Pasamos formData a CreateBookDTO
     const newBook: CreateBookDTO = {
@@ -69,7 +74,7 @@ export const EditBookModal = ({
       format: formData.format || 'PHYSICAL',
       categories: formData.categories || [],
 
-      coverPath: formData.imageUrl,
+      imageUrl: formData.imageUrl || undefined,
       //description:formData.description,
 
       seriesName: formData.saga,
@@ -79,8 +84,20 @@ export const EditBookModal = ({
       const book = await mutateAsync(newBook);
 
       console.log('Libro creado', book);
-    } catch (err) {
+      // Cerrar modal después de crear exitosamente
+      onClose();
+    } catch (err: any) {
       console.error(err);
+
+      // ✅ Detectar error de duplicado (HTTP 409)
+      if (err?.response?.status === 409) {
+        setDuplicateError({
+          message:
+            err.response.data.message ||
+            'Este libro ya existe en tu biblioteca',
+          book: err.response.data.book,
+        });
+      }
     }
   };
 
@@ -109,6 +126,45 @@ export const EditBookModal = ({
           <h2 className="mb-6 text-2xl font-bold text-gray-800">
             Editar Metadata del Libro
           </h2>
+
+          {/* ⚠️ Mensaje de error de duplicado */}
+          {duplicateError && (
+            <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div className="flex-1">
+                  <h3 className="mb-2 font-semibold text-amber-800">
+                    {duplicateError.message}
+                  </h3>
+                  {duplicateError.book && (
+                    <div className="text-sm text-amber-700">
+                      <p className="mb-1">
+                        <strong>Título:</strong> {duplicateError.book.title}
+                      </p>
+                      {duplicateError.book.authors &&
+                        duplicateError.book.authors.length > 0 && (
+                          <p className="mb-1">
+                            <strong>Autor(es):</strong>{' '}
+                            {duplicateError.book.authors
+                              .map((a) => a.name)
+                              .join(', ')}
+                          </p>
+                        )}
+                      {duplicateError.book.isbn && (
+                        <p className="mb-1">
+                          <strong>ISBN:</strong> {duplicateError.book.isbn}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm text-amber-600">
+                    Este libro ya está en tu biblioteca. Puedes cerrar este
+                    modal y buscarlo en la página de biblioteca.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Imagen de portada */}

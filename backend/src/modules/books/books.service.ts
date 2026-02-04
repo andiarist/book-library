@@ -1,23 +1,23 @@
-import { normalizeString } from '../../utils/formatters';
-import { deduplicateBooks, sortByRelevance } from '../../utils/bookSearchUtils';
+import { normalizeString } from "../../utils/formatters";
+import { deduplicateBooks, sortByRelevance } from "../../utils/bookSearchUtils";
 import {
   downloadAndSaveCover,
   generateCoverFilename,
   deleteCover,
-} from '../../utils/coverUtils';
-import * as repo from './books.repository';
-import * as external from './books.external';
-import { CreateBookDTO, UpdateBookDTO } from './books.types';
+} from "../../utils/coverUtils";
+import * as repo from "./books.repository";
+import * as external from "./books.external";
+import { CreateBookDTO, UpdateBookDTO } from "./books.types";
 
 export const searchBookByIsbn = async (isbn: string) => {
-  const cleanISBN = isbn.replace(/[-\s]/g, '');
+  const cleanISBN = isbn.replace(/[-\s]/g, "");
 
   const book =
     (await external.searchGoogleBooks(cleanISBN)) ||
     (await external.searchOpenLibrary(cleanISBN));
 
   if (!book) {
-    throw { status: 404, message: 'Libro no encontrado' };
+    throw { status: 404, message: "Libro no encontrado" };
   }
 
   return book;
@@ -28,7 +28,7 @@ export const searchBookByText = async (query: string) => {
     throw {
       status: 400,
       message:
-        'Debes introducir por lo menos 3 letras para realizar la búsqueda',
+        "Debes introducir por lo menos 3 letras para realizar la búsqueda",
     };
   }
 
@@ -52,7 +52,7 @@ export const getAllBooks = () => repo.findAll();
 
 export const getBookById = async (id: number) => {
   const book = await repo.findById(id);
-  if (!book) throw { status: 404, message: 'Libro no encontrado' };
+  if (!book) throw { status: 404, message: "Libro no encontrado" };
   return book;
 };
 
@@ -66,6 +66,26 @@ export const getBooksBySeries = (name: string) =>
   repo.findBySeries(normalizeString(name));
 
 export const createBook = async (input: CreateBookDTO) => {
+  // Normalizar datos para la comparación
+  const normalizedTitle = normalizeString(input.title);
+  const normalizedAuthors = input.authors.map(normalizeString);
+  const normalizedIsbn = input.isbn ?? null;
+
+  // ✅ Verificar si el libro ya existe
+  const existingBook = await repo.checkBookExists(
+    normalizedIsbn,
+    normalizedTitle,
+    normalizedAuthors,
+  );
+
+  if (existingBook) {
+    throw {
+      status: 409,
+      message: "Este libro ya existe en tu biblioteca",
+      book: existingBook,
+    };
+  }
+
   // Descargar portada si viene imageUrl (desde búsqueda externa)
   let coverPath: string | null = null;
 
@@ -75,14 +95,14 @@ export const createBook = async (input: CreateBookDTO) => {
   }
 
   const normalized = {
-    title: normalizeString(input.title),
-    isbn: input.isbn ?? null,
+    title: normalizedTitle,
+    isbn: normalizedIsbn,
     format: input.format,
     publisher: input.publisher ?? null,
     publishYear: input.publishYear ?? null,
     coverPath: coverPath ?? input.coverPath ?? null,
     seriesOrder: input.seriesOrder ?? null,
-    authors: input.authors.map(normalizeString),
+    authors: normalizedAuthors,
     categories: input.categories.map(normalizeString),
     seriesName: input.seriesName ? normalizeString(input.seriesName) : null,
   };
@@ -93,7 +113,7 @@ export const createBook = async (input: CreateBookDTO) => {
 export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
   const existing = await repo.findById(bookId);
   if (!existing) {
-    throw { status: 404, message: 'Book not found' };
+    throw { status: 404, message: "Book not found" };
   }
 
   // Si viene una nueva imageUrl, descargar la nueva portada
@@ -145,7 +165,7 @@ export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
 export const deleteBook = async (bookId: number) => {
   const existing = await repo.findById(bookId);
   if (!existing) {
-    throw { status: 404, message: 'Book not found' };
+    throw { status: 404, message: "Book not found" };
   }
 
   // Eliminar portada si existe

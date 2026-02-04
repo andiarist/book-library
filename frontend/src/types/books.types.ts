@@ -23,6 +23,7 @@ export type CreateBookDTO = {
   publisher?: string;
   publishYear?: number;
   coverPath?: string | null;
+  imageUrl?: string; // URL externa de la portada (se descargará automáticamente)
   seriesName?: string;
   seriesOrder?: number;
 };
