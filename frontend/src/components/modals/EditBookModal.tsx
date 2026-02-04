@@ -4,7 +4,7 @@ import {
   BookMetadata,
   CreateBookDTO,
 } from '@/types/books.types';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '../Button';
 import { cn } from '@/helpers/cn';
 import { Input } from '../Input';
@@ -29,6 +29,7 @@ export const EditBookModal = ({
   //onSave,
 }: EditBookModalProps) => {
   const { mutateAsync, isPending, error } = useCreateBook();
+  const modalContentRef = useRef<HTMLDivElement>(null);
   const [duplicateError, setDuplicateError] = useState<{
     message: string;
     book?: Book;
@@ -97,6 +98,9 @@ export const EditBookModal = ({
             'Este libro ya existe en tu biblioteca',
           book: err.response.data.book,
         });
+
+        // 📜 Hacer scroll al inicio del modal para mostrar el error
+        modalContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -107,6 +111,7 @@ export const EditBookModal = ({
       onClick={onClose}
     >
       <div
+        ref={modalContentRef}
         className="relative max-h-[90vh] w-full max-w-200 overflow-y-auto rounded-xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
         onClick={(e) => e.stopPropagation()}
       >
