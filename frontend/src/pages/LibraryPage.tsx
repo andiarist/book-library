@@ -3,6 +3,8 @@ import { BookCardMini } from '@/components/cards/BookCardMini';
 import { useBooks } from '@/hooks/useBooks';
 import { scanLibrary, ScanLibraryResult } from '@/api/books.api';
 import { ScanResultsModal } from '@/components/modals/ScanResultsModal';
+import { Book } from '@/types/books.types';
+import { BookDetail } from '@/components/modals/DetailBookModal';
 
 const LibraryPage = () => {
   const { data: books, isLoading, isError, refetch } = useBooks();
@@ -11,6 +13,7 @@ const LibraryPage = () => {
     null
   );
   const [showResults, setShowResults] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
   const handleScanLibrary = async () => {
     try {
@@ -29,6 +32,11 @@ const LibraryPage = () => {
       setIsScanning(false);
     }
   };
+
+  // const handleEditExistingBook = (book: Book) => {
+  //   setEditingExistingBook(book);
+  //   setSelectedBook(null);
+  // };
 
   if (isLoading) {
     return <div>Cargando libros...</div>;
@@ -164,7 +172,7 @@ const LibraryPage = () => {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
           {books.map((book) => (
             <div key={book.id} className="h-full">
-              <BookCardMini book={book} />
+              <BookCardMini book={book} onClick={() => setSelectedBook(book)} />
             </div>
           ))}
         </div>
@@ -175,6 +183,15 @@ const LibraryPage = () => {
         onClose={() => setShowResults(false)}
         results={scanResults}
       />
+      {/* Modal de detalle del libro */}
+      {selectedBook && (
+        <BookDetail
+          book={selectedBook}
+          onClose={() => setSelectedBook(null)}
+          //onDelete={() => handleDeleteFromLibrary(selectedBook.id)}
+          //onEdit={() => handleEditExistingBook(selectedBook)}
+        />
+      )}
     </>
   );
 };
