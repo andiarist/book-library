@@ -1,7 +1,10 @@
-import axios from 'axios';
+import { http } from "../../lib/httpClient";
 
+/* =========================
+   Google Books (por ISBN)
+   ========================= */
 export const searchGoogleBooks = async (isbn: string) => {
-  const res = await axios.get(
+  const res = await http.get(
     `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
   );
 
@@ -21,8 +24,11 @@ export const searchGoogleBooks = async (isbn: string) => {
   };
 };
 
+/* =========================
+   Open Library (por ISBN)
+   ========================= */
 export const searchOpenLibrary = async (isbn: string) => {
-  const res = await axios.get(
+  const res = await http.get(
     `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
   );
 
@@ -35,15 +41,20 @@ export const searchOpenLibrary = async (isbn: string) => {
     categories: book.subjects?.slice(0, 5).map((s: any) => s.name) || [],
     publisher: book.publishers?.[0]?.name,
     publishYear: book.publish_date
-      ? parseInt(book.publish_date.match(/\d{4}/)?.[0] || '')
+      ? parseInt(book.publish_date.match(/\d{4}/)?.[0] || "")
       : null,
     imageUrl: book.cover?.large || book.cover?.medium,
   };
 };
 
+/* =========================
+   Google Books (por Texto)
+   ========================= */
 export const searchGoogleBooksByText = async (query: string) => {
-  const res = await axios.get(
-    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`,
+  const res = await http.get(
+    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+      query,
+    )}&maxResults=10`,
   );
 
   if (!res.data.items?.length) return [];
@@ -63,8 +74,11 @@ export const searchGoogleBooksByText = async (query: string) => {
   });
 };
 
+/* =========================
+   Open Library (por Texto)
+   ========================= */
 export const searchOpenLibraryByText = async (query: string) => {
-  const res = await axios.get(
+  const res = await http.get(
     `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`,
   );
 

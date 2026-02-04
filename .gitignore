@@ -17,6 +17,7 @@ frontend/coverage
 backend/node_modules/
 backend/dist/
 backend/.env
+backend/certs/
 
 # Bases de Datos (Muy importante con Prisma 7)
 backend/prisma/*.db
