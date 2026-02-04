@@ -20,7 +20,7 @@ const LibraryPage = () => {
   }
 
   return (
-    <div>
+    <section className="animate-fadeIn p-6">
       <h2 className="text-lg">Mi biblioteca ({books.length})</h2>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
         {books.map((book) => (
@@ -29,7 +29,7 @@ const LibraryPage = () => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

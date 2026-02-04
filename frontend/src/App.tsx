@@ -11,6 +11,7 @@ import { SearchForm } from './components/SearchForm';
 import { useBookMetadata } from './hooks/useBookMetadata';
 import { Book, BookMetadata, SearchMode } from './types/book';
 import LibraryPage from './pages/LibraryPage';
+import { SearchPage } from './pages/SearchPage';
 
 function App() {
   const {
@@ -154,81 +155,7 @@ function App() {
             //   )}
             // </section>
           )}
-          {activeTab === 'tab2' && (
-            <section className="animate-fadeIn rounded-lg p-8">
-              <div className="mb-8 flex gap-2 p-2">
-                <ModeSearchBtn
-                  searchModeOnClick={searchModeOnClick}
-                  searchMode="isbn"
-                  isActive={searchMode === 'isbn'}
-                />
-                <ModeSearchBtn
-                  searchModeOnClick={searchModeOnClick}
-                  searchMode="text"
-                  isActive={searchMode === 'text'}
-                />
-              </div>
-              <SearchForm
-                loading={loading}
-                mode={searchMode}
-                onSearch={(query) =>
-                  searchMode === 'isbn'
-                    ? handleISBNSearch(query)
-                    : handleTextSearch(query)
-                }
-              />
-
-              {error && (
-                <div className="mx-4 my-0 rounded-sm bg-red-500 p-4 text-white">
-                  <strong>Error:</strong> {error.message}
-                </div>
-              )}
-
-              {loading && (
-                <div className="p-8 text-center text-gray-400 italic">
-                  Buscando metadatos...
-                </div>
-              )}
-
-              {/* Resultados de búsqueda por ISBN (un solo libro) */}
-              {!loading && metadata && searchMode === 'isbn' && (
-                <div className="mt-8">
-                  <div className="mb-4 flex items-center justify-between">
-                    <h3 className="m-0">Resultado:</h3>
-                    <Button variant="secondary" size="sm" onClick={handleReset}>
-                      Nueva búsqueda
-                    </Button>
-                  </div>
-                  <BookCard
-                    book={metadata}
-                    onAdd={() => handleAddToLibrary(metadata)}
-                  />
-                </div>
-              )}
-
-              {/* Resultados de búsqueda por texto (múltiples libros) */}
-              {!loading &&
-                searchResults.length > 0 &&
-                searchMode === 'text' && (
-                  <div className="mt-8">
-                    <div className="mb-4 flex items-center justify-between">
-                      <h3 className="m-0">Resultado:</h3>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={handleReset}
-                      >
-                        Nueva búsqueda
-                      </Button>
-                    </div>
-                    <BookList
-                      books={searchResults}
-                      onAddBook={(book) => handleAddToLibrary(book)}
-                    />
-                  </div>
-                )}
-            </section>
-          )}
+          {activeTab === 'tab2' && <SearchPage />}
         </div>
       </main>
       {/* Modal de detalle del libro */}

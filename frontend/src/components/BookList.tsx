@@ -1,5 +1,5 @@
-import { BookMetadata } from '@/types/book';
-import { BookCard } from './BookCard';
+import { BookMetadata } from '@/types/books.types';
+import { BookCardSearch } from './cards/BookCardSearch';
 
 interface BookListProps {
   books: BookMetadata[];
@@ -24,7 +24,7 @@ export function BookList({ books, onAddBook, emptyMessage }: BookListProps) {
       </p>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
         {books.map((book, index) => (
-          <BookCard
+          <BookCardSearch
             key={`book-${index}`}
             book={book}
             onAdd={onAddBook ? () => onAddBook(book) : undefined}

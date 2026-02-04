@@ -1,4 +1,9 @@
-import { getBooks, getBookById, createBook } from '@/api/books.api';
+import {
+  getBooks,
+  getBookById,
+  createBook,
+  searchExternalByText,
+} from '@/api/books.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const useBooks = () =>
@@ -17,3 +22,10 @@ export const useCreateBook = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['books'] }),
   });
 };
+
+export const useSearchBooksByText = (query: string) =>
+  useQuery({
+    queryKey: ['searchBooksByText', query],
+    queryFn: () => searchExternalByText(query),
+    enabled: false,
+  });

@@ -14,4 +14,4 @@ export const updateBook = (id: number, payload: Partial<CreateBookDTO>) =>
   http.patch<Book>(`/api/books/${id}`, payload).then((r) => r.data);
 
 export const searchExternalByText = (q: string) =>
-  http.get<BookMetadata[]>(`/api/books/search?q=${q}`).then((r) => r.data);
+  http.get<BookMetadata[]>(`/api/books/search/text?q=${q}`).then((r) => r.data);

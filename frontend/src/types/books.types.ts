@@ -2,7 +2,7 @@ export type Book = {
   id: number;
   title: string;
   isbn?: string | null;
-  format: 'EPUB' | 'PDF' | 'PHYSICAL' | 'MOBI' | 'AZW3';
+  format: BookFormat;
   publisher?: string | null;
   publishYear?: number | null;
   coverPath?: string | null;
@@ -16,7 +16,7 @@ export type Book = {
 
 export type CreateBookDTO = {
   title: string;
-  format: Book['format'];
+  format: BookFormat;
   authors: string[];
   categories: string[];
   isbn?: string;
@@ -34,6 +34,10 @@ export type BookMetadata = {
   publisher?: string;
   publishYear?: number;
   imageUrl?: string | null;
+  pageCount?: number;
+  description?: string;
+  isbn?: string;
+  publishedDate?: string;
 };
 
 export type Author = {
@@ -49,3 +53,5 @@ export type Series = {
   id: number;
   name: string;
 };
+
+export type BookFormat = 'EPUB' | 'PDF' | 'PHYSICAL' | 'MOBI' | 'AZW3';

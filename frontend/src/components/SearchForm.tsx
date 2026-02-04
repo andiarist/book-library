@@ -5,11 +5,15 @@ import { SearchMode } from '@/types/book';
 
 interface SearchFormProps {
   onSearch: (query: string) => void;
-  mode: SearchMode;
+  mode?: SearchMode;
   loading?: boolean;
 }
 
-export function SearchForm({ onSearch, mode, loading }: SearchFormProps) {
+export function SearchForm({
+  onSearch,
+  mode = 'text',
+  loading,
+}: SearchFormProps) {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
