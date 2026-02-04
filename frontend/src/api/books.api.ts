@@ -15,3 +15,24 @@ export const updateBook = (id: number, payload: Partial<CreateBookDTO>) =>
 
 export const searchExternalByText = (q: string) =>
   http.get<BookMetadata[]>(`/api/books/search/text?q=${q}`).then((r) => r.data);
+
+export const deleteBook = (id: number) =>
+  http.delete(`/api/books/${id}`).then((r) => r.data);
+
+export interface ScanLibraryResult {
+  message: string;
+  libraryPath: string;
+  total: number;
+  added: number;
+  skipped: number;
+  errors: number;
+  details: Array<{
+    file: string;
+    status: 'added' | 'skipped' | 'error';
+    reason?: string;
+    bookId?: number;
+  }>;
+}
+
+export const scanLibrary = () =>
+  http.post<ScanLibraryResult>('/api/books/scan').then((r) => r.data);

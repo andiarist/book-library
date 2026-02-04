@@ -19,7 +19,12 @@
     "axios": "^1.13.4",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
+    "epub-parser": "^0.2.5",
+    "epub2": "^3.0.2",
     "express": "^5.2.1",
+    "fast-glob": "^3.3.3",
+    "p-limit": "^7.3.0",
+    "pdf-parse": "^2.4.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "yaml": "^2.8.2"

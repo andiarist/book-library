@@ -45,6 +45,24 @@ export const findByIsbn = (isbn: string) =>
   });
 
 /**
+ * Busca un libro por hash de archivo
+ */
+export const findByFileHash = (fileHash: string) =>
+  prisma.book.findUnique({
+    where: { fileHash },
+    include: defaultInclude,
+  });
+
+/**
+ * Busca un libro por ruta de archivo
+ */
+export const findByFilePath = (filePath: string) =>
+  prisma.book.findUnique({
+    where: { filePath },
+    include: defaultInclude,
+  });
+
+/**
  * Busca libros con el mismo título (normalizado) y al menos un autor en común
  * Útil para detectar duplicados cuando no hay ISBN
  */
@@ -90,6 +108,8 @@ type CreateBookRepositoryInput = {
   publisher: string | null;
   publishYear: number | null;
   coverPath: string | null;
+  filePath: string | null;
+  fileHash: string | null;
   seriesOrder: number | null;
   authors: string[];
   categories: string[];

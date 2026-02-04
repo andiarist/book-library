@@ -5,6 +5,10 @@ import {
   generateCoverFilename,
   deleteCover,
 } from "../../utils/coverUtils";
+import { scanLibraryDirectory } from "../../utils/fileScanner";
+import { extractMetadata } from "../../utils/metadataExtractor";
+import { calculateFileHash } from "../../utils/fileHash";
+import { BookFormat } from "../../generated/prisma/enums";
 import * as repo from "./books.repository";
 import * as external from "./books.external";
 import { CreateBookDTO, UpdateBookDTO } from "./books.types";
@@ -101,6 +105,8 @@ export const createBook = async (input: CreateBookDTO) => {
     publisher: input.publisher ?? null,
     publishYear: input.publishYear ?? null,
     coverPath: coverPath ?? input.coverPath ?? null,
+    filePath: null,
+    fileHash: null,
     seriesOrder: input.seriesOrder ?? null,
     authors: normalizedAuthors,
     categories: input.categories.map(normalizeString),
@@ -174,4 +180,147 @@ export const deleteBook = async (bookId: number) => {
   }
 
   await repo.remove(bookId);
+};
+
+/**
+ * Escanea el directorio de biblioteca configurado y añade los libros encontrados
+ */
+export const scanLibraryFolder = async () => {
+  const startTime = Date.now();
+  console.log("🔍 Iniciando escaneo de biblioteca...");
+
+  // 1. Escanear directorio
+  const files = scanLibraryDirectory();
+  console.log(`📁 Encontrados ${files.length} archivos`);
+
+  const results = {
+    total: files.length,
+    added: 0,
+    skipped: 0,
+    errors: 0,
+    details: [] as Array<{
+      file: string;
+      status: "added" | "skipped" | "error";
+      reason?: string;
+      bookId?: number;
+    }>,
+  };
+
+  // 2. Procesar cada archivo
+  for (const file of files) {
+    try {
+      console.log(`\n📖 Procesando: ${file.filename}`);
+
+      // 2.1 Calcular hash del archivo
+      const fileHash = await calculateFileHash(file.absolutePath);
+      console.log(`  ✅ Hash calculado: ${fileHash.substring(0, 16)}...`);
+
+      // 2.2 Verificar si ya existe por hash
+      const existingByHash = await repo.findByFileHash(fileHash);
+      if (existingByHash) {
+        console.log(`  ⏭️  Ya existe (hash): ${existingByHash.title}`);
+        results.skipped++;
+        results.details.push({
+          file: file.filename,
+          status: "skipped",
+          reason: "Ya existe en la base de datos (mismo hash)",
+        });
+        continue;
+      }
+
+      // 2.3 Verificar si ya existe por ruta
+      const existingByPath = await repo.findByFilePath(file.absolutePath);
+      if (existingByPath) {
+        console.log(`  ⏭️  Ya existe (path): ${existingByPath.title}`);
+        results.skipped++;
+        results.details.push({
+          file: file.filename,
+          status: "skipped",
+          reason: "Ya existe en la base de datos (misma ruta)",
+        });
+        continue;
+      }
+
+      // 2.4 Extraer metadata
+      const metadata = await extractMetadata(file.absolutePath);
+      if (!metadata) {
+        console.log(`  ❌ No se pudo extraer metadata`);
+        results.errors++;
+        results.details.push({
+          file: file.filename,
+          status: "error",
+          reason: "No se pudo extraer metadata del archivo",
+        });
+        continue;
+      }
+
+      console.log(`  📋 Metadata extraída: ${metadata.title}`);
+
+      // 2.5 Determinar formato según extensión
+      let format: BookFormat;
+      switch (file.extension.toLowerCase()) {
+        case ".epub":
+          format = BookFormat.EPUB;
+          break;
+        case ".pdf":
+          format = BookFormat.PDF;
+          break;
+        case ".mobi":
+          format = BookFormat.MOBI;
+          break;
+        case ".azw3":
+          format = BookFormat.AZW3;
+          break;
+        default:
+          format = BookFormat.EPUB;
+      }
+
+      // 2.6 Normalizar datos
+      const normalizedTitle = normalizeString(metadata.title);
+      const normalizedAuthors = metadata.authors.map(normalizeString);
+      const normalizedIsbn = metadata.isbn || null;
+
+      // 2.7 Crear el libro en la base de datos
+      const book = await repo.create({
+        title: normalizedTitle,
+        isbn: normalizedIsbn,
+        format,
+        publisher: metadata.publisher || null,
+        publishYear: metadata.publishYear || null,
+        coverPath: null, // Por ahora no extraemos portadas de archivos
+        filePath: file.absolutePath,
+        fileHash,
+        seriesOrder: null,
+        authors: normalizedAuthors,
+        categories: metadata.categories
+          ? metadata.categories.map(normalizeString)
+          : [],
+        seriesName: null,
+      });
+
+      console.log(`  ✅ Añadido: ${book.title} (ID: ${book.id})`);
+      results.added++;
+      results.details.push({
+        file: file.filename,
+        status: "added",
+        bookId: book.id,
+      });
+    } catch (error) {
+      console.error(`  ❌ Error procesando ${file.filename}:`, error);
+      results.errors++;
+      results.details.push({
+        file: file.filename,
+        status: "error",
+        reason: error instanceof Error ? error.message : "Error desconocido",
+      });
+    }
+  }
+
+  const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+  console.log(`\n✨ Escaneo completado en ${duration}s`);
+  console.log(`   📊 Añadidos: ${results.added}`);
+  console.log(`   ⏭️  Omitidos: ${results.skipped}`);
+  console.log(`   ❌ Errores: ${results.errors}`);
+
+  return results;
 };

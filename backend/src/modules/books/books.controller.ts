@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
-import * as service from './books.service';
+import { Request, Response } from "express";
+import * as service from "./books.service";
+import { libraryConfig } from "../../config/library";
 
 export const searchBookByIsbnController = async (
   req: Request,
@@ -65,7 +66,7 @@ export const updateBookController = async (req: Request, res: Response) => {
   const bookId = Number(req.params.id);
 
   if (Number.isNaN(bookId)) {
-    return res.status(400).json({ message: 'Invalid book ID' });
+    return res.status(400).json({ message: "Invalid book ID" });
   }
 
   const book = await service.updateBook(bookId, req.body);
@@ -75,8 +76,33 @@ export const updateBookController = async (req: Request, res: Response) => {
 export const deleteBookController = async (req: Request, res: Response) => {
   const bookId = Number(req.params.id);
   if (Number.isNaN(bookId)) {
-    return res.status(400).json({ message: 'Invalid book ID' });
+    return res.status(400).json({ message: "Invalid book ID" });
   }
   await service.deleteBook(bookId);
   res.status(204).send();
 };
+
+export const scanLibraryController = async (req: Request, res: Response) => {
+  try {
+    const results = await service.scanLibraryFolder();
+    res.json({
+      message: "Escaneo completado",
+      libraryPath: libraryConfig.libraryPath,
+      ...results,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Error al escanear biblioteca",
+      error: error.message,
+    });
+  }
+};
+
+// export const scanLocalLibraryController = async (req: Request, res: Response) => {
+//   try {
+//     const result = await service.scanLocalLibrary();
+//     res.json(result);
+//   } catch (error: any) {
+//     res.status(error.status || 500).json({ message: error.message });
+//   }
+// };
