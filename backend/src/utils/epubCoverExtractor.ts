@@ -1,18 +1,6 @@
-import * as fs from "fs";
-import * as path from "path";
 // @ts-ignore
 import EPub from "epub2";
-
-const COVERS_DIR = path.resolve(process.cwd(), "storage", "covers");
-
-const mimeToExt = (mime?: string) => {
-  const m = (mime || "").toLowerCase();
-  if (m.includes("png")) return "png";
-  if (m.includes("webp")) return "webp";
-  if (m.includes("gif")) return "gif";
-  if (m.includes("jpeg") || m.includes("jpg")) return "jpg";
-  return "jpg";
-};
+import { saveCoverBuffer } from "./coverUtils";
 
 const pickCoverItemId = (epub: any): string | null => {
   // 1) meta cover id (lo más habitual)
@@ -68,9 +56,7 @@ export async function extractAndSaveEpubCover(
       epub.getImage(
         coverId,
         (err: Error | null, data?: Buffer, mimeType?: string) => {
-          if (err || !data) {
-            return reject(err || new Error("No cover data"));
-          }
+          if (err || !data) return reject(err || new Error("No cover data"));
           resolve({ data, mime: mimeType });
         },
       );
@@ -79,14 +65,6 @@ export async function extractAndSaveEpubCover(
 
   if (!data) return null;
 
-  await fs.promises.mkdir(COVERS_DIR, { recursive: true });
-
-  const ext = mimeToExt(mime);
-  const filename = `${filenameBase}.${ext}`;
-  const absolute = path.join(COVERS_DIR, filename);
-
-  await fs.promises.writeFile(absolute, data);
-
-  // Guardamos un path relativo que luego puedas servir con tu endpoint estático
-  return path.join("storage", "covers", filename).replace(/\\/g, "/");
+  // ✅ devuelve /covers/xxx.ext para BBDD
+  return await saveCoverBuffer(data, filenameBase, mime);
 }
