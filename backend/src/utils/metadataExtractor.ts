@@ -2,8 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 // @ts-ignore - epub2 no tiene tipos oficiales completos
 import EPub from "epub2";
-// @ts-ignore - pdf-parse tiene problemas con tipos en esta versión
-const pdf = require("pdf-parse");
 
 export interface ExtractedMetadata {
   title: string;
@@ -49,7 +47,7 @@ const extractEpubMetadata = async (
           : String(epub.metadata.date);
       const yearMatch = dateStr.match(/\d{4}/);
       if (yearMatch) {
-        publishYear = parseInt(yearMatch[0]);
+        publishYear = parseInt(yearMatch[0], 10);
       }
     }
 
@@ -63,11 +61,26 @@ const extractEpubMetadata = async (
       }
     }
 
+    const extractIsbn = (id: unknown): string | undefined => {
+      const values = Array.isArray(id) ? id : id ? [id] : [];
+      for (const v of values) {
+        const s = String(v);
+        // ISBN-10 o ISBN-13 (con o sin guiones)
+        const m = s.match(
+          /(?:97[89][-\s]?)?\d{1,5}[-\s]?\d{1,7}[-\s]?\d{1,7}[-\s]?\d{1}/,
+        );
+        if (m) return m[0].replace(/[\s-]/g, "");
+      }
+      return undefined;
+    };
+
     return {
       title:
         epub.metadata.title || path.basename(filePath, path.extname(filePath)),
       authors: authors.length > 0 ? authors : ["Autor Desconocido"],
-      isbn: epub.metadata.ISBN || undefined,
+      isbn: extractIsbn(
+        (epub as any).metadata?.ISBN ?? (epub as any).metadata?.identifier,
+      ),
       publisher: epub.metadata.publisher || undefined,
       publishYear,
       categories: categories.length > 0 ? categories : undefined,
@@ -86,33 +99,42 @@ const extractPdfMetadata = async (
   filePath: string,
 ): Promise<ExtractedMetadata | null> => {
   try {
-    const dataBuffer = fs.readFileSync(filePath);
-    const data = await pdf(dataBuffer);
+    const dataBuffer = await fs.promises.readFile(filePath);
 
-    const info = data.info;
+    const pdfParseModule = require("pdf-parse");
+    const PDFParseCtor =
+      pdfParseModule?.PDFParse ??
+      pdfParseModule?.default?.PDFParse ??
+      pdfParseModule?.default ??
+      null;
 
-    // Intentar extraer autor
-    const authors: string[] = [];
-    if (info?.Author) {
-      authors.push(info.Author);
+    if (!PDFParseCtor) {
+      throw new Error(
+        "pdf-parse v2: no se encontró PDFParse (export inesperado).",
+      );
     }
 
-    // Intentar extraer año
+    const parser = new PDFParseCtor({ data: dataBuffer });
+    const infoResult = await parser.getInfo();
+    await parser.destroy?.();
+
+    const info = infoResult?.info ?? infoResult ?? {};
+
+    const authors: string[] = [];
+    if (info?.Author) authors.push(String(info.Author));
+
     let publishYear: number | undefined;
     if (info?.CreationDate) {
-      const yearMatch = info.CreationDate.match(/\d{4}/);
-      if (yearMatch) {
-        publishYear = parseInt(yearMatch[0]);
-      }
+      const yearMatch = String(info.CreationDate).match(/\d{4}/);
+      if (yearMatch) publishYear = parseInt(yearMatch[0], 10);
     }
 
     return {
-      title:
-        info?.Title ||
-        info?.Subject ||
-        path.basename(filePath, path.extname(filePath)),
-      authors: authors.length > 0 ? authors : ["Autor Desconocido"],
-      publisher: info?.Producer || undefined,
+      title: info?.Title
+        ? String(info.Title)
+        : path.basename(filePath, path.extname(filePath)),
+      authors: authors.length ? authors : ["Autor Desconocido"],
+      publisher: info?.Producer ? String(info.Producer) : undefined,
       publishYear,
     };
   } catch (error) {
