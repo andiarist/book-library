@@ -153,6 +153,7 @@ export const createBook = async (input: CreateBookDTO) => {
       format: input.format,
       publisher: input.publisher ?? null,
       publishYear: input.publishYear ?? null,
+      pageCount: input.pageCount ?? null,
       coverPath: coverPath ?? input.coverPath ?? null,
       filePath: null,
       fileHash: null,
@@ -207,6 +208,7 @@ export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
       ...(input.publishYear !== undefined && {
         publishYear: input.publishYear,
       }),
+      ...(input.pageCount !== undefined && { pageCount: input.pageCount }),
       ...(newCoverPath !== undefined && { coverPath: newCoverPath }),
       ...(input.seriesOrder !== undefined && {
         seriesOrder: input.seriesOrder,

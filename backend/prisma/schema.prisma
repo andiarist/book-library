@@ -23,6 +23,7 @@ model Book {
   format       BookFormat
   publisher    String?
   publishYear  Int?
+  pageCount    Int?
   filePath     String?      @unique
   fileHash     String?      @unique
   coverPath    String?      // Ruta local en /storage/covers

@@ -71,7 +71,7 @@ export const EditBookModal = ({
       isbn: formData.isbn,
       publisher: formData.publisher,
       //publishYear: formData.publishedDate,
-      //pageCount: formData.pageCount,
+      pageCount: formData.pageCount,
       format: formData.format || 'PHYSICAL',
       categories: formData.categories || [],
 
@@ -343,8 +343,8 @@ export const EditBookModal = ({
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Seleccionar formato</option>
-                <option value="digital">Digital</option>
-                <option value="fisico">Físico</option>
+                <option value="EPUB">Digital</option>
+                <option value="PHYSICAL">Físico</option>
               </select>
             </div>
 

@@ -5,6 +5,7 @@ export type Book = {
   format: BookFormat;
   publisher?: string | null;
   publishYear?: number | null;
+  pageCount?: number | null;
   coverPath?: string | null;
   seriesOrder?: number | null;
   createdAt: string;
@@ -22,6 +23,7 @@ export type CreateBookDTO = {
   isbn?: string;
   publisher?: string;
   publishYear?: number;
+  pageCount?: number;
   coverPath?: string | null;
   imageUrl?: string; // URL externa de la portada (se descargará automáticamente)
   seriesName?: string;

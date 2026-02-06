@@ -1,4 +1,4 @@
-import { BookFormat } from '../../generated/prisma/enums';
+import { BookFormat } from "../../generated/prisma/enums";
 
 export type CreateBookDTO = {
   title: string;
@@ -6,6 +6,7 @@ export type CreateBookDTO = {
   format: BookFormat;
   publisher?: string;
   publishYear?: number;
+  pageCount?: number;
   coverPath?: string | null;
   imageUrl?: string; // URL externa de la portada (se descargará automáticamente)
   seriesName?: string;
@@ -20,6 +21,7 @@ export type UpdateBookDTO = {
   format?: BookFormat;
   publisher?: string | null;
   publishYear?: number | null;
+  pageCount?: number | null;
   coverPath?: string | null;
   imageUrl?: string; // URL externa de la portada (se descargará automáticamente)
   seriesName?: string | null;

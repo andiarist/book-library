@@ -93,7 +93,7 @@ function BookInformation({ book }: BookInformationProps) {
       label: 'Fecha de publicación',
       value: book.publishYear,
     },
-    // { key: 'pageCount', label: 'Páginas', value: book.pageCount },
+    { key: 'pageCount', label: 'Páginas', value: book.pageCount },
     // { key: 'language', label: 'Idioma', value: book.language },
     { key: 'saga', label: 'Saga', value: book.series },
     { key: 'sagaNumber', label: 'Número en la saga', value: book.seriesOrder },
