@@ -76,7 +76,7 @@ export const EditBookModal = ({
       categories: formData.categories || [],
 
       imageUrl: formData.imageUrl || undefined,
-      //description:formData.description,
+      description: formData.description,
 
       seriesName: formData.saga,
       seriesOrder: formData.sagaNumber,

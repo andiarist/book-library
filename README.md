@@ -62,6 +62,31 @@ Proyecto fullstack para gestionar una biblioteca de libros (API + frontend).
    pnpm start
    ```
 
+## Actualizar base de datos en otro equipo
+
+Si ya tienes el proyecto configurado en otro equipo y actualizas el código con cambios en el schema de Prisma:
+
+1. Actualizar el código
+
+   ```bash
+   git pull origin main
+   ```
+
+2. Aplicar migraciones pendientes
+
+   ```bash
+   cd backend
+   pnpm prisma migrate deploy
+   ```
+
+3. Regenerar cliente de Prisma
+
+   ```bash
+   pnpm prisma generate
+   ```
+
+**Nota:** Solo necesitas ejecutar `pnpm install` si hay cambios en las dependencias del `package.json`.
+
 ## Frontend — inicializar y ejecutar
 
 1. Instalar dependencias (ver sección Instalación).

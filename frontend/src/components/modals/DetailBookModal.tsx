@@ -205,9 +205,9 @@ export function BookDetail({
           <BookHeader book={book} />
 
           <div className="flex flex-col gap-8">
-            {/* {book.description && (
+            {book.description && (
               <BookDescription description={book.description} />
-            )} */}
+            )}
             <BookInformation book={book} />
             <BookCategories categories={book.categories || []} />
             <BookMetadata

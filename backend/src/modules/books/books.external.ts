@@ -6,6 +6,8 @@ export type ExternalBook = {
   categories: string[];
   publisher: string | null;
   publishYear: number | null;
+  pageCount: number | null;
+  description: string | null;
   imageUrl: string | null;
 };
 
@@ -38,6 +40,8 @@ export const searchGoogleBooks = async (
     categories: info.categories || [],
     publisher: info.publisher ?? null,
     publishYear: parsePublishYear(info.publishedDate),
+    pageCount: info.pageCount ?? null,
+    description: info.description ?? null,
     imageUrl: info.imageLinks?.thumbnail ?? null,
   };
 };
@@ -62,6 +66,8 @@ export const searchOpenLibrary = async (
       book.subjects?.slice(0, 5).map((s: { name: string }) => s.name) || [],
     publisher: book.publishers?.[0]?.name ?? null,
     publishYear: parsePublishYear(book.publish_date),
+    pageCount: book.number_of_pages ?? null,
+    description: book.notes ?? null,
     imageUrl: book.cover?.large || book.cover?.medium || null,
   };
 };
@@ -88,6 +94,8 @@ export const searchGoogleBooksByText = async (
       categories: info.categories || [],
       publisher: info.publisher ?? null,
       publishYear: parsePublishYear(info.publishedDate),
+      pageCount: info.pageCount ?? null,
+      description: info.description ?? null,
       imageUrl: info.imageLinks?.thumbnail ?? null,
     } satisfies ExternalBook;
   });
@@ -111,6 +119,8 @@ export const searchOpenLibraryByText = async (
     categories: doc.subject?.slice(0, 5) || [],
     publisher: doc.publisher?.[0] ?? null,
     publishYear: doc.first_publish_year || null,
+    pageCount: doc.number_of_pages_median ?? null,
+    description: null, // Open Library search API no proporciona descripción
     imageUrl: doc.cover_i
       ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
       : null,

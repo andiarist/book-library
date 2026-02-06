@@ -76,6 +76,7 @@ type CreateBookRepositoryInput = {
   publisher: string | null;
   publishYear: number | null;
   pageCount?: number | null;
+  description?: string | null;
   coverPath: string | null;
   filePath: string | null;
   fileHash: string | null;
@@ -125,6 +126,7 @@ type UpdateBookRepositoryInput = {
   publisher?: string | null;
   publishYear?: number | null;
   pageCount?: number | null;
+  description?: string | null;
   coverPath?: string | null;
   seriesOrder?: number | null;
   authors?: string[];
