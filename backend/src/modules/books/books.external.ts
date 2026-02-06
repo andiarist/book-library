@@ -1,21 +1,8 @@
-import { http } from "../../lib/httpClient";
-
-export type ExternalBook = {
-  title: string;
-  authors: string[];
-  categories: string[];
-  publisher: string | null;
-  publishYear: number | null;
-  pageCount: number | null;
-  description: string | null;
-  imageUrl: string | null;
-  seriesName: string | null;
-  seriesOrder: number | null;
-};
+import { http } from '../../lib/httpClient';
+import { BookSearchResult } from '../../utils/bookSearchUtils';
 
 const parsePublishYear = (raw?: string | null): number | null => {
   if (!raw) return null;
-  // soporta "YYYY", "YYYY-MM-DD", "June 1999", etc.
   const m = raw.match(/\d{4}/);
   if (!m) return null;
   const year = Number(m[0]);
@@ -23,10 +10,7 @@ const parsePublishYear = (raw?: string | null): number | null => {
 };
 
 /**
- * Extrae información de series del título si tiene formato común:
- * - "Título (Serie #1)" o "Título (Serie, #1)"
- * - "Título: Serie, Book 1"
- * - "Serie: Título"
+ * Extrae información de series del título si tiene formato común
  */
 const extractSeriesFromTitle = (
   title: string,
@@ -60,17 +44,27 @@ const extractSeriesFromTitle = (
 const parseGoogleBooksSeriesInfo = (
   volumeInfo: any,
 ): { seriesName: string | null; seriesOrder: number | null } => {
-  // Google Books puede tener seriesInfo
-  if (volumeInfo.seriesInfo?.volumeSeries?.[0]) {
-    const series = volumeInfo.seriesInfo.volumeSeries[0];
-    return {
-      seriesName: series.seriesId || series.series || null,
-      seriesOrder:
-        series.orderNumber != null ? Number(series.orderNumber) : null,
-    };
+  // Intentar con seriesInfo (poco común en la API pública)
+  if (volumeInfo.seriesInfo) {
+    const series = volumeInfo.seriesInfo;
+
+    if (series.volumeSeries?.[0]) {
+      const vol = series.volumeSeries[0];
+      return {
+        seriesName: vol.series || vol.seriesId || null,
+        seriesOrder: vol.orderNumber != null ? Number(vol.orderNumber) : null,
+      };
+    }
+
+    if (series.series || series.orderNumber != null) {
+      return {
+        seriesName: series.series || null,
+        seriesOrder:
+          series.orderNumber != null ? Number(series.orderNumber) : null,
+      };
+    }
   }
 
-  // Si no hay seriesInfo, intentar extraer del título
   return extractSeriesFromTitle(volumeInfo.title);
 };
 
@@ -80,10 +74,8 @@ const parseGoogleBooksSeriesInfo = (
 const parseOpenLibrarySeriesInfo = (
   data: any,
 ): { seriesName: string | null; seriesOrder: number | null } => {
-  // Open Library puede tener un array de series
   if (data.series && Array.isArray(data.series) && data.series.length > 0) {
     const seriesStr = data.series[0];
-    // A veces viene con el número: "Serie Name #1"
     const match = seriesStr.match(/^(.+?)\s*#\s*(\d+(?:\.\d+)?)$/);
     if (match) {
       return {
@@ -94,7 +86,10 @@ const parseOpenLibrarySeriesInfo = (
     return { seriesName: seriesStr, seriesOrder: null };
   }
 
-  // Si no hay campo series, intentar extraer del título
+  if (typeof data.series === 'string') {
+    return { seriesName: data.series, seriesOrder: null };
+  }
+
   return extractSeriesFromTitle(data.title);
 };
 
@@ -103,7 +98,7 @@ const parseOpenLibrarySeriesInfo = (
    ========================= */
 export const searchGoogleBooks = async (
   isbn: string,
-): Promise<ExternalBook | null> => {
+): Promise<BookSearchResult | null> => {
   const res = await http.get(
     `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`,
   );
@@ -112,6 +107,17 @@ export const searchGoogleBooks = async (
 
   const info = res.data.items[0].volumeInfo;
   const seriesInfo = parseGoogleBooksSeriesInfo(info);
+
+  let extractedIsbn: string | null = null;
+  if (info.industryIdentifiers) {
+    const isbn13 = info.industryIdentifiers.find(
+      (id: any) => id.type === 'ISBN_13',
+    );
+    const isbn10 = info.industryIdentifiers.find(
+      (id: any) => id.type === 'ISBN_10',
+    );
+    extractedIsbn = isbn13?.identifier || isbn10?.identifier || null;
+  }
 
   return {
     title: info.title,
@@ -124,6 +130,7 @@ export const searchGoogleBooks = async (
     imageUrl: info.imageLinks?.thumbnail ?? null,
     seriesName: seriesInfo.seriesName,
     seriesOrder: seriesInfo.seriesOrder,
+    isbn: extractedIsbn,
   };
 };
 
@@ -132,7 +139,7 @@ export const searchGoogleBooks = async (
    ========================= */
 export const searchOpenLibrary = async (
   isbn: string,
-): Promise<ExternalBook | null> => {
+): Promise<BookSearchResult | null> => {
   const res = await http.get(
     `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
   );
@@ -154,6 +161,7 @@ export const searchOpenLibrary = async (
     imageUrl: book.cover?.large || book.cover?.medium || null,
     seriesName: seriesInfo.seriesName,
     seriesOrder: seriesInfo.seriesOrder,
+    isbn: isbn,
   };
 };
 
@@ -162,7 +170,7 @@ export const searchOpenLibrary = async (
    ========================= */
 export const searchGoogleBooksByText = async (
   query: string,
-): Promise<ExternalBook[]> => {
+): Promise<BookSearchResult[]> => {
   const res = await http.get(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       query,
@@ -170,11 +178,21 @@ export const searchGoogleBooksByText = async (
   );
 
   if (!res.data.items?.length) return [];
-  console.log("res.data: ", res.data);
 
   return res.data.items.map((item: any) => {
     const info = item.volumeInfo;
     const seriesInfo = parseGoogleBooksSeriesInfo(info);
+
+    let extractedIsbn: string | null = null;
+    if (info.industryIdentifiers) {
+      const isbn13 = info.industryIdentifiers.find(
+        (id: any) => id.type === 'ISBN_13',
+      );
+      const isbn10 = info.industryIdentifiers.find(
+        (id: any) => id.type === 'ISBN_10',
+      );
+      extractedIsbn = isbn13?.identifier || isbn10?.identifier || null;
+    }
 
     return {
       title: info.title,
@@ -187,7 +205,8 @@ export const searchGoogleBooksByText = async (
       imageUrl: info.imageLinks?.thumbnail ?? null,
       seriesName: seriesInfo.seriesName,
       seriesOrder: seriesInfo.seriesOrder,
-    } satisfies ExternalBook;
+      isbn: extractedIsbn,
+    };
   });
 };
 
@@ -196,16 +215,22 @@ export const searchGoogleBooksByText = async (
    ========================= */
 export const searchOpenLibraryByText = async (
   query: string,
-): Promise<ExternalBook[]> => {
+): Promise<BookSearchResult[]> => {
   const res = await http.get(
     `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`,
   );
 
   if (!res.data.docs?.length) return [];
 
-  console.log("res.data: ", res.data);
   return res.data.docs.slice(0, 10).map((doc: any) => {
     const seriesInfo = parseOpenLibrarySeriesInfo(doc);
+
+    let extractedIsbn: string | null = null;
+    if (doc.isbn && doc.isbn.length > 0) {
+      const isbn13 = doc.isbn.find((i: string) => i.length === 13);
+      const isbn10 = doc.isbn.find((i: string) => i.length === 10);
+      extractedIsbn = isbn13 || isbn10 || doc.isbn[0];
+    }
 
     return {
       title: doc.title,
@@ -214,12 +239,13 @@ export const searchOpenLibraryByText = async (
       publisher: doc.publisher?.[0] ?? null,
       publishYear: doc.first_publish_year || null,
       pageCount: doc.number_of_pages_median ?? null,
-      description: null, // Open Library search API no proporciona descripción
+      description: null,
       imageUrl: doc.cover_i
         ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg`
         : null,
       seriesName: seriesInfo.seriesName,
       seriesOrder: seriesInfo.seriesOrder,
+      isbn: extractedIsbn,
     };
   });
 };
