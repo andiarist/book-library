@@ -22,7 +22,7 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
         <h3 className="m-0 line-clamp-2 text-lg leading-5">{book.title}</h3>
         {book.authors.length > 0 && (
           <p className="m-0 line-clamp-1 text-sm text-gray-400">
-            {book.authors.join(', ')}
+            {book.authors.map((a) => a.name).join(', ')}
           </p>
         )}
         <div className="mt-auto flex flex-col gap-1">

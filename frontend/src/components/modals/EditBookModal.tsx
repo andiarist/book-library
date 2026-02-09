@@ -4,7 +4,7 @@ import {
   BookMetadata,
   CreateBookDTO,
 } from '@/types/books.types';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '../Button';
 import { cn } from '@/helpers/cn';
 import { Input } from '../Input';
@@ -14,7 +14,7 @@ interface EditBookModalProps {
   bookMetadata?: BookMetadata;
   existingBook?: Book;
   onClose: () => void;
-  onSave: (data: BookEditData) => void;
+  //onSave: (data: BookEditData) => void;
 }
 export interface BookEditData extends BookMetadata {
   saga?: string;
@@ -26,9 +26,14 @@ export const EditBookModal = ({
   bookMetadata,
   existingBook,
   onClose,
-  onSave,
+  //onSave,
 }: EditBookModalProps) => {
   const { mutateAsync, isPending, error } = useCreateBook();
+  const modalContentRef = useRef<HTMLDivElement>(null);
+  const [duplicateError, setDuplicateError] = useState<{
+    message: string;
+    book?: Book;
+  } | null>(null);
   const [formData, setFormData] = useState<BookEditData>(() => {
     if (bookMetadata) {
       return {
@@ -56,7 +61,8 @@ export const EditBookModal = ({
   };
 
   const handleSaveBook = async () => {
-    //Primero deberíamos comprobar que este libro no está creado ya
+    // Limpiar error previo
+    setDuplicateError(null);
 
     //Pasamos formData a CreateBookDTO
     const newBook: CreateBookDTO = {
@@ -65,12 +71,12 @@ export const EditBookModal = ({
       isbn: formData.isbn,
       publisher: formData.publisher,
       //publishYear: formData.publishedDate,
-      //pageCount: formData.pageCount,
+      pageCount: formData.pageCount,
       format: formData.format || 'PHYSICAL',
       categories: formData.categories || [],
 
-      coverPath: formData.imageUrl,
-      //description:formData.description,
+      imageUrl: formData.imageUrl || undefined,
+      description: formData.description,
 
       seriesName: formData.saga,
       seriesOrder: formData.sagaNumber,
@@ -79,8 +85,23 @@ export const EditBookModal = ({
       const book = await mutateAsync(newBook);
 
       console.log('Libro creado', book);
-    } catch (err) {
+      // Cerrar modal después de crear exitosamente
+      onClose();
+    } catch (err: any) {
       console.error(err);
+
+      // ✅ Detectar error de duplicado (HTTP 409)
+      if (err?.response?.status === 409) {
+        setDuplicateError({
+          message:
+            err.response.data.message ||
+            'Este libro ya existe en tu biblioteca',
+          book: err.response.data.book,
+        });
+
+        // 📜 Hacer scroll al inicio del modal para mostrar el error
+        modalContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -90,6 +111,7 @@ export const EditBookModal = ({
       onClick={onClose}
     >
       <div
+        ref={modalContentRef}
         className="relative max-h-[90vh] w-full max-w-200 overflow-y-auto rounded-xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -109,6 +131,45 @@ export const EditBookModal = ({
           <h2 className="mb-6 text-2xl font-bold text-gray-800">
             Editar Metadata del Libro
           </h2>
+
+          {/* ⚠️ Mensaje de error de duplicado */}
+          {duplicateError && (
+            <div className="mb-4 rounded-lg border border-amber-400 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div className="flex-1">
+                  <h3 className="mb-2 font-semibold text-amber-800">
+                    {duplicateError.message}
+                  </h3>
+                  {duplicateError.book && (
+                    <div className="text-sm text-amber-700">
+                      <p className="mb-1">
+                        <strong>Título:</strong> {duplicateError.book.title}
+                      </p>
+                      {duplicateError.book.authors &&
+                        duplicateError.book.authors.length > 0 && (
+                          <p className="mb-1">
+                            <strong>Autor(es):</strong>{' '}
+                            {duplicateError.book.authors
+                              .map((a) => a.name)
+                              .join(', ')}
+                          </p>
+                        )}
+                      {duplicateError.book.isbn && (
+                        <p className="mb-1">
+                          <strong>ISBN:</strong> {duplicateError.book.isbn}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm text-amber-600">
+                    Este libro ya está en tu biblioteca. Puedes cerrar este
+                    modal y buscarlo en la página de biblioteca.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Imagen de portada */}
@@ -282,8 +343,8 @@ export const EditBookModal = ({
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Seleccionar formato</option>
-                <option value="digital">Digital</option>
-                <option value="fisico">Físico</option>
+                <option value="EPUB">Digital</option>
+                <option value="PHYSICAL">Físico</option>
               </select>
             </div>
 

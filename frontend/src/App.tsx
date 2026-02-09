@@ -169,13 +169,13 @@ function App() {
       )}
 
       {/* Modal de edición antes de añadir a biblioteca */}
-      {editingBook && (
+      {/* {editingBook && (
         <BookEditModal
           bookMetadata={editingBook}
           onClose={() => setEditingBook(null)}
           onSave={handleSaveBook}
         />
-      )}
+      )} */}
 
       {/* Modal de edición de libro existente */}
       {editingExistingBook && (

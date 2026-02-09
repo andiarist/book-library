@@ -1,6 +1,7 @@
 import { Button } from '@/components/Button';
 import { BookCardSearch } from '@/components/cards/BookCardSearch';
 import { Input } from '@/components/Input';
+import { EditBookModal } from '@/components/modals/EditBookModal';
 import { useSearchBooksByText } from '@/hooks/useBooks';
 import { BookMetadata } from '@/types/books.types';
 import { FormEvent, useState } from 'react';
@@ -21,11 +22,6 @@ export const SearchPage = () => {
     if (query.trim()) {
       refetch();
     }
-  };
-
-  const handleAddToLibrary = (bookMetadata: BookMetadata) => {
-    // Abrir modal para editar metadata antes de añadir
-    setEditingBook(bookMetadata);
   };
 
   return (
@@ -63,7 +59,7 @@ export const SearchPage = () => {
                 <BookCardSearch
                   key={`book-${index}`}
                   book={book}
-                  onAdd={(book) => handleAddToLibrary(book)}
+                  onAdd={(book) => setEditingBook(book)}
                 />
               ))}
             </div>
@@ -74,6 +70,14 @@ export const SearchPage = () => {
           </div>
         )}
       </div>
+      {/* Modal de edición antes de añadir a biblioteca */}
+      {editingBook && (
+        <EditBookModal
+          bookMetadata={editingBook}
+          onClose={() => setEditingBook(null)}
+          //onSave={handleSaveBook}
+        />
+      )}
     </section>
   );
 };
