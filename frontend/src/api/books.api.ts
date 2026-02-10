@@ -16,6 +16,16 @@ export const updateBook = (id: number, payload: Partial<CreateBookDTO>) =>
 export const searchExternalByText = (q: string) =>
   http.get<BookMetadata[]>(`/api/books/search/text?q=${q}`).then((r) => r.data);
 
+export const searchBookCovers = (bookId: number) =>
+  http.get<BookMetadata[]>(`/api/books/${bookId}/covers`).then((r) => r.data);
+
+export const searchBookCoversByQuery = (query: string) =>
+  http
+    .get<
+      BookMetadata[]
+    >(`/api/books/search/covers?q=${encodeURIComponent(query)}`)
+    .then((r) => r.data);
+
 export const deleteBook = (id: number) =>
   http.delete(`/api/books/${id}`).then((r) => r.data);
 

@@ -5,6 +5,7 @@ import { scanLibrary, ScanLibraryResult } from '@/api/books.api';
 import { ScanResultsModal } from '@/components/modals/ScanResultsModal';
 import { Book } from '@/types/books.types';
 import { BookDetail } from '@/components/modals/DetailBookModal';
+import { EditLibraryBookModal } from '@/components/modals/EditLibraryBookModal';
 
 const LibraryPage = () => {
   const { data: books, isLoading, isError, refetch } = useBooks();
@@ -14,6 +15,7 @@ const LibraryPage = () => {
   );
   const [showResults, setShowResults] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   const handleScanLibrary = async () => {
     try {
@@ -188,8 +190,18 @@ const LibraryPage = () => {
         <BookDetail
           book={selectedBook}
           onClose={() => setSelectedBook(null)}
-          //onDelete={() => handleDeleteFromLibrary(selectedBook.id)}
-          //onEdit={() => handleEditExistingBook(selectedBook)}
+          onEdit={() => {
+            setEditingBook(selectedBook);
+            setSelectedBook(null);
+          }}
+        />
+      )}
+
+      {/* Modal de edición del libro */}
+      {editingBook && (
+        <EditLibraryBookModal
+          book={editingBook}
+          onClose={() => setEditingBook(null)}
         />
       )}
     </>

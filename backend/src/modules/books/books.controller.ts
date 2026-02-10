@@ -103,6 +103,33 @@ export const deleteBookController = asyncHandler(async (req, res) => {
   }
 });
 
+export const searchBookCoversController = asyncHandler(async (req, res) => {
+  try {
+    const id = parseIdParam(req);
+    const covers = await service.searchBookCoversByMetadata(id);
+    res.json(covers);
+  } catch (e) {
+    errorResponse(res, e);
+  }
+});
+
+export const searchBookCoversByQueryController = asyncHandler(
+  async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query) {
+        res.status(400).json({ message: 'Query parameter "q" is required' });
+        return;
+      }
+
+      const covers = await service.searchBookCoversByCustomQuery(query);
+      res.json(covers);
+    } catch (e) {
+      errorResponse(res, e);
+    }
+  },
+);
+
 export const scanLibraryController = asyncHandler(async (_req, res) => {
   try {
     if (!libraryConfig.libraryPath) {

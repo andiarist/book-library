@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   searchBookByIsbnController,
   getAllBooksController,
@@ -11,29 +11,33 @@ import {
   deleteBookController,
   searchBooksByTextController,
   scanLibraryController,
-} from './books.controller';
+  searchBookCoversController,
+  searchBookCoversByQueryController,
+} from "./books.controller";
 
 const router = Router();
 
 // Búsquedas externas
-router.get('/search/isbn/:isbn', searchBookByIsbnController);
-router.get('/search/text', searchBooksByTextController);
+router.get("/search/isbn/:isbn", searchBookByIsbnController);
+router.get("/search/text", searchBooksByTextController);
+router.get("/search/covers", searchBookCoversByQueryController);
 
 // Escaneo de biblioteca local
-router.post('/scan', scanLibraryController);
+router.post("/scan", scanLibraryController);
 
 // Filtros por entidades relacionadas
-router.get('/category/:categoryName', getBooksByCategoryController);
-router.get('/author/:authorName', getBooksByAuthorController);
-router.get('/series/:seriesName', getBooksBySeriesController);
+router.get("/category/:categoryName", getBooksByCategoryController);
+router.get("/author/:authorName", getBooksByAuthorController);
+router.get("/series/:seriesName", getBooksBySeriesController);
 
 // CRUD de libros
-router.get('/', getAllBooksController);
-router.post('/', createBookController);
+router.get("/", getAllBooksController);
+router.post("/", createBookController);
 
 // Rutas con /:id AL FINAL (para no capturar otras rutas)
-router.get('/:id', getBookByIdController);
-router.patch('/:id', updateBookController);
-router.delete('/:id', deleteBookController);
+router.get("/:id", getBookByIdController);
+router.get("/:id/covers", searchBookCoversController);
+router.patch("/:id", updateBookController);
+router.delete("/:id", deleteBookController);
 
 export default router;

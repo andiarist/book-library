@@ -1,19 +1,19 @@
-import pLimit from 'p-limit';
-import { BookFormat } from '../../generated/prisma/enums';
-import { normalizeString } from '../../utils/formatters';
-import { deduplicateBooks, sortByRelevance } from '../../utils/bookSearchUtils';
+import pLimit from "p-limit";
+import { BookFormat } from "../../generated/prisma/enums";
+import { normalizeString } from "../../utils/formatters";
+import { deduplicateBooks, sortByRelevance } from "../../utils/bookSearchUtils";
 import {
   downloadAndSaveCover,
   generateCoverFilename,
   deleteCover,
-} from '../../utils/coverUtils';
-import { scanLibraryDirectory, ScannedFile } from '../../utils/fileScanner';
-import { extractMetadata } from '../../utils/metadataExtractor';
-import { calculateFileHash } from '../../utils/fileHash';
-import { extractAndSaveEpubCover } from '../../utils/epubCoverExtractor';
-import * as repo from './books.repository';
-import * as external from './books.external';
-import { CreateBookDTO, UpdateBookDTO } from './books.types';
+} from "../../utils/coverUtils";
+import { scanLibraryDirectory, ScannedFile } from "../../utils/fileScanner";
+import { extractMetadata } from "../../utils/metadataExtractor";
+import { calculateFileHash } from "../../utils/fileHash";
+import { extractAndSaveEpubCover } from "../../utils/epubCoverExtractor";
+import * as repo from "./books.repository";
+import * as external from "./books.external";
+import { CreateBookDTO, UpdateBookDTO } from "./books.types";
 
 class HttpError extends Error {
   constructor(
@@ -28,19 +28,19 @@ class HttpError extends Error {
 const toHttpError = (e: any): HttpError => {
   if (e instanceof HttpError) return e;
   const status = e?.status ?? 500;
-  const message = e?.message ?? 'Unexpected error';
+  const message = e?.message ?? "Unexpected error";
   return new HttpError(status, message, e?.payload ?? e?.book);
 };
 
 const detectFormat = (ext: string): BookFormat => {
   switch (ext.toLowerCase()) {
-    case '.epub':
+    case ".epub":
       return BookFormat.EPUB;
-    case '.pdf':
+    case ".pdf":
       return BookFormat.PDF;
-    case '.mobi':
+    case ".mobi":
       return BookFormat.MOBI;
-    case '.azw3':
+    case ".azw3":
       return BookFormat.AZW3;
     default:
       return BookFormat.EPUB;
@@ -55,13 +55,13 @@ const normalizeCategories = (categories: string[] | undefined) =>
 
 export const searchBookByIsbn = async (isbn: string) => {
   try {
-    const cleanISBN = isbn.replace(/[-\s]/g, '');
+    const cleanISBN = isbn.replace(/[-\s]/g, "");
 
     const book =
       (await external.searchGoogleBooks(cleanISBN)) ||
       (await external.searchOpenLibrary(cleanISBN));
 
-    if (!book) throw new HttpError(404, 'Libro no encontrado');
+    if (!book) throw new HttpError(404, "Libro no encontrado");
 
     return book;
   } catch (e) {
@@ -74,7 +74,7 @@ export const searchBookByText = async (query: string) => {
     if (!query || query.trim().length < 3) {
       throw new HttpError(
         400,
-        'Debes introducir por lo menos 3 letras para realizar la búsqueda',
+        "Debes introducir por lo menos 3 letras para realizar la búsqueda",
       );
     }
 
@@ -104,7 +104,7 @@ export const getAllBooks = () => repo.findAll();
 
 export const getBookById = async (id: number) => {
   const book = await repo.findById(id);
-  if (!book) throw new HttpError(404, 'Libro no encontrado');
+  if (!book) throw new HttpError(404, "Libro no encontrado");
   return book;
 };
 
@@ -130,7 +130,7 @@ export const createBook = async (input: CreateBookDTO) => {
     );
 
     if (existingBook) {
-      throw new HttpError(409, 'Este libro ya existe en tu biblioteca', {
+      throw new HttpError(409, "Este libro ya existe en tu biblioteca", {
         book: existingBook,
       });
     }
@@ -173,10 +173,112 @@ export const createBook = async (input: CreateBookDTO) => {
   }
 };
 
+export const searchBookCoversByMetadata = async (bookId: number) => {
+  try {
+    const book = await repo.findById(bookId);
+    if (!book) throw new HttpError(404, "Libro no encontrado");
+
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+    const results: any[] = [];
+
+    // Construir consulta de búsqueda por texto
+    const textQuery = `${book.title} ${book.authors.map((a) => a.name).join(" ")}`;
+
+    // Buscar siempre por texto (más variedad de portadas)
+    try {
+      const gbResults = await external.searchGoogleBooksByText(textQuery);
+      results.push(...gbResults);
+    } catch (e: any) {
+      console.warn("Google Books text error:", e.message);
+    }
+    await delay(800);
+
+    try {
+      const olResults = await external.searchOpenLibraryByText(textQuery);
+      results.push(...olResults);
+    } catch (e: any) {
+      console.warn("Open Library text error:", e.message);
+    }
+
+    // Si hay ISBN, también buscar por ISBN para resultados más precisos
+    if (book.isbn) {
+      await delay(800);
+      try {
+        const gb = await external.searchGoogleBooks(book.isbn);
+        if (gb) results.push(gb);
+      } catch (e: any) {
+        console.warn("Google Books ISBN error:", e.message);
+      }
+      await delay(800);
+
+      try {
+        const ol = await external.searchOpenLibrary(book.isbn);
+        if (ol) results.push(ol);
+      } catch (e: any) {
+        console.warn("Open Library ISBN error:", e.message);
+      }
+    }
+
+    // Filtrar solo resultados con imagen
+    const allBooks = results.filter((b) => b?.imageUrl);
+
+    // Deduplica y ordena
+    const deduplicated = deduplicateBooks(allBooks);
+    const sorted = sortByRelevance(deduplicated);
+
+    return sorted.slice(0, 10);
+  } catch (e) {
+    throw toHttpError(e);
+  }
+};
+
+export const searchBookCoversByCustomQuery = async (query: string) => {
+  try {
+    if (!query || query.trim().length < 3) {
+      throw new HttpError(
+        400,
+        "Debes introducir por lo menos 3 letras para realizar la búsqueda",
+      );
+    }
+
+    const delay = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+    const results: any[] = [];
+
+    // Buscar por texto personalizado
+    try {
+      const gbResults = await external.searchGoogleBooksByText(query);
+      results.push(...gbResults);
+    } catch (e: any) {
+      console.warn("Google Books custom query error:", e.message);
+    }
+    await delay(800);
+
+    try {
+      const olResults = await external.searchOpenLibraryByText(query);
+      results.push(...olResults);
+    } catch (e: any) {
+      console.warn("Open Library custom query error:", e.message);
+    }
+
+    // Filtrar solo resultados con imagen
+    const allBooks = results.filter((b) => b?.imageUrl);
+
+    // Deduplica y ordena
+    const deduplicated = deduplicateBooks(allBooks);
+    const sorted = sortByRelevance(deduplicated);
+
+    return sorted.slice(0, 15);
+  } catch (e) {
+    throw toHttpError(e);
+  }
+};
+
 export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
   try {
     const existing = await repo.findById(bookId);
-    if (!existing) throw new HttpError(404, 'Book not found');
+    if (!existing) throw new HttpError(404, "Book not found");
 
     let newCoverPath: string | null | undefined = undefined;
 
@@ -232,7 +334,7 @@ export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
 export const deleteBook = async (bookId: number) => {
   try {
     const existing = await repo.findById(bookId);
-    if (!existing) throw new HttpError(404, 'Book not found');
+    if (!existing) throw new HttpError(404, "Book not found");
 
     if (existing.coverPath) deleteCover(existing.coverPath);
 
@@ -248,7 +350,7 @@ export const deleteBook = async (bookId: number) => {
 
 type ScanResult = {
   file: string;
-  status: 'added' | 'skipped' | 'error';
+  status: "added" | "skipped" | "error";
   reason?: string;
   bookId?: number;
 };
@@ -283,8 +385,8 @@ async function processFile(file: ScannedFile): Promise<ScanResult> {
       console.log(`  ⏭️  Ya existe (hash): ${existingByHash.title}`);
       return {
         file: file.filename,
-        status: 'skipped',
-        reason: 'Ya existe en la base de datos (mismo hash)',
+        status: "skipped",
+        reason: "Ya existe en la base de datos (mismo hash)",
       };
     }
 
@@ -293,8 +395,8 @@ async function processFile(file: ScannedFile): Promise<ScanResult> {
       console.log(`  ⏭️  Ya existe (path): ${existingByPath.title}`);
       return {
         file: file.filename,
-        status: 'skipped',
-        reason: 'Ya existe en la base de datos (misma ruta)',
+        status: "skipped",
+        reason: "Ya existe en la base de datos (misma ruta)",
       };
     }
 
@@ -303,8 +405,8 @@ async function processFile(file: ScannedFile): Promise<ScanResult> {
       console.log(`  ❌ No se pudo extraer metadata`);
       return {
         file: file.filename,
-        status: 'error',
-        reason: 'No se pudo extraer metadata del archivo',
+        status: "error",
+        reason: "No se pudo extraer metadata del archivo",
       };
     }
 
@@ -336,20 +438,20 @@ async function processFile(file: ScannedFile): Promise<ScanResult> {
     }
 
     console.log(`  ✅ Añadido: ${book.title} (ID: ${book.id})`);
-    return { file: file.filename, status: 'added', bookId: book.id };
+    return { file: file.filename, status: "added", bookId: book.id };
   } catch (error) {
     console.error(`  ❌ Error procesando ${file.filename}:`, error);
     return {
       file: file.filename,
-      status: 'error',
-      reason: error instanceof Error ? error.message : 'Error desconocido',
+      status: "error",
+      reason: error instanceof Error ? error.message : "Error desconocido",
     };
   }
 }
 
 export const scanLibraryFolder = async () => {
   const startTime = Date.now();
-  console.log('🔍 Iniciando escaneo de biblioteca...');
+  console.log("🔍 Iniciando escaneo de biblioteca...");
 
   const files = scanLibraryDirectory();
   console.log(`📚 Encontrados ${files.length} archivos`);
@@ -365,16 +467,16 @@ export const scanLibraryFolder = async () => {
   }
 
   const limit = pLimit(5);
-  const promises = files.map(file => limit(() => processFile(file)));
+  const promises = files.map((file) => limit(() => processFile(file)));
 
-  console.log('⚡ Procesando archivos (máximo 5 en paralelo)...\n');
+  console.log("⚡ Procesando archivos (máximo 5 en paralelo)...\n");
   const details = await Promise.all(promises);
 
   const results = {
     total: files.length,
-    added: details.filter(d => d.status === 'added').length,
-    skipped: details.filter(d => d.status === 'skipped').length,
-    errors: details.filter(d => d.status === 'error').length,
+    added: details.filter((d) => d.status === "added").length,
+    skipped: details.filter((d) => d.status === "skipped").length,
+    errors: details.filter((d) => d.status === "error").length,
     details,
   };
 
