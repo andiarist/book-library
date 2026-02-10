@@ -1,6 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-import * as service from "./books.service";
-import { libraryConfig } from "../../config/library";
+import { Request, Response, NextFunction } from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as service from './books.service';
+import { libraryConfig } from '../../config/library';
 
 type AppError = {
   status?: number;
@@ -15,7 +17,7 @@ const asyncHandler =
 const errorResponse = (res: Response, error: unknown) => {
   const err = error as AppError;
   const status = err?.status ?? 500;
-  const message = err?.message ?? "Unexpected error";
+  const message = err?.message ?? 'Unexpected error';
   return res.status(status).json({ message });
 };
 
@@ -23,7 +25,7 @@ const parseIdParam = (req: Request): number => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
     // usamos el mismo shape que el service
-    throw { status: 400, message: "Invalid book ID" };
+    throw { status: 400, message: 'Invalid book ID' };
   }
   return id;
 };
@@ -135,21 +137,89 @@ export const scanLibraryController = asyncHandler(async (_req, res) => {
     if (!libraryConfig.libraryPath) {
       res.status(400).json({
         message:
-          "No se ha configurado LIBRARY_PATH en las variables de entorno",
+          'No se ha configurado LIBRARY_PATH en las variables de entorno',
       });
       return;
     }
 
     const results = await service.scanLibraryFolder();
     res.json({
-      message: "Escaneo completado",
+      message: 'Escaneo completado',
       libraryPath: libraryConfig.libraryPath,
       ...results,
     });
   } catch (e: any) {
     res.status(500).json({
-      message: "Error al escanear biblioteca",
-      error: e?.message ?? "Unknown error",
+      message: 'Error al escanear biblioteca',
+      error: e?.message ?? 'Unknown error',
     });
   }
 });
+
+/**
+ * Sirve el archivo digital del libro (EPUB, PDF, etc.)
+ * Solo para libros que tengan filePath
+ */
+export const getBookFileController = async (req: Request, res: Response) => {
+  try {
+    const bookId = Number(req.params.id);
+
+    if (Number.isNaN(bookId)) {
+      return res.status(400).json({ message: 'Invalid book ID' });
+    }
+
+    const book = await service.getBookById(bookId);
+
+    // Verificar que el libro tiene archivo digital
+    if (!book.filePath) {
+      return res.status(404).json({
+        message: 'Este libro no tiene archivo digital asociado',
+      });
+    }
+
+    // Verificar que el archivo existe en el sistema
+    if (!fs.existsSync(book.filePath)) {
+      return res.status(404).json({
+        message: 'Archivo no encontrado en el sistema de archivos',
+      });
+    }
+
+    // Obtener la extensión para el Content-Type
+    const ext = path.extname(book.filePath).toLowerCase();
+
+    let contentType = 'application/octet-stream';
+    switch (ext) {
+      case '.epub':
+        contentType = 'application/epub+zip';
+        break;
+      case '.pdf':
+        contentType = 'application/pdf';
+        break;
+      case '.mobi':
+        contentType = 'application/x-mobipocket-ebook';
+        break;
+      case '.azw3':
+        contentType = 'application/vnd.amazon.ebook';
+        break;
+    }
+
+    // Configurar headers
+    res.setHeader('Content-Type', contentType);
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${book.title}${ext}"`,
+    );
+
+    // Habilitar CORS para el archivo
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+
+    // Enviar el archivo
+    res.sendFile(book.filePath);
+  } catch (error: any) {
+    console.error('Error serving book file:', error);
+    res.status(error.status || 500).json({
+      message: error.message || 'Error al servir el archivo del libro',
+    });
+  }
+};

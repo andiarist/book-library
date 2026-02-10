@@ -2,6 +2,8 @@ import { formatDate } from '@/helpers/dateFormatter';
 import { cn } from '@/helpers/cn';
 import { Book, Category } from '@/types/books.types';
 import { Button } from '../Button';
+import { useState } from 'react';
+import { BookPreview } from '../previews/BookPreview';
 
 interface BookDetailProps {
   book: Book;
@@ -180,6 +182,7 @@ export function BookDetail({
   onEdit,
 }: BookDetailProps) {
   console.log(book);
+  const [showPreview, setShowPreview] = useState(false);
   return (
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
@@ -216,6 +219,21 @@ export function BookDetail({
               //   lastModified={book.lastModified}
             />
           </div>
+          {book.filePath && (
+            <Button
+              variant="primary"
+              className="mt-8"
+              onClick={() => setShowPreview(true)}
+            >
+              Ver vista previa
+            </Button>
+          )}
+          {showPreview && (
+            <BookPreview
+              book={book}
+              apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:3001'}
+            />
+          )}
 
           {(onEdit || onDelete) && (
             <div className="mt-8 flex justify-end gap-3 border-t border-t-gray-500 pt-8">

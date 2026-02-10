@@ -14,6 +14,7 @@ export type Book = {
   authors: Author[];
   categories: Category[];
   series?: Series | null;
+  filePath?: string | null;
 };
 
 export type CreateBookDTO = {
