@@ -6,6 +6,7 @@ import {
   searchBookCovers,
   searchBookCoversByQuery,
   updateBook,
+  deleteBook,
 } from '@/api/books.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -34,6 +35,16 @@ export const useUpdateBook = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['books'] });
       qc.invalidateQueries({ queryKey: ['book'] });
+    },
+  });
+};
+
+export const useDeleteBook = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteBook(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['books'] });
     },
   });
 };

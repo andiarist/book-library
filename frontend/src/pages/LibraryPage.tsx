@@ -188,10 +188,13 @@ const LibraryPage = () => {
       {/* Modal de detalle del libro */}
       {selectedBook && (
         <BookDetail
-          book={selectedBook}
+          book={books?.find((b) => b.id === selectedBook.id) || selectedBook}
           onClose={() => setSelectedBook(null)}
           onEdit={() => {
-            setEditingBook(selectedBook);
+            // Buscar el libro actualizado antes de editar
+            const updatedBook =
+              books?.find((b) => b.id === selectedBook.id) || selectedBook;
+            setEditingBook(updatedBook);
             setSelectedBook(null);
           }}
         />
@@ -201,7 +204,11 @@ const LibraryPage = () => {
       {editingBook && (
         <EditLibraryBookModal
           book={editingBook}
-          onClose={() => setEditingBook(null)}
+          onClose={() => {
+            setEditingBook(null);
+            // Recargar la lista de libros después de editar
+            refetch();
+          }}
         />
       )}
     </>

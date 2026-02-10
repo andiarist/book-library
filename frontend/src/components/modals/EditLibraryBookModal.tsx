@@ -5,6 +5,7 @@ import { cn } from '@/helpers/cn';
 import { Input } from '../Input';
 import {
   useUpdateBook,
+  useDeleteBook,
   useSearchBookCovers,
   useSearchBookCoversByQuery,
 } from '@/hooks/useBooks';
@@ -19,6 +20,7 @@ export const EditLibraryBookModal = ({
   onClose,
 }: EditLibraryBookModalProps) => {
   const { mutateAsync: updateBook, isPending } = useUpdateBook();
+  const { mutateAsync: deleteBook, isPending: isDeleting } = useDeleteBook();
   const {
     data: coverOptions,
     refetch: searchCovers,
@@ -102,6 +104,22 @@ export const EditLibraryBookModal = ({
     setCustomCoverResults(null);
     setCustomSearchQuery('');
     modalContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        `¿Estás seguro de que deseas eliminar "${book.title}" de la biblioteca? Esta acción no se puede deshacer.`
+      )
+    ) {
+      try {
+        await deleteBook(book.id);
+        onClose();
+      } catch (err) {
+        console.error('Error al eliminar el libro:', err);
+        alert('Error al eliminar el libro. Por favor, inténtalo de nuevo.');
+      }
+    }
   };
 
   return (
@@ -485,13 +503,23 @@ export const EditLibraryBookModal = ({
             </div>
 
             {/* Botones */}
-            <div className="mt-6 flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancelar
+            <div className="mt-6 flex justify-between gap-3">
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-red-600 text-white hover:bg-red-700"
+              >
+                {isDeleting ? '🗑️ Eliminando...' : '🗑️ Eliminar libro'}
               </Button>
-              <Button type="submit" variant="primary" disabled={isPending}>
-                {isPending ? 'Guardando...' : 'Guardar cambios'}
-              </Button>
+              <div className="flex gap-3">
+                <Button type="button" variant="secondary" onClick={onClose}>
+                  Cancelar
+                </Button>
+                <Button type="submit" variant="primary" disabled={isPending}>
+                  {isPending ? 'Guardando...' : 'Guardar cambios'}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
