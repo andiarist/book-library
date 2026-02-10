@@ -109,6 +109,7 @@ export const EditBookModal = ({
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
       onClick={onClose}
+      data-testid="edit-book-modal"
     >
       <div
         ref={modalContentRef}

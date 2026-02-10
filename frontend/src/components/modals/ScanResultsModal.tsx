@@ -36,7 +36,10 @@ export const ScanResultsModal = ({
   };
 
   return (
-    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <div
+      className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+      data-testid="scan-results-modal"
+    >
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl">
         {/* Header */}
         <div className="border-b p-6">

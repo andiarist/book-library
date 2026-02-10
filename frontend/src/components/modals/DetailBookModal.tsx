@@ -184,6 +184,7 @@ export function BookDetail({
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
       onClick={onClose}
+      data-testid="book-detail-modal"
     >
       <div
         className="relative max-h-[90vh] max-w-200 overflow-y-auto rounded-xl bg-amber-200 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"

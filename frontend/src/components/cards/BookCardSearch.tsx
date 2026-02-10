@@ -9,7 +9,11 @@ interface BookCardSearchProps {
 
 export const BookCardSearch = ({ book, onAdd }: BookCardSearchProps) => {
   return (
-    <div className="flex h-full flex-col gap-4 rounded-lg bg-emerald-600 p-6">
+    <div
+      className="flex h-full flex-col gap-4 rounded-lg bg-emerald-600 p-6"
+      data-testid="book-card-search"
+      key={book.title}
+    >
       {book.imageUrl && (
         <img
           src={book.imageUrl}
