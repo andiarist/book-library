@@ -26,9 +26,17 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
           </p>
         )}
         <div className="mt-auto flex flex-col gap-1">
-          {/* {book.pageCount && (
-            <span className="meta-item">📖 {book.pageCount} páginas</span>
-          )} */}
+          {book.series && (
+            <span className="flex items-center gap-1 text-sm font-medium text-purple-700">
+              📚 {book.series.name}
+              {book.seriesOrder && ` #${book.seriesOrder}`}
+            </span>
+          )}
+          {book.pageCount && (
+            <span className="flex items-center gap-1 text-sm text-gray-600">
+              📖 {book.pageCount} páginas
+            </span>
+          )}
           {book.format && (
             <span className="flex items-center gap-1 text-sm text-gray-600">
               📄 {book.format.toUpperCase()}

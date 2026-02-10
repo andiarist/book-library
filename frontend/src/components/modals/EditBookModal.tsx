@@ -340,6 +340,8 @@ export const EditBookModal = ({
                       : undefined,
                   })
                 }
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 focus:border-blue-500 focus:outline-none"
               >
                 <option value="">Seleccionar formato</option>
@@ -358,6 +360,8 @@ export const EditBookModal = ({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
                 rows={4}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors duration-200 focus:border-blue-500 focus:outline-none"
                 placeholder="Descripción del libro"
