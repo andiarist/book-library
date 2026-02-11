@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
 // Configurar worker de PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -54,29 +54,6 @@ export const PdfViewer = ({
         </div>
       )}
 
-      {/* Visor */}
-      <div className="flex items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-gray-50">
-        {isLoading && (
-          <div className="py-20">
-            <p className="text-gray-500">Cargando PDF...</p>
-          </div>
-        )}
-
-        <Document
-          file={pdfUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={<div className="py-20 text-gray-500">Cargando PDF...</div>}
-        >
-          <Page
-            pageNumber={pageNumber}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-            width={800} // Ancho fijo para mejor visualización
-          />
-        </Document>
-      </div>
-
       {/* Controles */}
       {!isLoading && numPages > 0 && (
         <div className="flex items-center justify-between">
@@ -101,6 +78,29 @@ export const PdfViewer = ({
           </button>
         </div>
       )}
+
+      {/* Visor */}
+      <div className="flex items-center justify-center overflow-hidden rounded-lg border border-gray-300 bg-gray-50">
+        {isLoading && (
+          <div className="py-20">
+            <p className="text-gray-500">Cargando PDF...</p>
+          </div>
+        )}
+
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={<div className="py-20 text-gray-500">Cargando PDF...</div>}
+        >
+          <Page
+            pageNumber={pageNumber}
+            renderTextLayer={true}
+            renderAnnotationLayer={true}
+            width={800} // Ancho fijo para mejor visualización
+          />
+        </Document>
+      </div>
     </div>
   );
 };

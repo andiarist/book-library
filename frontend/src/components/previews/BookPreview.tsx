@@ -29,7 +29,7 @@ export const BookPreview = ({
   switch (book.format) {
     case 'EPUB':
       return (
-        <div>
+        <div data-testid="book-preview-epub">
           <h3 className="mb-4 text-lg font-semibold">
             Vista previa: {book.title}
           </h3>
@@ -39,7 +39,7 @@ export const BookPreview = ({
 
     case 'PDF':
       return (
-        <div>
+        <div data-testid="book-preview-pdf">
           <h3 className="mb-4 text-lg font-semibold">
             Vista previa: {book.title}
           </h3>
@@ -54,7 +54,10 @@ export const BookPreview = ({
     case 'MOBI':
     case 'AZW3':
       return (
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-8 text-center">
+        <div
+          className="rounded-lg border border-yellow-200 bg-yellow-50 p-8 text-center"
+          data-testid="book-preview-otros"
+        >
           <p className="font-medium text-yellow-800">
             ⚠️ Vista previa no disponible para archivos {book.format}
           </p>
@@ -67,7 +70,10 @@ export const BookPreview = ({
 
     case 'PHYSICAL':
       return (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+        <div
+          className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center"
+          data-testid="book-preview-fisico"
+        >
           <p className="text-gray-600">📖 Este es un libro físico</p>
           <p className="mt-2 text-sm text-gray-500">
             No hay archivo digital para mostrar
@@ -77,7 +83,10 @@ export const BookPreview = ({
 
     default:
       return (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+        <div
+          className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center"
+          data-testid="book-preview-default"
+        >
           <p className="text-gray-600">Vista previa no disponible</p>
         </div>
       );
