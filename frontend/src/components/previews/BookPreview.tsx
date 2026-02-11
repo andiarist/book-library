@@ -7,10 +7,8 @@ interface BookPreviewProps {
   apiUrl?: string; // URL base de tu API
 }
 
-export const BookPreview = ({
-  book,
-  apiUrl = 'http://localhost:3001',
-}: BookPreviewProps) => {
+export const BookPreview = ({ book }: BookPreviewProps) => {
+  const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
   // Solo mostrar vista previa si es un libro digital con archivo
   if (!book.filePath) {
     return (

@@ -8,15 +8,49 @@ import booksRoutes from "./modules/books/books.routes";
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
 
-// Servir archivos estáticos (portadas de libros)
+const allowedOrigins = (process.env.CORS_ORIGINS ?? "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim());
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error("Not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Range"],
+    exposedHeaders: ["Content-Length", "Content-Range", "Accept-Ranges"],
+  }),
+);
+// app.use(cors({
+//   origin: "http://localhost:5173",
+//   allowedHeaders: ["Content-Type", "Authorization", "Range"],
+//   exposedHeaders: ["Content-Length", "Content-Range", "Accept-Ranges"],
+// }));
+
+app.use(express.json({ limit: "1mb" }));
+
+// Servir archivos estáticos (portadas)
 const coversPath = path.join(process.cwd(), "storage", "covers");
-console.log("📁 Sirviendo portadas desde:", coversPath);
-console.log("📂 Archivos disponibles:", fs.readdirSync(coversPath));
 
-app.use("/covers", express.static(coversPath));
+if (!fs.existsSync(coversPath)) {
+  console.warn("⚠️  No existe storage/covers, creando...");
+  fs.mkdirSync(coversPath, { recursive: true });
+}
+
+console.log("📁 Sirviendo portadas desde:", coversPath);
+app.use(
+  "/covers",
+  express.static(coversPath, {
+    // opcional: cache en navegador
+    maxAge: "1h",
+    etag: true,
+  }),
+);
 
 // Swagger UI
 app.use(
@@ -28,7 +62,6 @@ app.use(
   }),
 );
 
-// Endpoint para obtener el spec JSON
 app.get("/api-docs.json", (_req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(swaggerSpec);
