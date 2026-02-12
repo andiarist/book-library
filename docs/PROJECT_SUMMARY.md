@@ -2,149 +2,232 @@
 
 ## 🎯 Visión General
 
-**Book Library** es una aplicación moderna para gestionar tu biblioteca personal de libros, con búsqueda automática de metadatos desde APIs públicas (Google Books y Open Library).
+**Book Library** es una aplicación fullstack para gestionar tu biblioteca personal de libros, con backend propio (Express + Prisma + SQLite) y frontend React.
 
-### Estado Actual: Fase 1 ✅
-- Aplicación web completamente funcional
-- Búsqueda por ISBN con fallback automático
-- Arquitectura lista para extender con Tauri
+### Estado Actual: Aplicación Fullstack Completa ✅
 
-### Roadmap
-- **Fase 1** ✅ - Web app con APIs (COMPLETADA)
-- **Fase 2** 🔄 - Tauri desktop + lectura de eBooks locales
-- **Fase 3** 📱 - App móvil + escaneo de códigos de barras
+- Backend REST API con Express y Prisma
+- Frontend React con Tailwind CSS
+- Base de datos SQLite
+- Escáner automático de archivos locales (EPUB, PDF, MOBI, AZW3)
+- Búsqueda de metadatos con APIs externas (Google Books, Open Library)
+- Gestión completa de biblioteca (CRUD)
 
 ## 📦 Estructura del Proyecto
 
 ```
 book-library/
-├── 📄 Documentación
-│   ├── README.md              # Documentación principal
-│   ├── PNPM_GUIDE.md          # Guía de pnpm
-│   ├── DEVELOPMENT.md         # Guía de desarrollo
-│   ├── API_EXAMPLES.md        # Ejemplos de código
-│   ├── TAURI_MIGRATION.md     # Guía Fase 2
-│   └── PROJECT_SUMMARY.md     # Este archivo
+├── backend/                    # API REST
+│   ├── src/
+│   │   ├── modules/books/     # Módulo de libros
+│   │   │   ├── books.controller.ts
+│   │   │   ├── books.service.ts
+│   │   │   ├── books.repository.ts
+│   │   │   ├── books.routes.ts
+│   │   │   ├── books.types.ts
+│   │   │   ├── books.external.ts
+│   │   │   └── docs/
+│   │   ├── config/            # Configuración
+│   │   ├── utils/             # Utilidades
+│   │   ├── lib/               # Cliente Prisma
+│   │   ├── app.ts
+│   │   └── server.ts
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
+│   ├── storage/
+│   │   └── covers/            # Portadas de libros
+│   └── package.json
 │
-├── 🔧 Configuración
-│   ├── package.json           # Dependencias y scripts
-│   ├── tsconfig.json          # TypeScript config
-│   ├── vite.config.ts         # Vite + Vitest config
-│   ├── .eslintrc.cjs          # ESLint rules
-│   ├── .prettierrc            # Prettier config
-│   ├── .npmrc                 # pnpm config
-│   └── .env.example           # Variables de entorno
+├── frontend/                   # React + Vite
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── cards/         # Tarjetas de libros
+│   │   │   ├── modals/        # Modales (Detalle, Edición, Scan)
+│   │   │   ├── previews/      # Visores (PDF, EPUB)
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   └── BookInfoItem.tsx
+│   │   ├── pages/
+│   │   │   ├── LibraryPage.tsx
+│   │   │   └── SearchPage.tsx
+│   │   ├── hooks/
+│   │   │   └── useBooks.ts
+│   │   ├── services/          # Servicios API externos
+│   │   │   ├── googleBooksService.ts
+│   │   │   ├── openLibraryService.ts
+│   │   │   └── bookMetadataService.ts
+│   │   ├── api/               # Cliente API backend
+│   │   │   ├── books.api.ts
+│   │   │   └── http.ts
+│   │   ├── types/
+│   │   ├── helpers/
+│   │   ├── __tests__/
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   └── package.json
 │
-├── 🚀 Scripts de Setup
-│   ├── setup.sh               # Linux/macOS
-│   └── setup.ps1              # Windows
-│
-└── 📁 src/
-    ├── components/            # Componentes React
-    │   ├── ISBNSearchForm.tsx
-    │   └── BookCard.tsx
-    ├── hooks/                 # Custom hooks
-    │   └── useBookMetadata.ts
-    ├── services/              # Servicios de API
-    │   ├── googleBooksService.ts
-    │   ├── openLibraryService.ts
-    │   └── bookMetadataService.ts
-    ├── types/                 # TypeScript types
-    │   └── book.ts
-    ├── __tests__/             # Tests
-    │   ├── useBookMetadata.test.ts
-    │   └── ISBNSearchForm.test.tsx
-    ├── App.tsx                # Componente principal
-    ├── App.css                # Estilos
-    ├── main.tsx               # Entry point
-    └── setupTests.ts          # Test setup
+└── docs/                       # Documentación
+    ├── README.md
+    ├── API_EXAMPLES.md
+    ├── ARCHITECTURE.md
+    ├── DEVELOPMENT.md
+    ├── DUPLICATE_VALIDATION.md
+    ├── LIBRARY_SCANNER.md
+    ├── PNPM_GUIDE.md
+    └── PROJECT_SUMMARY.md
 ```
 
 ## 🛠️ Stack Tecnológico
 
+### Backend
+
+- **Express 5** - Framework web
+- **TypeScript** - Type safety
+- **Prisma** - ORM
+- **SQLite** - Base de datos
+- **Swagger** - Documentación API
+- **epub2 / pdf-parse** - Parsers de archivos
+
 ### Frontend
+
 - **React 18** - Framework UI
 - **TypeScript** - Type safety
-- **Vite** - Build tool y dev server
+- **Vite** - Build tool
+- **Tailwind CSS 4** - Estilos
+- **TanStack Query** - Gestión de estado servidor
+- **Axios** - Cliente HTTP
+- **epubjs / pdfjs** - Visores de archivos
 
-### Testing
+### Testing & Quality
+
 - **Vitest** - Unit testing
 - **React Testing Library** - Component testing
-- **Coverage** en formato LCOV (SonarQube ready)
-
-### Code Quality
 - **ESLint** - Linting
 - **Prettier** - Code formatting
-- **TypeScript strict mode** - Type checking
 
 ### Package Manager
-- **pnpm** - Rápido, eficiente y con mejor gestión de dependencias
 
-### APIs
-- **Google Books API** (primaria)
-- **Open Library API** (fallback)
+- **pnpm** - Gestión de dependencias
 
 ## 🎯 Características Implementadas
 
+### ✅ Backend
+
+1. **API REST completa** con endpoints CRUD
+2. **Escáner de biblioteca** - Detecta archivos locales automáticamente
+3. **Extracción de metadatos** desde archivos EPUB y PDF
+4. **Validación de duplicados** (por ISBN, hash, título+autor)
+5. **Gestión de portadas** - Almacenamiento local
+6. **Integración con APIs externas** (Google Books, Open Library)
+7. **Arquitectura limpia** (Controller → Service → Repository)
+8. **Documentación Swagger** generada automáticamente
+
+### ✅ Frontend
+
+1. **Página de Biblioteca** - Lista todos los libros
+2. **Página de Búsqueda** - Busca en APIs externas
+3. **Modal de detalles** - Visualiza información completa
+4. **Modal de edición** - Edita metadatos
+5. **Modal de resultados de escaneo** - Muestra libros encontrados
+6. **Visor de PDF** integrado
+7. **Visor de EPUB** integrado
+8. **Componentes reutilizables** (Button, Input, BookInfoItem)
+9. **Diseño responsive** con Tailwind CSS
+
 ### ✅ Funcionalidades Core
-1. Búsqueda de libros por ISBN
-2. Integración con Google Books API
-3. Fallback automático a Open Library
-4. Visualización de metadatos (título, autores, portada, etc.)
-5. Gestión básica de biblioteca
 
-### ✅ Arquitectura y Código
-1. Arquitectura limpia con separación de responsabilidades
-2. Servicios reutilizables y componibles
-3. Custom hooks para lógica compartida
-4. Tipos TypeScript completos
-5. Tests con buena cobertura
-6. Componentes React modulares
-
-### ✅ Desarrollo
-1. Hot Module Replacement (HMR)
-2. TypeScript strict mode
-3. ESLint configurado
-4. Prettier integrado
-5. Scripts automatizados
-6. Documentación completa
+1. Añadir libros manualmente o desde APIs
+2. Escanear carpetas locales automáticamente
+3. Editar metadatos de libros existentes
+4. Eliminar libros de la biblioteca
+5. Ver portadas y metadatos
+6. Leer libros (PDF y EPUB) en la app
+7. Búsqueda por ISBN en APIs externas
+8. Prevención automática de duplicados
 
 ## 📊 Métricas del Proyecto
 
-### Archivos de Código
-- **Componentes React**: 2
-- **Custom Hooks**: 1
+### Backend
+
+- **Endpoints API**: ~10
+- **Servicios**: 1 (books)
+- **Utilidades**: 8 (scanner, extractors, formatters, etc.)
+- **Migraciones**: 3
+
+### Frontend
+
+- **Páginas**: 2
+- **Componentes**: 12+
+- **Modales**: 4
+- **Hooks personalizados**: 1
 - **Servicios**: 3
-- **Tests**: 2
-- **Tipos TypeScript**: 1
+- **Tests**: 1
 
 ### Configuración
-- **Total de archivos de config**: 10+
-- **Scripts npm**: 12
-- **Documentación**: 5 archivos
 
-### Dependencias
-- **Producción**: 2 (react, react-dom)
-- **Desarrollo**: ~15 (testing, linting, building)
+- **Total archivos de config**: 15+
+- **Scripts npm**: 20+ (backend + frontend)
+- **Documentación**: 8 archivos
 
 ## 🚀 Inicio Rápido
 
-### Para Empezar en 3 Pasos
+### Requisitos
+
+- Node.js (v20+)
+- pnpm (10+)
+
+### Instalación
+
+#### 1. Backend
 
 ```bash
-# 1. Clonar e instalar
-git clone <tu-repo>
-cd book-library
-./setup.sh  # o setup.ps1 en Windows
+cd backend
+pnpm install
 
-# 2. (Opcional) Configurar API
-# Editar .env con tu Google Books API key
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus configuraciones
 
-# 3. Iniciar desarrollo
+# Generar cliente Prisma
+pnpm prisma generate
+
+# Aplicar migraciones
+pnpm prisma migrate dev
+
+# Iniciar servidor
 pnpm dev
 ```
 
+El backend estará en `http://localhost:3001`
+
+#### 2. Frontend
+
+```bash
+cd frontend
+pnpm install
+
+# (Opcional) Configurar API keys
+cp .env.example .env
+
+# Iniciar desarrollo
+pnpm dev
+```
+
+El frontend estará en `http://localhost:5173`
+
 ### Comandos Esenciales
+
+**Backend:**
+
+```bash
+pnpm dev              # Desarrollo
+pnpm build            # Build producción
+pnpm start            # Ejecutar build
+pnpm prisma studio    # UI base de datos
+```
+
+**Frontend:**
 
 ```bash
 pnpm dev              # Desarrollo
@@ -154,104 +237,82 @@ pnpm lint             # Verificar código
 pnpm format           # Formatear código
 ```
 
-## 🔄 Próximos Pasos (Fase 2)
-
-### Migración a Tauri
-1. Instalar Rust y Tauri CLI
-2. Inicializar Tauri en el proyecto
-3. Implementar comandos nativos
-4. Configurar permisos de sistema de archivos
-
-### Nuevas Funcionalidades
-1. **Lectura de carpetas locales**
-   - Escanear directorios de eBooks
-   - Soportar EPUB y PDF
-
-2. **Extracción de metadatos**
-   - Parser de EPUB
-   - Parser de PDF
-   - Sincronizar con APIs online
-
-3. **Base de datos local**
-   - SQLite integrado
-   - Persistencia de biblioteca
-   - Búsqueda avanzada
-
-4. **Gestión completa**
-   - Añadir/editar/eliminar libros
-   - Categorías y etiquetas
-   - Estadísticas de lectura
-
-Ver detalles en **[TAURI_MIGRATION.md](./TAURI_MIGRATION.md)**
-
 ## 🎓 Recursos de Aprendizaje
 
 ### Documentación Incluida
-1. **[PNPM_GUIDE.md](./PNPM_GUIDE.md)** - Todo sobre pnpm
-2. **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Mejores prácticas
-3. **[API_EXAMPLES.md](./API_EXAMPLES.md)** - Ejemplos de código
 
-### APIs
-- [Google Books API Docs](https://developers.google.com/books)
-- [Open Library API Docs](https://openlibrary.org/developers/api)
+1. **[README.md](../README.md)** - Documentación principal
+2. **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitectura backend
+3. **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guía de desarrollo frontend
+4. **[API_EXAMPLES.md](./API_EXAMPLES.md)** - Ejemplos de uso de APIs
+5. **[LIBRARY_SCANNER.md](./LIBRARY_SCANNER.md)** - Escáner de biblioteca
+6. **[DUPLICATE_VALIDATION.md](./DUPLICATE_VALIDATION.md)** - Validación de duplicados
+7. **[PNPM_GUIDE.md](./PNPM_GUIDE.md)** - Guía de pnpm
 
-### Tecnologías
+### APIs y Tecnologías
+
+- [Express Docs](https://expressjs.com/)
+- [Prisma Docs](https://www.prisma.io/docs)
 - [React Docs](https://react.dev)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Vite Guide](https://vitejs.dev/guide/)
-- [Vitest Docs](https://vitest.dev/)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Google Books API](https://developers.google.com/books)
+- [Open Library API](https://openlibrary.org/developers/api)
 
 ## 🤝 Contribución
 
-El proyecto sigue las siguientes convenciones:
+### Commits Convencionales
 
-### Commits
-```
-feat(scope): descripción    # Nueva funcionalidad
-fix(scope): descripción     # Bug fix
-docs(scope): descripción    # Documentación
-test(scope): descripción    # Tests
-refactor(scope): descripción # Refactoring
+```bash
+feat(scope): nueva funcionalidad
+fix(scope): corrección de bug
+docs(scope): documentación
+test(scope): tests
+refactor(scope): refactorización
 ```
 
 ### Code Style
+
 - ESLint + Prettier configurados
-- Ejecutar `pnpm lint:fix` antes de commit
-- Ejecutar `pnpm format` para formatear
-- Todos los tests deben pasar (`pnpm test`)
+- Ejecutar `pnpm lint:fix` y `pnpm format` antes de commit
+- Todos los tests deben pasar
 
-### Pull Requests
-1. Fork el proyecto
-2. Crea tu rama (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'feat: add AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+## 📈 Funcionalidades Futuras
 
-## 📈 Estado del Proyecto
+### Planificadas
 
-- ✅ **Fase 1**: Web App - COMPLETADA
-- 🔄 **Fase 2**: Tauri Desktop - PENDIENTE
-- 📱 **Fase 3**: Mobile - PLANIFICADA
-
-### Features por Implementar
-- [ ] Base de datos local (SQLite)
-- [ ] Lectura de archivos EPUB/PDF
-- [ ] Extracción de metadatos de archivos
-- [ ] Sistema de categorías y etiquetas
-- [ ] Búsqueda avanzada en biblioteca
+- [ ] Sistema de categorías y etiquetas personalizadas
+- [ ] Búsqueda avanzada en biblioteca local
 - [ ] Estadísticas de lectura
 - [ ] Export/Import de biblioteca
-- [ ] Sincronización entre dispositivos
-- [ ] App móvil con escaneo de códigos
+- [ ] Sincronización en la nube (opcional)
+- [ ] Soporte para más formatos (CBR, CBZ, etc.)
+- [ ] Recomendaciones de libros basadas en biblioteca
+- [ ] Modo oscuro
+- [ ] Integración con Goodreads
+
+### En Consideración
+
+- [ ] App móvil con React Native
+- [ ] Escaneo de códigos de barras (móvil)
+- [ ] Cliente desktop con Tauri
+- [ ] Lector de eBooks mejorado con anotaciones
 
 ## 🎉 Conclusión
 
-Este proyecto proporciona una base sólida y bien estructurada para una aplicación de gestión de biblioteca. La arquitectura modular facilita la extensión con nuevas funcionalidades, y la documentación completa ayuda tanto a desarrolladores nuevos como experimentados.
+Este proyecto proporciona una solución completa y moderna para gestionar una biblioteca personal de libros. La arquitectura fullstack bien estructurada facilita el mantenimiento y la extensión con nuevas funcionalidades.
 
-El enfoque por fases permite validar la UX primero en web, antes de añadir la complejidad de funcionalidades nativas con Tauri.
+**Características principales:**
+
+- ✅ Backend robusto con API REST
+- ✅ Frontend moderno con React y Tailwind
+- ✅ Base de datos SQLite integrada
+- ✅ Escáner automático de archivos locales
+- ✅ Integración con APIs externas
+- ✅ Visores de PDF y EPUB integrados
+- ✅ Gestión completa de biblioteca
 
 ---
 
-**Última actualización**: Enero 2026  
-**Versión**: 0.1.0 (Fase 1)  
-**Licencia**: MIT
+**Última actualización**: Febrero 2026  
+**Versión**: 1.0.0  
+**Licencia**: ISC

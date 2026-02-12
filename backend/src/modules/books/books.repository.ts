@@ -192,3 +192,9 @@ export const update = async (bookId: number, data: UpdateBookRepositoryInput) =>
 
 export const remove = (bookId: number) =>
   prisma.book.delete({ where: { id: bookId } });
+
+export const findAllWithFilePath = () =>
+  prisma.book.findMany({
+    where: { filePath: { not: null } },
+    include,
+  });

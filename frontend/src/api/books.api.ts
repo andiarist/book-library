@@ -36,11 +36,20 @@ export interface ScanLibraryResult {
   added: number;
   skipped: number;
   errors: number;
+  deleted: number;
+  deletionErrors: number;
   details: Array<{
     file: string;
     status: 'added' | 'skipped' | 'error';
     reason?: string;
     bookId?: number;
+  }>;
+  orphanedBooks: Array<{
+    bookId: number;
+    title: string;
+    filePath: string;
+    status: 'deleted' | 'error';
+    reason?: string;
   }>;
 }
 

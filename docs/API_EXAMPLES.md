@@ -1,393 +1,514 @@
-# 📚 Ejemplos de Uso de APIs
+# 📡 Guía de APIs - Book Library
 
-Este documento contiene ejemplos de cómo usar los servicios y hooks del proyecto.
+Esta guía documenta las APIs utilizadas en el proyecto Book Library, tanto la API backend propia como las APIs externas para búsqueda de metadatos.
 
-## 🔍 Búsqueda de Metadatos
+## 🏠 API Backend Propia
 
-### Usando el Servicio Orquestador (Recomendado)
+El backend expone una API REST completa para la gestión de la biblioteca.
+
+### Base URL
+
+```
+http://localhost:3001/api
+```
+
+### Documentación Interactiva
+
+Swagger UI disponible en: `http://localhost:3001/api-docs`
+
+### Endpoints Disponibles
+
+#### 1. Listar Todos los Libros
+
+```http
+GET /api/books
+```
+
+**Respuesta:**
+
+```json
+[
+  {
+    "id": 1,
+    "isbn": "978-0-123456-78-9",
+    "title": "El Nombre del Libro",
+    "authors": "Autor Principal, Co-autor",
+    "publisher": "Editorial",
+    "publishedDate": "2023-01-15",
+    "description": "Descripción del libro...",
+    "pageCount": 350,
+    "language": "es",
+    "coverImage": "http://localhost:3001/covers/cover-123.jpg",
+    "filePath": "C:/Books/libro.epub",
+    "fileHash": "abc123def456",
+    "fileFormat": "epub",
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "updatedAt": "2024-01-01T10:00:00.000Z"
+  }
+]
+```
+
+#### 2. Obtener un Libro
+
+```http
+GET /api/books/:id
+```
+
+**Parámetros:**
+
+- `id` (número): ID del libro
+
+**Respuesta:** Objeto libro (ver ejemplo anterior)
+
+#### 3. Crear Libro
+
+```http
+POST /api/books
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "isbn": "978-0-123456-78-9",
+  "title": "Nuevo Libro",
+  "authors": "Autor",
+  "publisher": "Editorial",
+  "publishedDate": "2023-01-15",
+  "description": "Descripción...",
+  "pageCount": 300,
+  "language": "es",
+  "coverImage": "https://example.com/cover.jpg",
+  "filePath": "C:/Books/nuevo-libro.pdf",
+  "fileFormat": "pdf"
+}
+```
+
+**Respuesta:** Libro creado con ID asignado
+
+#### 4. Actualizar Libro
+
+```http
+PUT /api/books/:id
+Content-Type: application/json
+```
+
+**Body:** Campos a actualizar (parcial permitido)
+
+```json
+{
+  "title": "Título Actualizado",
+  "description": "Nueva descripción"
+}
+```
+
+#### 5. Eliminar Libro
+
+```http
+DELETE /api/books/:id
+```
+
+**Respuesta:**
+
+```json
+{
+  "message": "Libro eliminado exitosamente"
+}
+```
+
+#### 6. Escanear Biblioteca
+
+```http
+POST /api/books/scan
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "path": "C:/Users/Usuario/Books"
+}
+```
+
+**Respuesta:**
+
+```json
+{
+  "scanned": 150,
+  "added": 45,
+  "duplicates": 5,
+  "errors": 2,
+  "books": [
+    {
+      "title": "Libro Encontrado",
+      "filePath": "C:/Users/Usuario/Books/libro.epub",
+      "status": "added"
+    }
+  ]
+}
+```
+
+#### 7. Buscar en APIs Externas
+
+```http
+POST /api/books/search
+Content-Type: application/json
+```
+
+**Body:**
+
+```json
+{
+  "isbn": "978-0-123456-78-9"
+}
+```
+
+**Respuesta:** Array de resultados de Google Books y Open Library
+
+### Manejo de Errores
+
+Todos los endpoints devuelven errores en formato estándar:
+
+```json
+{
+  "error": "Mensaje de error descriptivo",
+  "code": "ERROR_CODE"
+}
+```
+
+**Códigos de estado HTTP:**
+
+- `200` - OK
+- `201` - Creado
+- `400` - Bad Request (datos inválidos)
+- `404` - Not Found
+- `409` - Conflict (duplicado)
+- `500` - Internal Server Error
+
+### Ejemplo de Uso con Axios (Frontend)
 
 ```typescript
-import { BookMetadataService } from '@/services/bookMetadataService';
+import axios from "axios";
 
-// Buscar por ISBN (intenta Google Books, luego Open Library)
-const metadata = await BookMetadataService.searchByISBN('9780134685991');
+const api = axios.create({
+  baseURL: "http://localhost:3001/api",
+});
 
-if (metadata) {
-  console.log(metadata.title);        // "Effective Java"
-  console.log(metadata.authors);      // ["Joshua Bloch"]
-  console.log(metadata.imageUrl);     // URL de portada
-}
+// Obtener todos los libros
+const books = await api.get("/books");
 
-// Búsqueda por texto
-const results = await BookMetadataService.search('javascript programming', 10);
-results.forEach(book => {
-  console.log(`${book.title} - ${book.authors.join(', ')}`);
+// Crear libro
+const newBook = await api.post("/books", {
+  isbn: "978-0-123456-78-9",
+  title: "Mi Libro",
+  authors: "Autor",
+});
+
+// Escanear biblioteca
+const scanResult = await api.post("/books/scan", {
+  path: "C:/Users/Usuario/Books",
 });
 ```
 
-### Usando Google Books Directamente
+## 🌐 APIs Externas
 
-```typescript
-import { GoogleBooksService } from '@/services/googleBooksService';
+El proyecto utiliza APIs externas para enriquecer los metadatos de los libros.
 
-// Buscar por ISBN
-const book = await GoogleBooksService.searchByISBN('9780134685991');
+### 1. Google Books API
 
-// Búsqueda general
-const books = await GoogleBooksService.search('react hooks', 20);
+Búsqueda de libros por ISBN con metadatos completos.
+
+#### Endpoint
+
+```
+GET https://www.googleapis.com/books/v1/volumes?q=isbn:{ISBN}
 ```
 
-### Usando Open Library Directamente
+#### Ejemplo de Uso
 
 ```typescript
-import { OpenLibraryService } from '@/services/openLibraryService';
+// frontend/src/services/googleBooksService.ts
+import axios from "axios";
 
-// Buscar por ISBN
-const book = await OpenLibraryService.searchByISBN('9780134685991');
+const API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY; // Opcional
 
-// Obtener URL de portada
-const coverUrl = OpenLibraryService.getCoverUrl('9780134685991', 'L');
-```
+export async function searchByISBN(isbn: string) {
+  const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`;
+  const params = API_KEY ? { key: API_KEY } : {};
 
-## 🪝 Usando el Hook Personalizado
-
-### En un Componente React
-
-```typescript
-import { useBookMetadata } from '@/hooks/useBookMetadata';
-
-function BookSearch() {
-  const {
-    metadata,
-    searchResults,
-    loading,
-    error,
-    searchByISBN,
-    search,
-    reset
-  } = useBookMetadata();
-
-  const handleISBNSearch = async () => {
-    await searchByISBN('9780134685991');
-  };
-
-  const handleTextSearch = async () => {
-    await search('react programming');
-  };
-
-  if (loading) return <div>Cargando...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return (
-    <div>
-      <button onClick={handleISBNSearch}>Buscar por ISBN</button>
-      <button onClick={handleTextSearch}>Buscar por texto</button>
-      <button onClick={reset}>Reset</button>
-      
-      {metadata && (
-        <BookCard book={metadata} />
-      )}
-      
-      {searchResults.map((book, idx) => (
-        <BookCard key={idx} book={book} />
-      ))}
-    </div>
-  );
+  const response = await axios.get(url, { params });
+  return response.data.items?.[0];
 }
 ```
 
-### Manejo Avanzado de Estados
+#### Respuesta Típica
 
-```typescript
-function AdvancedBookSearch() {
-  const { searchByISBN, loading, error, metadata } = useBookMetadata();
-  const [isbn, setIsbn] = useState('');
-
-  const handleSearch = async () => {
-    try {
-      await searchByISBN(isbn);
-      
-      // Hacer algo después de búsqueda exitosa
-      if (metadata) {
-        console.log('Libro encontrado:', metadata.title);
-        // Añadir a biblioteca, etc.
+```json
+{
+  "items": [
+    {
+      "id": "abc123",
+      "volumeInfo": {
+        "title": "Título del Libro",
+        "authors": ["Autor Principal", "Co-autor"],
+        "publisher": "Editorial",
+        "publishedDate": "2023-01-15",
+        "description": "Descripción completa...",
+        "pageCount": 350,
+        "language": "es",
+        "imageLinks": {
+          "thumbnail": "http://books.google.com/cover.jpg",
+          "smallThumbnail": "http://books.google.com/cover-small.jpg"
+        },
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9780123456789"
+          }
+        ]
       }
-    } catch (err) {
-      console.error('Error en búsqueda:', err);
     }
-  };
-
-  return (
-    <div>
-      <input
-        value={isbn}
-        onChange={(e) => setIsbn(e.target.value)}
-        disabled={loading}
-      />
-      <button onClick={handleSearch} disabled={loading || !isbn}>
-        {loading ? 'Buscando...' : 'Buscar'}
-      </button>
-      
-      {error && (
-        <div className="error">
-          <strong>Error desde {error.source}:</strong> {error.message}
-        </div>
-      )}
-    </div>
-  );
+  ]
 }
 ```
 
-## 🎨 Componentes
-
-### BookCard
+#### Mapeo de Datos
 
 ```typescript
-import { BookCard } from '@/components/BookCard';
+function mapGoogleBooksToBook(googleBook: any) {
+  const info = googleBook.volumeInfo;
 
-function MyLibrary() {
-  const book = {
-    isbn: '9780134685991',
-    title: 'Effective Java',
-    authors: ['Joshua Bloch'],
-    publisher: 'Addison-Wesley',
-    publishedDate: '2018-01-06',
-    pageCount: 416,
-    imageUrl: 'https://...',
-    description: 'The definitive guide to Java programming...'
+  return {
+    isbn:
+      info.industryIdentifiers?.find((id: any) => id.type === "ISBN_13")
+        ?.identifier || "",
+    title: info.title,
+    authors: info.authors?.join(", ") || "Desconocido",
+    publisher: info.publisher || "",
+    publishedDate: info.publishedDate || "",
+    description: info.description || "",
+    pageCount: info.pageCount || 0,
+    language: info.language || "es",
+    coverImage: info.imageLinks?.thumbnail || "",
   };
-
-  const handleAdd = () => {
-    console.log('Añadiendo libro a biblioteca');
-    // Lógica para añadir a biblioteca
-  };
-
-  return (
-    <BookCard 
-      book={book} 
-      onAdd={handleAdd}  // Opcional
-    />
-  );
 }
 ```
 
-### ISBNSearchForm
+#### Límites
+
+- **Sin API Key**: 1,000 requests/día
+- **Con API Key**: Hasta 10,000 requests/día (gratis)
+- Rate limit: ~10 requests/segundo
+
+### 2. Open Library API
+
+API alternativa para búsqueda de libros, especialmente útil cuando Google Books no tiene resultados.
+
+#### Endpoint
+
+```
+GET https://openlibrary.org/api/books?bibkeys=ISBN:{ISBN}&format=json&jscmd=data
+```
+
+#### Ejemplo de Uso
 
 ```typescript
-import { ISBNSearchForm } from '@/components/ISBNSearchForm';
+// frontend/src/services/openLibraryService.ts
+import axios from "axios";
 
-function SearchPage() {
-  const [isSearching, setIsSearching] = useState(false);
-
-  const handleSearch = async (isbn: string) => {
-    setIsSearching(true);
-    try {
-      const result = await BookMetadataService.searchByISBN(isbn);
-      console.log('Resultado:', result);
-    } finally {
-      setIsSearching(false);
-    }
+export async function searchByISBN(isbn: string) {
+  const url = `https://openlibrary.org/api/books`;
+  const params = {
+    bibkeys: `ISBN:${isbn}`,
+    format: "json",
+    jscmd: "data",
   };
 
-  return (
-    <ISBNSearchForm 
-      onSearch={handleSearch}
-      loading={isSearching}
-    />
-  );
+  const response = await axios.get(url, { params });
+  return response.data[`ISBN:${isbn}`];
 }
 ```
 
-## 🔄 Manejo de Errores
+#### Respuesta Típica
 
-### Captura de Errores Específicos
-
-```typescript
-import { APIError } from '@/types/book';
-
-try {
-  const metadata = await BookMetadataService.searchByISBN('invalid-isbn');
-} catch (error) {
-  if (isAPIError(error)) {
-    switch (error.source) {
-      case 'google-books':
-        console.error('Error en Google Books:', error.message);
-        // Intentar con Open Library manualmente, o notificar al usuario
-        break;
-      case 'open-library':
-        console.error('Error en Open Library:', error.message);
-        // Ambas APIs fallaron
-        break;
-      case 'local':
-        console.error('Error local:', error.message);
-        break;
-    }
-  } else {
-    console.error('Error desconocido:', error);
-  }
-}
-
-function isAPIError(error: unknown): error is APIError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    'source' in error
-  );
-}
-```
-
-### Reintentos con Delay
-
-```typescript
-async function searchWithRetry(isbn: string, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await BookMetadataService.searchByISBN(isbn);
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      
-      // Esperar antes de reintentar (backoff exponencial)
-      await new Promise(resolve => 
-        setTimeout(resolve, Math.pow(2, i) * 1000)
-      );
+```json
+{
+  "ISBN:9780123456789": {
+    "title": "Título del Libro",
+    "authors": [{ "name": "Autor Principal" }],
+    "publishers": [{ "name": "Editorial" }],
+    "publish_date": "2023",
+    "number_of_pages": 350,
+    "cover": {
+      "small": "https://covers.openlibrary.org/b/id/123-S.jpg",
+      "medium": "https://covers.openlibrary.org/b/id/123-M.jpg",
+      "large": "https://covers.openlibrary.org/b/id/123-L.jpg"
     }
   }
 }
+```
 
-// Uso
-try {
-  const book = await searchWithRetry('9780134685991');
-} catch (error) {
-  console.error('Falló después de 3 intentos');
+#### Mapeo de Datos
+
+```typescript
+function mapOpenLibraryToBook(olBook: any) {
+  return {
+    title: olBook.title,
+    authors:
+      olBook.authors?.map((a: any) => a.name).join(", ") || "Desconocido",
+    publisher: olBook.publishers?.[0]?.name || "",
+    publishedDate: olBook.publish_date || "",
+    pageCount: olBook.number_of_pages || 0,
+    coverImage: olBook.cover?.large || olBook.cover?.medium || "",
+  };
 }
 ```
 
-## 🎯 Casos de Uso Comunes
+#### Límites
 
-### 1. Búsqueda con Validación de ISBN
+- Sin autenticación requerida
+- Rate limit razonable (no especificado oficialmente)
+- Respuesta más lenta que Google Books
+
+### 3. Servicio Combinado
+
+El frontend implementa un servicio que intenta múltiples APIs:
 
 ```typescript
-function validateISBN(isbn: string): boolean {
-  const cleaned = isbn.replace(/[-\s]/g, '');
-  // ISBN-10 o ISBN-13
-  return /^(97[89])?\d{9}[\dX]$/i.test(cleaned);
-}
+// frontend/src/services/bookMetadataService.ts
+import * as googleBooks from "./googleBooksService";
+import * as openLibrary from "./openLibraryService";
 
-async function safeSearchByISBN(isbn: string) {
-  if (!validateISBN(isbn)) {
-    throw new Error('ISBN inválido');
+export async function searchBookByISBN(isbn: string) {
+  // Intentar primero con Google Books
+  try {
+    const googleResult = await googleBooks.searchByISBN(isbn);
+    if (googleResult) {
+      return {
+        source: "google",
+        data: googleResult,
+      };
+    }
+  } catch (error) {
+    console.warn("Google Books falló:", error);
   }
-  
-  return await BookMetadataService.searchByISBN(isbn);
+
+  // Fallback a Open Library
+  try {
+    const olResult = await openLibrary.searchByISBN(isbn);
+    if (olResult) {
+      return {
+        source: "openlibrary",
+        data: olResult,
+      };
+    }
+  } catch (error) {
+    console.warn("Open Library falló:", error);
+  }
+
+  throw new Error("No se encontraron resultados en ninguna API");
 }
 ```
 
-### 2. Cache de Resultados
+## 🔐 Configuración de API Keys
+
+### Google Books API Key (Opcional)
+
+1. Ir a [Google Cloud Console](https://console.cloud.google.com/)
+2. Crear un nuevo proyecto
+3. Habilitar "Books API"
+4. Crear credenciales (API Key)
+5. Agregar al frontend:
+
+```env
+# frontend/.env
+VITE_GOOGLE_BOOKS_API_KEY=tu_api_key_aqui
+```
+
+## 🎯 Mejores Prácticas
+
+### 1. Caché de Respuestas
 
 ```typescript
-const cache = new Map<string, BookMetadata>();
+const cache = new Map();
 
-async function cachedSearch(isbn: string) {
-  // Verificar cache
+async function fetchWithCache(isbn: string) {
   if (cache.has(isbn)) {
-    console.log('Usando resultado cacheado');
-    return cache.get(isbn)!;
+    return cache.get(isbn);
   }
 
-  // Buscar y cachear
-  const result = await BookMetadataService.searchByISBN(isbn);
-  if (result) {
-    cache.set(isbn, result);
-  }
-  
+  const result = await searchByISBN(isbn);
+  cache.set(isbn, result);
   return result;
 }
 ```
 
-### 3. Búsqueda Múltiple
+### 2. Manejo de Errores
 
 ```typescript
-async function searchMultipleISBNs(isbns: string[]) {
-  const results = await Promise.allSettled(
-    isbns.map(isbn => BookMetadataService.searchByISBN(isbn))
-  );
-
-  const successful = results
-    .filter((r): r is PromiseFulfilledResult<BookMetadata | null> => 
-      r.status === 'fulfilled' && r.value !== null
-    )
-    .map(r => r.value);
-
-  const failed = results
-    .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
-    .map(r => r.reason);
-
-  return { successful, failed };
-}
-
-// Uso
-const { successful, failed } = await searchMultipleISBNs([
-  '9780134685991',
-  '9780596517748',
-  '9781491950296'
-]);
-
-console.log(`${successful.length} encontrados, ${failed.length} fallaron`);
-```
-
-### 4. Transformación de Datos
-
-```typescript
-import { Book, BookMetadata } from '@/types/book';
-
-function metadataToBook(metadata: BookMetadata): Book {
-  return {
-    id: crypto.randomUUID(),
-    ...metadata,
-    addedAt: new Date().toISOString(),
-    lastModified: new Date().toISOString(),
-  };
-}
-
-// Uso
-const metadata = await BookMetadataService.searchByISBN('9780134685991');
-if (metadata) {
-  const book = metadataToBook(metadata);
-  // Guardar en base de datos, etc.
+try {
+  const book = await searchByISBN(isbn);
+  return book;
+} catch (error) {
+  if (error.response?.status === 404) {
+    return null; // No encontrado
+  }
+  throw error; // Propagar otros errores
 }
 ```
 
-## 🧪 Testing
-
-### Mock de Servicios
+### 3. Rate Limiting
 
 ```typescript
-import { vi } from 'vitest';
-import { BookMetadataService } from '@/services/bookMetadataService';
+import pLimit from "p-limit";
 
-// Mock del servicio
-vi.mock('@/services/bookMetadataService');
+const limit = pLimit(5); // Máximo 5 requests concurrentes
 
-// En tu test
-it('should handle search', async () => {
-  const mockBook = {
-    isbn: '9780134685991',
-    title: 'Test Book',
-    authors: ['Test Author']
-  };
+const promises = isbns.map((isbn) => limit(() => searchByISBN(isbn)));
 
-  vi.mocked(BookMetadataService.searchByISBN)
-    .mockResolvedValue(mockBook);
+const results = await Promise.all(promises);
+```
 
-  const result = await BookMetadataService.searchByISBN('9780134685991');
-  expect(result).toEqual(mockBook);
+### 4. Timeout
+
+```typescript
+const api = axios.create({
+  timeout: 5000, // 5 segundos
 });
 ```
 
-## 🔗 Referencias
+## 📊 Comparación de APIs
 
-- [Google Books API Docs](https://developers.google.com/books/docs/v1/using)
+| Característica        | Backend Propio | Google Books | Open Library |
+| --------------------- | -------------- | ------------ | ------------ |
+| Autenticación         | No requerida   | Opcional     | No requerida |
+| Rate Limit            | Ilimitado      | 1k-10k/día   | Razonable    |
+| Velocidad             | Rápida         | Rápida       | Media        |
+| Cobertura             | Tu biblioteca  | Muy amplia   | Amplia       |
+| Portadas              | Local          | Buena        | Buena        |
+| Metadatos completos   | ✅             | ✅           | Parcial      |
+| Offline               | ✅             | ❌           | ❌           |
+| Búsqueda por archivo  | ✅             | ❌           | ❌           |
+| Validación duplicados | ✅             | ❌           | ❌           |
+
+## 🚀 Recomendaciones
+
+1. **Usa el backend propio** para toda la gestión de tu biblioteca
+2. **Usa APIs externas** solo para búsquedas de nuevos libros por ISBN
+3. **Implementa caché** para reducir llamadas a APIs externas
+4. **Considera la API Key de Google Books** si haces muchas búsquedas
+5. **Fallback entre APIs** para mejor cobertura
+6. **Almacena metadatos localmente** una vez obtenidos
+
+## � Recursos
+
+- [Google Books API Docs](https://developers.google.com/books)
 - [Open Library API Docs](https://openlibrary.org/developers/api)
-- [React Hooks Docs](https://react.dev/reference/react)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Swagger UI](http://localhost:3001/api-docs) (cuando el backend esté corriendo)
+- [Prisma Docs](https://www.prisma.io/docs) (ORM del backend)
+
+---
+
+**Última actualización**: Febrero 2026

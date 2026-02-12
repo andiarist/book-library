@@ -1,135 +1,371 @@
-# Book Library
+# 📚 Book Library
 
-Proyecto fullstack para gestionar una biblioteca de libros (API + frontend).
+Aplicación fullstack para gestionar tu biblioteca personal de libros con escaneo automático de archivos locales, búsqueda de metadatos y gestión completa de tu colección.
 
-## Visión general
+## ✨ Características
 
-- Backend: carpeta `backend` (API REST con Express + Prisma).
-- Frontend: carpeta `frontend` (React + Vite).
-- Base de datos: SQLite por defecto (configurada vía `DATABASE_URL`).
+- 📖 **Gestión completa de biblioteca** - CRUD de libros con metadatos ricos
+- 🔍 **Escaneo automático** - Detecta archivos EPUB, PDF, MOBI, AZW3 en carpetas locales
+- 🌐 **Búsqueda externa** - Integración con Google Books y Open Library API
+- 📊 **Base de datos local** - SQLite integrada sin configuración adicional
+- 🖼️ **Gestión de portadas** - Almacenamiento y visualización de portadas
+- 📱 **Visor integrado** - Lee PDFs y EPUBs directamente en la aplicación
+- 🎨 **Interfaz moderna** - React con Tailwind CSS
+- 🚀 **API REST completa** - Backend Express con documentación Swagger
 
-## Requisitos
+## 🏗️ Arquitectura
 
-- Node.js (v20.19+, v22.12+, v24.0+)
-- pnpm (10+)
+```
+book-library/
+├── backend/           # API REST (Express + Prisma + SQLite)
+│   ├── src/
+│   │   ├── modules/books/    # Módulo de libros
+│   │   ├── utils/            # Utilidades (scanner, extractors)
+│   │   ├── config/           # Configuración
+│   │   └── lib/              # Cliente Prisma
+│   ├── prisma/               # Schema y migraciones
+│   └── storage/covers/       # Portadas almacenadas
+│
+└── frontend/          # React + Vite + Tailwind
+    ├── src/
+    │   ├── components/       # Componentes reutilizables
+    │   ├── pages/            # Páginas (Library, Search)
+    │   ├── api/              # Cliente API backend
+    │   └── services/         # Servicios externos
+    └── public/
+```
 
-## Instalación
+## 📋 Requisitos
 
-1. Backend
+- **Node.js** v20+ (recomendado v20.19+, v22.12+ o v24.0+)
+- **pnpm** 10+ (recomendado como package manager)
 
-   ```bash
-   cd backend
-   pnpm install
-   ```
+## 🚀 Inicio Rápido
 
-2. Frontend
+### 1. Clonar e Instalar
 
-   ```bash
-   cd ../frontend
-   pnpm install
-   ```
+```bash
+# Clonar repositorio
+git clone <repo-url>
+cd book-library
 
-## Backend — inicializar y ejecutar
+# Instalar dependencias del backend
+cd backend
+pnpm install
 
-1. Configurar variables de entorno
-   - Renombra el fichero `.env.expample` a `.env` con los datos necesarios:
+# Instalar dependencias del frontend
+cd ../frontend
+pnpm install
+```
 
-2. Generar cliente Prisma
+### 2. Configurar Backend
 
-   ```bash
-   cd backend
-   pnpm prisma generate
-   ```
+```bash
+cd backend
 
-3. Aplicar migraciones (desarrollo)
+# Copiar archivo de variables de entorno
+cp .env.example .env
 
-   ```bash
-   pnpm prisma migrate dev
-   ```
+# Editar .env con tu configuración
+# LIBRARY_PATH=C:/Users/TuUsuario/Books  # Ruta a tu biblioteca
+# DATABASE_URL="file:./dev.db"            # Base de datos SQLite
+# PORT=3001                               # Puerto del servidor
 
-4. Ejecutar en modo desarrollo
+# Generar cliente Prisma
+pnpm prisma generate
 
-   ```bash
-   pnpm dev
-   ```
+# Aplicar migraciones
+pnpm prisma migrate dev
 
-   - Los scripts del backend están en [backend/package.json](backend/package.json).
+# Iniciar servidor en modo desarrollo
+pnpm dev
+```
 
-5. Build y producción
+El backend estará disponible en `http://localhost:3001`
 
-   ```bash
-   pnpm build
-   pnpm start
-   ```
+### 3. Configurar Frontend
 
-## Actualizar base de datos en otro equipo
+```bash
+cd frontend
 
-Si ya tienes el proyecto configurado en otro equipo y actualizas el código con cambios en el schema de Prisma:
+# (Opcional) Configurar API keys para búsqueda externa
+cp .env.example .env
+# Agregar VITE_GOOGLE_BOOKS_API_KEY si tienes una
 
-1. Actualizar el código
+# Iniciar en modo desarrollo
+pnpm dev
+```
 
-   ```bash
-   git pull origin main
-   ```
+El frontend estará disponible en `http://localhost:5173`
 
-2. Aplicar migraciones pendientes
+## 💻 Comandos de Desarrollo
 
-   ```bash
-   cd backend
-   pnpm prisma migrate deploy
-   ```
+### Backend
 
-3. Regenerar cliente de Prisma
+```bash
+cd backend
 
-   ```bash
-   pnpm prisma generate
-   ```
+pnpm dev              # Desarrollo con hot-reload
+pnpm build            # Build para producción
+pnpm start            # Ejecutar build de producción
+pnpm prisma studio    # Abrir UI de base de datos
+pnpm prisma generate  # Regenerar cliente Prisma
+```
 
-**Nota:** Solo necesitas ejecutar `pnpm install` si hay cambios en las dependencias del `package.json`.
+### Frontend
 
-## Frontend — inicializar y ejecutar
+```bash
+cd frontend
 
-1. Instalar dependencias (ver sección Instalación).
+pnpm dev              # Desarrollo con hot-reload
+pnpm build            # Build para producción
+pnpm preview          # Preview del build
+pnpm test             # Ejecutar tests
+pnpm lint             # Verificar código
+pnpm format           # Formatear código
+```
 
-2. Ejecutar en modo desarrollo
+## 🔄 Actualizar en Otro Equipo
 
-   ```bash
-   cd frontend
-   pnpm dev
-   ```
+Si ya tienes el proyecto configurado y actualizas el código:
 
-3. Build para producción
+```bash
+# 1. Actualizar código
+git pull origin main
 
-   ```bash
-   pnpm build
-   pnpm preview
-   ```
+# 2. Backend: Aplicar migraciones pendientes
+cd backend
+pnpm prisma migrate deploy
+pnpm prisma generate
 
-4. Tests y utilidades
-   - Ejecutar tests: `pnpm test` (en `frontend`).
-   - Lint: `pnpm lint`.
+# 3. Frontend: Si hay nuevas dependencias
+cd ../frontend
+pnpm install
 
-Los scripts del frontend se pueden ver en [frontend/package.json](frontend/package.json).
+# 4. Reiniciar servidores
+cd ../backend && pnpm dev    # Terminal 1
+cd ../frontend && pnpm dev   # Terminal 2
+```
 
-## Almacenamiento de cubiertas (WIP)
+## 📡 API REST
 
-- Las cubiertas locales se guardan en `backend/storage/covers`.
-- Asegúrese de que la carpeta exista y tenga permisos de escritura por el proceso del servidor.
+El backend expone una API REST en `http://localhost:3001/api`:
 
-## Documentación y ejemplos
+### Endpoints Principales
 
-- Ejemplos de API: [docs/API_EXAMPLES.md](docs/API_EXAMPLES.md)
-- Desarrollo y guías: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- `GET /api/books` - Listar todos los libros
+- `GET /api/books/:id` - Obtener un libro específico
+- `POST /api/books` - Crear nuevo libro
+- `PUT /api/books/:id` - Actualizar libro
+- `DELETE /api/books/:id` - Eliminar libro
+- `POST /api/books/scan` - Escanear carpeta de libros
+- `POST /api/books/search` - Buscar en APIs externas
 
-## Notas adicionales
+### Documentación Interactiva
 
-- Prisma: la configuración está en [backend/prisma.config.ts](backend/prisma.config.ts) y el esquema en [backend/prisma/schema.prisma](backend/prisma/schema.prisma).
-- El backend usa SQLite por defecto según el esquema. Si usa otra base de datos, ajuste `DATABASE_URL` y el `provider` en `schema.prisma`.
+Swagger UI disponible en: `http://localhost:3001/api-docs`
 
-## Comandos útiles rápidos
+## 🗄️ Base de Datos
 
-- Instalar (root): `pnpm -w install`
-- Backend dev: `cd backend && pnpm dev`
-- Frontend dev: `cd frontend && pnpm dev`
-- Generar Prisma: `cd backend && pnpm prisma generate`
-- Migraciones (dev): `cd backend && pnpm prisma migrate dev`
+El proyecto usa **SQLite** por defecto (sin necesidad de servidor de BD).
+
+### Comandos Prisma Útiles
+
+```bash
+cd backend
+
+# Ver/editar datos visualmente
+pnpm prisma studio
+
+# Crear nueva migración
+pnpm prisma migrate dev --name nombre_migracion
+
+# Resetear base de datos (¡CUIDADO! Borra todos los datos)
+pnpm prisma migrate reset
+
+# Ver estado de migraciones
+pnpm prisma migrate status
+```
+
+### Cambiar a Otra Base de Datos
+
+Si prefieres PostgreSQL, MySQL u otra:
+
+1. Actualizar `DATABASE_URL` en `.env`
+2. Modificar `provider` en `backend/prisma/schema.prisma`
+3. Ejecutar `pnpm prisma migrate dev`
+
+## 📦 Almacenamiento
+
+### Portadas de Libros
+
+Las portadas se guardan localmente en `backend/storage/covers/`:
+
+- Extraídas automáticamente de archivos EPUB/PDF
+- Descargadas desde APIs externas cuando están disponibles
+- Servidas estáticamente por el backend en `/covers/:filename`
+
+Asegúrate de que la carpeta tenga permisos de escritura.
+
+## 🧪 Testing
+
+### Frontend
+
+```bash
+cd frontend
+
+# Ejecutar todos los tests
+pnpm test
+
+# Tests con interfaz visual
+pnpm test:ui
+
+# Generar reporte de cobertura
+pnpm test:coverage
+```
+
+## 📚 Documentación Adicional
+
+- **[PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md)** - Resumen completo del proyecto
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Arquitectura del backend
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Guía detallada de desarrollo
+- **[API_EXAMPLES.md](docs/API_EXAMPLES.md)** - Ejemplos de uso de APIs
+- **[LIBRARY_SCANNER.md](docs/LIBRARY_SCANNER.md)** - Documentación del escáner
+- **[DUPLICATE_VALIDATION.md](docs/DUPLICATE_VALIDATION.md)** - Validación de duplicados
+- **[PNPM_GUIDE.md](docs/PNPM_GUIDE.md)** - Guía de pnpm
+- **[TAILWIND_GUIDE.md](docs/TAILWIND_GUIDE.md)** - Guía de Tailwind CSS
+
+## 🛠️ Stack Tecnológico
+
+### Backend
+
+- Express 5 - Framework web
+- TypeScript - Type safety
+- Prisma - ORM
+- SQLite - Base de datos
+- Swagger - Documentación API
+- epub2 / pdf-parse - Parsers
+
+### Frontend
+
+- React 18 - Framework UI
+- Vite - Build tool
+- Tailwind CSS 4 - Estilos
+- TanStack Query - State management
+- Axios - HTTP client
+- epubjs / pdfjs - Visores
+
+## 🎯 Uso Típico
+
+1. **Primera vez**: Configurar backend y frontend, ejecutar migraciones
+2. **Escanear biblioteca**: POST a `/api/books/scan` con la ruta de tu carpeta
+3. **Buscar nuevo libro**: Usar la página de búsqueda por ISBN
+4. **Gestionar**: Editar, eliminar, ver detalles desde la interfaz
+5. **Leer**: Abrir visor integrado de PDF/EPUB
+
+## 🔧 Configuración Avanzada
+
+### Variables de Entorno Backend
+
+```env
+# backend/.env
+NODE_ENV=development
+PORT=3001
+DATABASE_URL="file:./dev.db"
+LIBRARY_PATH=C:/Users/TuUsuario/Books
+```
+
+### Variables de Entorno Frontend
+
+```env
+# frontend/.env
+VITE_API_URL=http://localhost:3001
+VITE_GOOGLE_BOOKS_API_KEY=tu_api_key_opcional
+```
+
+## 🐛 Solución de Problemas
+
+### Backend no inicia
+
+```bash
+cd backend
+pnpm prisma generate    # Regenerar cliente Prisma
+pnpm prisma studio      # Verificar BD
+```
+
+### Frontend no conecta
+
+- Verificar que backend esté corriendo en puerto 3001
+- Verificar CORS en `backend/src/app.ts`
+- Verificar `VITE_API_URL` en frontend
+
+### Errores de TypeScript
+
+```bash
+# Backend
+cd backend
+pnpm prisma generate
+
+# Frontend
+cd frontend
+pnpm type-check
+```
+
+## 🚢 Despliegue
+
+### Backend
+
+```bash
+cd backend
+pnpm build
+pnpm prisma migrate deploy
+pnpm start
+```
+
+### Frontend
+
+```bash
+cd frontend
+pnpm build
+# Los archivos estarán en /dist
+# Servir con nginx, vercel, netlify, etc.
+```
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
+
+### Commits Convencionales
+
+- `feat:` nueva funcionalidad
+- `fix:` corrección de bug
+- `docs:` cambios en documentación
+- `style:` formateo
+- `refactor:` refactorización
+- `test:` tests
+- `chore:` mantenimiento
+
+## 📄 Licencia
+
+ISC
+
+## 🎉 Características Futuras
+
+- [ ] Categorías y etiquetas personalizadas
+- [ ] Búsqueda avanzada en biblioteca
+- [ ] Estadísticas de lectura
+- [ ] Export/Import de biblioteca
+- [ ] Modo oscuro
+- [ ] App móvil con React Native
+- [ ] Cliente desktop con Electron/Tauri
+
+---
+
+**Última actualización**: Febrero 2026  
+**Versión**: 1.0.0
+
+Para más información, consulta la [documentación completa](docs/PROJECT_SUMMARY.md).
