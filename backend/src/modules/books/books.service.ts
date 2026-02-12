@@ -101,8 +101,18 @@ export const searchBookByText = async (query: string) => {
   }
 };
 
-export const getAllBooks = (page: number = 1, limit: number = 20) =>
-  repo.findAll(page, limit);
+export interface BookFilters {
+  search?: string;
+  format?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export const getAllBooks = (
+  page: number = 1,
+  limit: number = 20,
+  filters?: BookFilters,
+) => repo.findAll(page, limit, filters);
 
 export const getBookById = async (id: number) => {
   const book = await repo.findById(id);

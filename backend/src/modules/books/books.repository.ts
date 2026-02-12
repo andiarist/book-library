@@ -12,20 +12,76 @@ const includeAndOrder = {
   orderBy: { createdAt: "desc" as const },
 };
 
-export const findAll = async (page: number = 1, limit: number = 20) => {
+interface BookFilters {
+  search?: string;
+  format?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
+export const findAll = async (
+  page: number = 1,
+  limit: number = 20,
+  filters?: BookFilters,
+) => {
   const skip = (page - 1) * limit;
+
+  // Construir where clause
+  const where: any = {};
+
+  if (filters?.search) {
+    where.OR = [
+      { title: { contains: filters.search } },
+      {
+        authors: {
+          some: { name: { contains: filters.search } },
+        },
+      },
+    ];
+  }
+
+  if (filters?.format) {
+    where.format = filters.format;
+  }
+
+  // Construir orderBy
+  let orderBy: any = { createdAt: "desc" };
+
+  if (filters?.sortBy) {
+    const sortOrder = filters.sortOrder || "desc";
+
+    if (filters.sortBy === "author") {
+      // Para ordenar por autor, necesitamos un enfoque especial
+      orderBy = { authors: { _count: sortOrder } };
+    } else {
+      orderBy = { [filters.sortBy]: sortOrder };
+    }
+  }
 
   const [books, total] = await Promise.all([
     prisma.book.findMany({
-      ...includeAndOrder,
+      where,
+      include,
+      orderBy,
       skip,
       take: limit,
     }),
-    prisma.book.count(),
+    prisma.book.count({ where }),
   ]);
 
+  // Si ordenamos por autor, hacemos un post-sort en memoria
+  let sortedBooks = books;
+  if (filters?.sortBy === "author") {
+    sortedBooks = [...books].sort((a, b) => {
+      const authorA = a.authors[0]?.name || "";
+      const authorB = b.authors[0]?.name || "";
+      const comparison = authorA.localeCompare(authorB);
+      return filters.sortOrder === "asc" ? comparison : -comparison;
+    });
+  }
+
   return {
-    books,
+    books: sortedBooks,
     pagination: {
       page,
       limit,

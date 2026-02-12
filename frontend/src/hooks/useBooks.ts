@@ -7,13 +7,18 @@ import {
   searchBookCoversByQuery,
   updateBook,
   deleteBook,
+  BookQueryParams,
 } from '@/api/books.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export const useBooks = (page: number = 1, limit: number = 20) =>
+export const useBooks = (
+  page: number = 1,
+  limit: number = 20,
+  filters?: BookQueryParams
+) =>
   useQuery({
-    queryKey: ['books', page, limit],
-    queryFn: () => getBooks(page, limit),
+    queryKey: ['books', page, limit, filters],
+    queryFn: () => getBooks(page, limit, filters),
   });
 
 export const useBook = (id: number) =>

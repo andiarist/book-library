@@ -58,8 +58,17 @@ export const searchBooksByTextController = asyncHandler(async (req, res) => {
 export const getAllBooksController = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 20;
+  const search = req.query.search as string | undefined;
+  const format = req.query.format as string | undefined;
+  const sortBy = (req.query.sortBy as string) || "createdAt";
+  const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
 
-  const result = await service.getAllBooks(page, limit);
+  const result = await service.getAllBooks(page, limit, {
+    search,
+    format,
+    sortBy,
+    sortOrder,
+  });
   res.json(result);
 });
 

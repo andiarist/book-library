@@ -6,10 +6,31 @@ import {
 } from '@/types/books.types';
 import { http } from './http';
 
-export const getBooks = (page: number = 1, limit: number = 20) =>
-  http
-    .get<PaginatedBooks>(`/api/books?page=${page}&limit=${limit}`)
+export interface BookQueryParams {
+  search?: string;
+  format?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export const getBooks = (
+  page: number = 1,
+  limit: number = 20,
+  filters?: BookQueryParams
+) => {
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.format) params.append('format', filters.format);
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+  return http
+    .get<PaginatedBooks>(`/api/books?${params.toString()}`)
     .then((r) => r.data);
+};
 
 export const getBookById = (id: number) =>
   http.get<Book>(`/api/books/${id}`).then((r) => r.data);

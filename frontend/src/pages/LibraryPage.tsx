@@ -23,9 +23,21 @@ type ViewMode = 'grid' | 'table';
 const LibraryPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [formatFilter, setFormatFilter] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   const { data, isLoading, isError, refetch } = useBooks(
     currentPage,
-    itemsPerPage
+    itemsPerPage,
+    {
+      search: searchTerm || undefined,
+      format: formatFilter || undefined,
+      sortBy,
+      sortOrder,
+    }
   );
   const [isScanning, setIsScanning] = useState(false);
   const [scanResults, setScanResults] = useState<ScanLibraryResult | null>(
@@ -52,6 +64,17 @@ const LibraryPage = () => {
       );
     } finally {
       setIsScanning(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setSearchTerm(searchInput);
+    setCurrentPage(1);
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
     }
   };
 
@@ -173,6 +196,103 @@ const LibraryPage = () => {
               )}
             </button>
           </div>
+        </div>
+
+        {/* Filtros y Ordenación */}
+        <div className="mb-6 flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          {/* Búsqueda */}
+          <div className="min-w-[200px] flex-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Buscar
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleSearchKeyPress}
+                placeholder="Título o autor..."
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              />
+              <button
+                onClick={handleSearch}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+              >
+                Buscar
+              </button>
+            </div>
+          </div>
+
+          {/* Filtro por formato */}
+          <div className="w-40">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Formato
+            </label>
+            <select
+              value={formatFilter}
+              onChange={(e) => {
+                setFormatFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="">Todos</option>
+              <option value="EPUB">EPUB</option>
+              <option value="PDF">PDF</option>
+              <option value="MOBI">MOBI</option>
+              <option value="AZW3">AZW3</option>
+              <option value="PHYSICAL">Físico</option>
+            </select>
+          </div>
+
+          {/* Ordenar por */}
+          <div className="w-48">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Ordenar por
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="createdAt">Fecha de creación</option>
+              <option value="title">Título</option>
+              <option value="author">Autor</option>
+              <option value="publishYear">Año publicación</option>
+            </select>
+          </div>
+
+          {/* Orden */}
+          <div className="w-32">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Orden
+            </label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            >
+              <option value="desc">Descendente</option>
+              <option value="asc">Ascendente</option>
+            </select>
+          </div>
+
+          {/* Botón para limpiar filtros */}
+          {(searchTerm || formatFilter) && (
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setSearchInput('');
+                  setSearchTerm('');
+                  setFormatFilter('');
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Vista en cuadrícula */}
