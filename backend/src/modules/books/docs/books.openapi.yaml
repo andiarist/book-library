@@ -328,3 +328,165 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    BookMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        isbn:
+          type: string
+        publisher:
+          type: string
+        publishYear:
+          type: integer
+        pageCount:
+          type: integer
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+
+    CreateBookDTO:
+      type: object
+      required:
+        - title
+        - authors
+        - format
+      properties:
+        title:
+          type: string
+          description: Título del libro
+        authors:
+          type: array
+          items:
+            type: string
+          description: Lista de autores
+        isbn:
+          type: string
+          description: ISBN del libro
+        publisher:
+          type: string
+          description: Editorial
+        publishYear:
+          type: integer
+          description: Año de publicación
+        pageCount:
+          type: integer
+          description: Número de páginas
+        description:
+          type: string
+          description: Descripción del libro
+        categories:
+          type: array
+          items:
+            type: string
+          description: Categorías del libro
+        format:
+          type: string
+          enum: [EPUB, PDF, MOBI, AZW3, PHYSICAL]
+          description: Formato del libro
+        seriesName:
+          type: string
+          description: Nombre de la saga/serie
+        seriesOrder:
+          type: number
+          description: Número de orden en la saga (permite decimales como 1.5, 2.1, etc.)
+          example: 1.5
+        imageUrl:
+          type: string
+          description: URL de la imagen de portada
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Series:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        isbn:
+          type: string
+        publisher:
+          type: string
+        publishYear:
+          type: integer
+        pageCount:
+          type: integer
+        description:
+          type: string
+        format:
+          type: string
+          enum: [EPUB, PDF, MOBI, AZW3, PHYSICAL]
+        filePath:
+          type: string
+        coverPath:
+          type: string
+        fileHash:
+          type: string
+        seriesOrder:
+          type: number
+          description: Número de orden en la saga (permite decimales como 1.5, 2.1, etc.)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        authors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        series:
+          $ref: "#/components/schemas/Series"
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string

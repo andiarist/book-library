@@ -314,16 +314,17 @@ export const EditBookModal = ({
               </label>
               <Input
                 type="number"
+                step="0.1"
                 value={formData.sagaNumber || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
                     sagaNumber: e.target.value
-                      ? parseInt(e.target.value)
+                      ? parseFloat(e.target.value)
                       : undefined,
                   })
                 }
-                placeholder="Ej: 1, 2, 3..."
+                placeholder="Ej: 1, 1.5, 2, 2.1..."
               />
             </div>
             {/* Formato (digital/físico) */}
