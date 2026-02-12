@@ -12,7 +12,28 @@ const includeAndOrder = {
   orderBy: { createdAt: "desc" as const },
 };
 
-export const findAll = () => prisma.book.findMany(includeAndOrder);
+export const findAll = async (page: number = 1, limit: number = 20) => {
+  const skip = (page - 1) * limit;
+
+  const [books, total] = await Promise.all([
+    prisma.book.findMany({
+      ...includeAndOrder,
+      skip,
+      take: limit,
+    }),
+    prisma.book.count(),
+  ]);
+
+  return {
+    books,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
 
 export const findById = (id: number) =>
   prisma.book.findUnique({ where: { id }, include });

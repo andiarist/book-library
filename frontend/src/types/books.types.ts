@@ -61,3 +61,15 @@ export type Series = {
 };
 
 export type BookFormat = 'EPUB' | 'PDF' | 'PHYSICAL' | 'MOBI' | 'AZW3';
+
+export type PaginationInfo = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+export type PaginatedBooks = {
+  books: Book[];
+  pagination: PaginationInfo;
+};

@@ -55,8 +55,12 @@ export const searchBooksByTextController = asyncHandler(async (req, res) => {
   }
 });
 
-export const getAllBooksController = asyncHandler(async (_req, res) => {
-  res.json(await service.getAllBooks());
+export const getAllBooksController = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+
+  const result = await service.getAllBooks(page, limit);
+  res.json(result);
 });
 
 export const getBookByIdController = asyncHandler(async (req, res) => {

@@ -1,8 +1,15 @@
-import { BookMetadata, Book, CreateBookDTO } from '@/types/books.types';
+import {
+  BookMetadata,
+  Book,
+  CreateBookDTO,
+  PaginatedBooks,
+} from '@/types/books.types';
 import { http } from './http';
 
-export const getBooks = () =>
-  http.get<Book[]>('/api/books').then((r) => r.data);
+export const getBooks = (page: number = 1, limit: number = 20) =>
+  http
+    .get<PaginatedBooks>(`/api/books?page=${page}&limit=${limit}`)
+    .then((r) => r.data);
 
 export const getBookById = (id: number) =>
   http.get<Book>(`/api/books/${id}`).then((r) => r.data);

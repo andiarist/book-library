@@ -21,7 +21,12 @@ import {
 type ViewMode = 'grid' | 'table';
 
 const LibraryPage = () => {
-  const { data: books, isLoading, isError, refetch } = useBooks();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
+  const { data, isLoading, isError, refetch } = useBooks(
+    currentPage,
+    itemsPerPage
+  );
   const [isScanning, setIsScanning] = useState(false);
   const [scanResults, setScanResults] = useState<ScanLibraryResult | null>(
     null
@@ -75,7 +80,11 @@ const LibraryPage = () => {
   if (isError) {
     return <div>Error al cargar los libros</div>;
   }
-  if (books === undefined || books.length === 0) {
+
+  const books = data?.books || [];
+  const pagination = data?.pagination;
+
+  if (!data || books.length === 0) {
     return (
       <>
         <section className="animate-fadeIn p-6">
@@ -118,7 +127,7 @@ const LibraryPage = () => {
     <>
       <section className="animate-fadeIn p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg">Mi biblioteca ({books.length})</h2>
+          <h2 className="text-lg">Mi biblioteca ({pagination?.total || 0})</h2>
           <div className="flex items-center gap-3">
             {/* Selector de vista */}
             <div className="flex items-center gap-1 rounded-lg border border-gray-300 p-1">
@@ -215,7 +224,9 @@ const LibraryPage = () => {
                     key={book.id}
                     className="transition-colors hover:bg-gray-50"
                   >
-                    <td className="px-4 py-3 text-gray-600">{index + 1}</td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {(currentPage - 1) * itemsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 font-medium text-gray-900">
                       {book.title}
                     </td>
@@ -288,6 +299,38 @@ const LibraryPage = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Controles de paginación */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="mt-6 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Mostrando {(currentPage - 1) * itemsPerPage + 1} -{' '}
+              {Math.min(currentPage * itemsPerPage, pagination.total)} de{' '}
+              {pagination.total} libros
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <span className="text-sm text-gray-600">
+                Página {currentPage} de {pagination.totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))
+                }
+                disabled={currentPage === pagination.totalPages}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         )}
       </section>

@@ -10,8 +10,11 @@ import {
 } from '@/api/books.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-export const useBooks = () =>
-  useQuery({ queryKey: ['books'], queryFn: getBooks });
+export const useBooks = (page: number = 1, limit: number = 20) =>
+  useQuery({
+    queryKey: ['books', page, limit],
+    queryFn: () => getBooks(page, limit),
+  });
 
 export const useBook = (id: number) =>
   useQuery({
