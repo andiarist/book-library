@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import LibraryPage from './pages/library/LibraryPage';
-import { SearchPage } from './pages/SearchPage';
+import { SearchPage } from './pages/search/SearchPage';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'tab1' | 'tab2'>('tab1');
