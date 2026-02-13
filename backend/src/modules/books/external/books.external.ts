@@ -1,5 +1,5 @@
-import { http } from '../../lib/httpClient';
-import { BookSearchResult } from '../../utils/bookSearchUtils';
+import { http } from '../../../lib/httpClient';
+import { BookSearchResult } from '../../../utils/bookSearchUtils';
 
 const parsePublishYear = (raw?: string | null): number | null => {
   if (!raw) return null;
