@@ -75,6 +75,13 @@ export const findAll = async (
         const seriesA = a.series?.name || "";
         const seriesB = b.series?.name || "";
         comparison = seriesA.localeCompare(seriesB);
+
+        // Si ambos pertenecen a la misma serie, ordenar por seriesOrder
+        if (comparison === 0 && a.series?.name && b.series?.name) {
+          const orderA = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+          const orderB = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+          comparison = orderA - orderB;
+        }
       }
 
       return sortOrder === "asc" ? comparison : -comparison;

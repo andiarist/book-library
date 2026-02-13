@@ -5,7 +5,7 @@ type Props = {
 
 export function ErrorState({ onRetry, onClearFilters }: Props) {
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center p-6">
+    <div className="flex min-h-100 flex-col items-center justify-center p-6">
       <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-6 text-center">
         <div className="mb-4 text-5xl">⚠️</div>
         <h2 className="mb-2 text-xl font-semibold text-red-900">
