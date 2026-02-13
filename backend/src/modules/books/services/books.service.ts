@@ -1,23 +1,24 @@
-import { normalizeString } from '../../../utils/formatters';
+import { normalizeString } from "../../../utils/formatters";
 import {
   downloadAndSaveCover,
   generateCoverFilename,
   deleteCover,
-} from '../../../utils/coverUtils';
-import * as repo from '../repositories/books.repository';
-import { CreateBookDTO, UpdateBookDTO } from '../books.types';
+} from "../../../utils/coverUtils";
+import * as repo from "../repositories/books.repository";
+import { CreateBookDTO, UpdateBookDTO } from "../books.types";
 import {
   HttpError,
   normalizeAuthors,
   normalizeCategories,
   toHttpError,
-} from './utils/service-utils';
+} from "./utils/service-utils";
 
 export interface BookFilters {
   search?: string;
   format?: string;
+  seriesId?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 /**
@@ -38,7 +39,7 @@ export const getBookById = async (id: number) => {
   const book = await repo.findById(id);
 
   if (!book) {
-    throw new HttpError(404, 'Libro no encontrado');
+    throw new HttpError(404, "Libro no encontrado");
   }
 
   return book;
@@ -83,7 +84,7 @@ export const createBook = async (input: CreateBookDTO) => {
     );
 
     if (existingBook) {
-      throw new HttpError(409, 'Este libro ya existe en tu biblioteca', {
+      throw new HttpError(409, "Este libro ya existe en tu biblioteca", {
         book: existingBook,
       });
     }
@@ -138,7 +139,7 @@ export const updateBook = async (bookId: number, input: UpdateBookDTO) => {
     const existing = await repo.findById(bookId);
 
     if (!existing) {
-      throw new HttpError(404, 'Book not found');
+      throw new HttpError(404, "Book not found");
     }
 
     let newCoverPath: string | null | undefined = undefined;
@@ -206,7 +207,7 @@ export const deleteBook = async (bookId: number) => {
     const existing = await repo.findById(bookId);
 
     if (!existing) {
-      throw new HttpError(404, 'Book not found');
+      throw new HttpError(404, "Book not found");
     }
 
     // Eliminar portada si existe
@@ -218,4 +219,11 @@ export const deleteBook = async (bookId: number) => {
   } catch (e) {
     throw toHttpError(e);
   }
+};
+
+/**
+ * Obtiene todas las series disponibles
+ */
+export const getAllSeries = async () => {
+  return repo.findAllSeries();
 };

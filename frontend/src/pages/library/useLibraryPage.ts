@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useBooks } from '@/hooks/useBooks';
+import { useSeries } from '@/hooks/useSeries';
 import { scanLibrary, ScanLibraryResult, deleteBook } from '@/api/books.api';
 import { Book } from '@/types/books.types';
 
@@ -12,6 +13,7 @@ export function useLibraryPage() {
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formatFilter, setFormatFilter] = useState('');
+  const [seriesFilter, setSeriesFilter] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -30,10 +32,11 @@ export function useLibraryPage() {
     () => ({
       search: searchTerm || undefined,
       format: formatFilter || undefined,
+      seriesId: seriesFilter || undefined,
       sortBy,
       sortOrder,
     }),
-    [searchTerm, formatFilter, sortBy, sortOrder]
+    [searchTerm, formatFilter, seriesFilter, sortBy, sortOrder]
   );
 
   const { data, isLoading, isError, refetch } = useBooks(
@@ -41,6 +44,8 @@ export function useLibraryPage() {
     itemsPerPage,
     queryParams
   );
+
+  const { data: seriesList = [] } = useSeries();
 
   const books = data?.books ?? [];
   const pagination = data?.pagination;
@@ -89,6 +94,7 @@ export function useLibraryPage() {
     setSearchInput('');
     setSearchTerm('');
     setFormatFilter('');
+    setSeriesFilter('');
     setCurrentPage(1);
   };
 
@@ -97,6 +103,7 @@ export function useLibraryPage() {
     data,
     books,
     pagination,
+    seriesList,
     isLoading,
     isError,
 
@@ -106,6 +113,7 @@ export function useLibraryPage() {
     searchInput,
     searchTerm,
     formatFilter,
+    seriesFilter,
     sortBy,
     sortOrder,
     viewMode,
@@ -121,6 +129,7 @@ export function useLibraryPage() {
     setSearchInput,
     setSearchTerm,
     setFormatFilter,
+    setSeriesFilter,
     setSortBy,
     setSortOrder,
     setViewMode,

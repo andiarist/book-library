@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
-import { asyncHandler } from '../middlewares/async-handler';
+import { Request, Response } from "express";
+import { asyncHandler } from "../middlewares/async-handler";
 import {
   parseBookId,
   parsePaginationParams,
   parseSortParams,
-} from '../validators/books.validators';
-import * as service from '../services/books.service';
+} from "../validators/books.validators";
+import * as service from "../services/books.service";
 
 /**
  * Obtiene todos los libros con paginación y filtros
@@ -17,10 +17,14 @@ export const getAllBooksController = asyncHandler(
 
     const search = req.query.search as string | undefined;
     const format = req.query.format as string | undefined;
+    const seriesId = req.query.seriesId
+      ? parseInt(req.query.seriesId as string)
+      : undefined;
 
     const result = await service.getAllBooks(page, limit, {
       search,
       format,
+      seriesId,
       sortBy,
       sortOrder,
     });
@@ -102,5 +106,15 @@ export const deleteBookController = asyncHandler(
     const id = parseBookId(req);
     await service.deleteBook(id);
     res.status(204).send();
+  },
+);
+
+/**
+ * Obtiene todas las series disponibles
+ */
+export const getAllSeriesController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const series = await service.getAllSeries();
+    res.json(series);
   },
 );

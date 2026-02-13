@@ -1,5 +1,10 @@
 import { cn } from '@/helpers/cn';
 
+type Series = {
+  id: number;
+  name: string;
+};
+
 type Props = {
   searchInput: string;
   onChangeSearchInput: (v: string) => void;
@@ -8,6 +13,10 @@ type Props = {
   searchTerm: string; // para saber si mostrar "Limpiar"
   formatFilter: string;
   onChangeFormat: (v: string) => void;
+
+  seriesFilter: string;
+  onChangeSeriesFilter: (v: string) => void;
+  seriesList: Series[];
 
   sortBy: string;
   onChangeSortBy: (v: string) => void;
@@ -25,13 +34,16 @@ export function LibraryFilters({
   searchTerm,
   formatFilter,
   onChangeFormat,
+  seriesFilter,
+  onChangeSeriesFilter,
+  seriesList,
   sortBy,
   onChangeSortBy,
   sortOrder,
   onChangeSortOrder,
   onClear,
 }: Props) {
-  const hasFilters = Boolean(searchTerm || formatFilter);
+  const hasFilters = Boolean(searchTerm || formatFilter || seriesFilter);
 
   return (
     <div className="mb-6 flex flex-wrap gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -85,6 +97,28 @@ export function LibraryFilters({
         </select>
       </div>
 
+      {/* Filtro por serie */}
+      <div className="w-48">
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Serie
+        </label>
+        <select
+          value={seriesFilter}
+          onChange={(e) => onChangeSeriesFilter(e.target.value)}
+          className={cn(
+            'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm',
+            'focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none'
+          )}
+        >
+          <option value="">Todas</option>
+          {seriesList.map((series) => (
+            <option key={series.id} value={series.id.toString()}>
+              {series.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Ordenar por */}
       <div className="w-48">
         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -101,6 +135,7 @@ export function LibraryFilters({
           <option value="createdAt">Fecha de creación</option>
           <option value="title">Título</option>
           <option value="author">Autor</option>
+          <option value="series">Serie</option>
           <option value="publishYear">Año publicación</option>
         </select>
       </div>

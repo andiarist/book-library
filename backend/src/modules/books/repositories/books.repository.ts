@@ -1,5 +1,5 @@
-import { BookFormat } from '../../../generated/prisma/enums';
-import prisma from '../../../lib/prisma';
+import { BookFormat } from "../../../generated/prisma/enums";
+import prisma from "../../../lib/prisma";
 
 const include = {
   authors: true,
@@ -9,14 +9,15 @@ const include = {
 
 const includeAndOrder = {
   include,
-  orderBy: { createdAt: 'desc' as const },
+  orderBy: { createdAt: "desc" as const },
 };
 
 interface BookFilters {
   search?: string;
   format?: string;
+  seriesId?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export const findAll = async (
@@ -44,44 +45,73 @@ export const findAll = async (
     where.format = filters.format;
   }
 
-  // Construir orderBy
-  let orderBy: any = { createdAt: 'desc' };
-
-  if (filters?.sortBy) {
-    const sortOrder = filters.sortOrder || 'desc';
-
-    if (filters.sortBy === 'author') {
-      // Para ordenar por autor, necesitamos un enfoque especial
-      orderBy = { authors: { _count: sortOrder } };
-    } else {
-      orderBy = { [filters.sortBy]: sortOrder };
-    }
+  if (filters?.seriesId) {
+    where.seriesId = filters.seriesId;
   }
 
-  const [books, total] = await Promise.all([
-    prisma.book.findMany({
+  // Obtener el total de resultados
+  const total = await prisma.book.count({ where });
+
+  // Caso especial: ordenar por autor o serie (relaciones)
+  if (filters?.sortBy === "author" || filters?.sortBy === "series") {
+    const sortOrder = filters.sortOrder || "desc";
+
+    // 1. Obtener TODOS los libros que cumplen los filtros
+    const allBooks = await prisma.book.findMany({
       where,
       include,
-      orderBy,
-      skip,
-      take: limit,
-    }),
-    prisma.book.count({ where }),
-  ]);
-
-  // Si ordenamos por autor, hacemos un post-sort en memoria
-  let sortedBooks = books;
-  if (filters?.sortBy === 'author') {
-    sortedBooks = [...books].sort((a, b) => {
-      const authorA = a.authors[0]?.name || '';
-      const authorB = b.authors[0]?.name || '';
-      const comparison = authorA.localeCompare(authorB);
-      return filters.sortOrder === 'asc' ? comparison : -comparison;
     });
+
+    // 2. Ordenar TODOS los libros en memoria
+    const sortedBooks = [...allBooks].sort((a, b) => {
+      let comparison: number;
+
+      if (filters?.sortBy === "author") {
+        const authorA = a.authors[0]?.name || "";
+        const authorB = b.authors[0]?.name || "";
+        comparison = authorA.localeCompare(authorB);
+      } else {
+        // ordenar por serie
+        const seriesA = a.series?.name || "";
+        const seriesB = b.series?.name || "";
+        comparison = seriesA.localeCompare(seriesB);
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    // 3. Aplicar paginación DESPUÉS de ordenar
+    const paginatedBooks = sortedBooks.slice(skip, skip + limit);
+
+    return {
+      books: paginatedBooks,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
+  // Para otros campos, ordenar en la base de datos (más eficiente)
+  let orderBy: any = { createdAt: "desc" };
+
+  if (filters?.sortBy) {
+    const sortOrder = filters.sortOrder || "desc";
+    orderBy = { [filters.sortBy]: sortOrder };
+  }
+
+  const books = await prisma.book.findMany({
+    where,
+    include,
+    orderBy,
+    skip,
+    take: limit,
+  });
+
   return {
-    books: sortedBooks,
+    books,
     pagination: {
       page,
       limit,
@@ -110,7 +140,7 @@ export const findBySeries = (name: string) =>
   prisma.book.findMany({
     where: { series: { name } },
     include,
-    orderBy: { seriesOrder: 'asc' },
+    orderBy: { seriesOrder: "asc" },
   });
 
 export const findByIsbn = (isbn: string) =>
@@ -166,18 +196,18 @@ type CreateBookRepositoryInput = {
 export const create = async (data: CreateBookRepositoryInput) => {
   const { authors, categories, seriesName, ...bookData } = data;
 
-  return prisma.$transaction(tx =>
+  return prisma.$transaction((tx) =>
     tx.book.create({
       data: {
         ...bookData,
         authors: {
-          connectOrCreate: authors.map(name => ({
+          connectOrCreate: authors.map((name) => ({
             where: { name },
             create: { name },
           })),
         },
         categories: {
-          connectOrCreate: categories.map(name => ({
+          connectOrCreate: categories.map((name) => ({
             where: { name },
             create: { name },
           })),
@@ -212,7 +242,7 @@ type UpdateBookRepositoryInput = {
 };
 
 export const update = async (bookId: number, data: UpdateBookRepositoryInput) =>
-  prisma.$transaction(async tx => {
+  prisma.$transaction(async (tx) => {
     const { authors, categories, seriesName, ...bookData } = data;
 
     // campos simples (incluye coverPath)
@@ -224,7 +254,7 @@ export const update = async (bookId: number, data: UpdateBookRepositoryInput) =>
         data: {
           authors: {
             set: [],
-            connectOrCreate: authors.map(name => ({
+            connectOrCreate: authors.map((name) => ({
               where: { name },
               create: { name },
             })),
@@ -239,7 +269,7 @@ export const update = async (bookId: number, data: UpdateBookRepositoryInput) =>
         data: {
           categories: {
             set: [],
-            connectOrCreate: categories.map(name => ({
+            connectOrCreate: categories.map((name) => ({
               where: { name },
               create: { name },
             })),
@@ -275,3 +305,15 @@ export const findAllWithFilePath = () =>
     where: { filePath: { not: null } },
     include,
   });
+
+export const findAllSeries = async () => {
+  const series = await prisma.series.findMany({
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return series;
+};

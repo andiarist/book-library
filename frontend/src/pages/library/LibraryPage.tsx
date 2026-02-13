@@ -47,6 +47,12 @@ const LibraryPage = () => {
             vm.setFormatFilter(v);
             vm.setCurrentPage(1);
           }}
+          seriesFilter={vm.seriesFilter}
+          onChangeSeriesFilter={(v) => {
+            vm.setSeriesFilter(v);
+            vm.setCurrentPage(1);
+          }}
+          seriesList={vm.seriesList}
           sortBy={vm.sortBy}
           onChangeSortBy={vm.setSortBy}
           sortOrder={vm.sortOrder}

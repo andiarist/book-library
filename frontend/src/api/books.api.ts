@@ -9,6 +9,7 @@ import { http } from './http';
 export interface BookQueryParams {
   search?: string;
   format?: string;
+  seriesId?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
@@ -24,6 +25,7 @@ export const getBooks = (
 
   if (filters?.search) params.append('search', filters.search);
   if (filters?.format) params.append('format', filters.format);
+  if (filters?.seriesId) params.append('seriesId', filters.seriesId);
   if (filters?.sortBy) params.append('sortBy', filters.sortBy);
   if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
 
@@ -83,3 +85,8 @@ export interface ScanLibraryResult {
 
 export const scanLibrary = () =>
   http.post<ScanLibraryResult>('/api/books/scan').then((r) => r.data);
+
+export const getSeries = () =>
+  http
+    .get<Array<{ id: number; name: string }>>('/api/books/series-list')
+    .then((r) => r.data);
