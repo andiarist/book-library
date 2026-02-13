@@ -1,3 +1,4 @@
+import { NoResultsState } from '@/components/NoResultsState';
 import { EmptyLibraryState } from './components/EmptyLibraryState';
 import { ErrorState } from './components/ErrorState';
 import { LibraryContent } from './components/LibraryContent';
@@ -5,7 +6,6 @@ import { LibraryFilters } from './components/LibraryFilters';
 import { LibraryHeader } from './components/LibraryHeader';
 import { LibraryModalHost } from './components/LibraryModalHost';
 import { LibraryPagination } from './components/LibraryPagination';
-import { NoResultsState } from './components/NoResultsState';
 import { useLibraryPage } from './useLibraryPage';
 
 const LibraryPage = () => {
@@ -80,10 +80,16 @@ const LibraryPage = () => {
 
         {vm.books.length === 0 ? (
           <NoResultsState
-            onClearFilters={() => {
-              vm.clearFilters();
-              vm.refetch();
+            title="No se han encontrado resultados"
+            message="No hay libros que coincidan con los filtros aplicados."
+            action={{
+              label: 'Limpiar filtros',
+              onClick: () => {
+                vm.clearFilters();
+                vm.refetch();
+              },
             }}
+            variant="default"
           />
         ) : (
           <>

@@ -1,11 +1,11 @@
 import { EditBookModal } from '@/components/modals/EditBookModal';
+import { NoResultsState } from '@/components/NoResultsState';
 import {
   SearchForm,
   SearchResults,
   SearchEmptyState,
   SearchLoadingState,
   SearchErrorState,
-  NoResultsState,
 } from './components';
 import { useSearchPage } from './useSearchPage';
 
@@ -56,7 +56,16 @@ export const SearchPage = () => {
           !isError &&
           hasSearched &&
           (!books || books.length === 0) && (
-            <NoResultsState executedQuery={executedQuery} />
+            <NoResultsState
+              message={
+                <>
+                  No se encontraron libros para{' '}
+                  <strong>&ldquo;{executedQuery}&rdquo;</strong>
+                </>
+              }
+              suggestion="Intenta con otra búsqueda o utiliza términos más generales"
+              variant="bordered"
+            />
           )}
 
         {/* Resultados de búsqueda */}
