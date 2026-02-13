@@ -1,292 +1,79 @@
-# Guía de Migración a Tauri (Fase 2)
+# ⚠️ DOCUMENTO OBSOLETO
 
-Esta guía te ayudará a migrar el proyecto actual a Tauri para añadir funcionalidades nativas.
+**Este documento está desactualizado y ya no aplica al proyecto actual.**
 
-## 📋 Prerequisitos
+El proyecto **Book Library** originalmente consideró migrar a Tauri para funcionalidades nativas, pero finalmente se implementó con una arquitectura diferente:
 
-Además de Node.js, necesitarás instalar las dependencias de Tauri según tu sistema operativo:
+## 🏗️ Arquitectura Actual
 
-### Windows
-```bash
-# Instalar Visual Studio C++ Build Tools
-# Descargar desde: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+El proyecto utiliza:
 
-# Instalar WebView2 (normalmente ya viene con Windows 11)
-# Descargar desde: https://developer.microsoft.com/en-us/microsoft-edge/webview2/
-```
+- **Backend**: Express + Prisma + SQLite (servidor Node.js)
+- **Frontend**: React + Vite + Tailwind CSS
+- **Escaneo de archivos**: Implementado en el backend con Node.js
+- **Base de datos**: SQLite local en el backend
 
-### macOS
-```bash
-# Instalar Xcode Command Line Tools
-xcode-select --install
+Esta arquitectura proporciona todas las funcionalidades necesarias sin necesidad de Tauri:
 
-# Instalar Rust
-curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
-```
+- ✅ Acceso al sistema de archivos local (backend Node.js)
+- ✅ Base de datos local (SQLite)
+- ✅ Extracción de metadatos de EPUB/PDF (backend)
+- ✅ Gestión completa de biblioteca
 
-### Linux (Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install libwebkit2gtk-4.0-dev \
-    build-essential \
-    curl \
-    wget \
-    file \
-    libssl-dev \
-    libgtk-3-dev \
-    libayatana-appindicator3-dev \
-    librsvg2-dev
+## 📚 Documentación Actualizada
 
-# Instalar Rust
-curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
-```
+Para información sobre el proyecto actual, consulta:
 
-## 🚀 Instalación de Tauri
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** - Resumen completo del proyecto
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitectura del backend
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Guía de desarrollo
+- **[LIBRARY_SCANNER.md](./LIBRARY_SCANNER.md)** - Escáner de biblioteca (implementado)
 
-1. Instalar dependencias de Tauri:
-```bash
-pnpm add -D @tauri-apps/cli
-pnpm add @tauri-apps/api
-```
+## 🔄 ¿Por qué no se usó Tauri?
 
-2. Inicializar Tauri:
-```bash
-pnpm tauri init
-```
+La decisión de usar un backend Express en lugar de Tauri se debió a:
 
-Responde a las preguntas del wizard:
-- App name: `book-library`
-- Window title: `Biblioteca Personal`
-- Web assets: `dist`
-- Dev server URL: `http://localhost:5173`
-- Dev command: `pnpm dev`
-- Build command: `pnpm build`
+1. **Simplicidad**: Backend Node.js es más simple de configurar y mantener
+2. **Portabilidad**: Funciona en cualquier plataforma sin compilación nativa
+3. **Desarrollo más rápido**: No requiere Rust ni dependencias nativas
+4. **Flexibilidad**: Más fácil de extender y modificar
+5. **Deployment**: Más opciones de despliegue (local, servidor, cloud)
 
-## 📝 Configuración
+## 💡 ¿Y si necesitas una app nativa?
 
-### 1. Actualizar `package.json`
+Si en el futuro necesitas una aplicación de escritorio nativa, considera:
 
-Añade estos scripts:
-```json
-{
-  "scripts": {
-    "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
-  }
-}
-```
+### Opción 1: Electron (más fácil)
 
-### 2. Configurar permisos en `src-tauri/tauri.conf.json`
+- Envuelve el frontend y backend actual
+- No requiere reescribir código
+- Soporta todas las plataformas
 
-```json
-{
-  "tauri": {
-    "allowlist": {
-      "fs": {
-        "readDir": true,
-        "readFile": true,
-        "scope": ["$HOME/Documents/**", "$HOME/Books/**"]
-      },
-      "dialog": {
-        "open": true
-      }
-    }
-  }
-}
-```
+### Opción 2: Tauri (más liviano)
 
-## 🔧 Implementar Funcionalidades Nativas
+- Requiere reescribir la lógica del backend en Rust
+- Aplicación más pequeña y eficiente
+- Sigue este documento como referencia
 
-### 1. Comando para leer carpeta de eBooks
+### Opción 3: Mantener arquitectura actual
 
-En `src-tauri/src/main.rs`:
+- El usuario simplemente ejecuta el backend + frontend
+- Scripts de inicio automático
+- Funciona perfectamente como está
 
-```rust
-use tauri::command;
-use std::fs;
-use std::path::PathBuf;
+---
 
-#[derive(serde::Serialize)]
-struct EbookFile {
-    path: String,
-    name: String,
-    extension: String,
-}
+**Fecha de obsolescencia**: Febrero 2026  
+**Razón**: Proyecto implementado con arquitectura backend/frontend tradicional
 
-#[command]
-fn read_ebook_folder(folder_path: String) -> Result<Vec<EbookFile>, String> {
-    let path = PathBuf::from(&folder_path);
-    
-    if !path.exists() || !path.is_dir() {
-        return Err("Invalid directory path".to_string());
-    }
+---
 
-    let entries = fs::read_dir(&path)
-        .map_err(|e| e.to_string())?;
+# ~~Guía de Migración a Tauri (Fase 2)~~ [OBSOLETO]
 
-    let mut ebooks = Vec::new();
+~~Esta guía te ayudará a migrar el proyecto actual a Tauri para añadir funcionalidades nativas.~~
 
-    for entry in entries {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let path = entry.path();
-        
-        if let Some(extension) = path.extension() {
-            let ext_str = extension.to_string_lossy().to_lowercase();
-            if ext_str == "epub" || ext_str == "pdf" {
-                ebooks.push(EbookFile {
-                    path: path.to_string_lossy().to_string(),
-                    name: path.file_name()
-                        .unwrap()
-                        .to_string_lossy()
-                        .to_string(),
-                    extension: ext_str.to_string(),
-                });
-            }
-        }
-    }
+[Contenido original omitido por estar obsoleto]
 
-    Ok(ebooks)
-}
+## 📝 Nota Final
 
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![read_ebook_folder])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
-}
-```
-
-### 2. Crear servicio TypeScript para Tauri
-
-Crea `src/services/tauriService.ts`:
-
-```typescript
-import { invoke } from '@tauri-apps/api/tauri';
-import { open } from '@tauri-apps/api/dialog';
-
-interface EbookFile {
-  path: string;
-  name: string;
-  extension: 'epub' | 'pdf';
-}
-
-export class TauriService {
-  static async selectFolder(): Promise<string | null> {
-    const selected = await open({
-      directory: true,
-      multiple: false,
-    });
-
-    return typeof selected === 'string' ? selected : null;
-  }
-
-  static async readEbookFolder(folderPath: string): Promise<EbookFile[]> {
-    return await invoke<EbookFile[]>('read_ebook_folder', { folderPath });
-  }
-}
-```
-
-### 3. Actualizar hook para usar Tauri
-
-Modifica `src/hooks/useBookMetadata.ts` para detectar si está en Tauri:
-
-```typescript
-import { TauriService } from '@/services/tauriService';
-
-// Detectar si estamos en Tauri
-const isTauri = '__TAURI__' in window;
-
-export function useLocalBooks() {
-  const [books, setBooks] = useState<EbookFile[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const scanFolder = async () => {
-    if (!isTauri) {
-      console.warn('Local file access requires Tauri');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const folder = await TauriService.selectFolder();
-      if (folder) {
-        const files = await TauriService.readEbookFolder(folder);
-        setBooks(files);
-      }
-    } catch (error) {
-      console.error('Error scanning folder:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { books, loading, scanFolder };
-}
-```
-
-## 🗄️ Base de Datos Local (SQLite)
-
-### 1. Añadir dependencia en `src-tauri/Cargo.toml`:
-
-```toml
-[dependencies]
-tauri = { version = "1.5", features = ["shell-open"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-rusqlite = { version = "0.30", features = ["bundled"] }
-```
-
-### 2. Implementar comandos de base de datos:
-
-```rust
-use rusqlite::{Connection, Result};
-
-#[command]
-fn init_database(db_path: String) -> Result<(), String> {
-    let conn = Connection::open(db_path)
-        .map_err(|e| e.to_string())?;
-
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS books (
-            id INTEGER PRIMARY KEY,
-            isbn TEXT,
-            title TEXT NOT NULL,
-            authors TEXT,
-            file_path TEXT,
-            added_at TEXT NOT NULL
-        )",
-        [],
-    ).map_err(|e| e.to_string())?;
-
-    Ok(())
-}
-```
-
-## 📱 Testing en Tauri
-
-Los tests de React seguirán funcionando igual. Para tests específicos de Tauri:
-
-```bash
-# En modo desarrollo
-pnpm tauri:dev
-
-# Build para producción
-pnpm tauri:build
-```
-
-## 🎯 Próximos Pasos
-
-1. ✅ Migrar a Tauri
-2. Implementar lectura de EPUB (usar librería `epub-rs`)
-3. Implementar extracción de metadatos de PDF
-4. Configurar SQLite para persistencia
-5. Implementar sincronización de metadatos con APIs
-6. Añadir gestión completa de biblioteca
-
-## 🔗 Referencias
-
-- [Tauri Documentation](https://tauri.app/v1/guides/)
-- [Tauri API Reference](https://tauri.app/v1/api/js/)
-- [epub-rs](https://github.com/danigm/epub-rs)
-- [pdf-extract](https://github.com/jrmuizel/pdf-extract)
+Este documento se mantiene en el repositorio únicamente como referencia histórica. Para implementar funcionalidades nativas, revisa las opciones mencionadas arriba o consulta la documentación actual del proyecto.

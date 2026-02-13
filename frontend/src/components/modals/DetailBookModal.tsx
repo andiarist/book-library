@@ -2,6 +2,8 @@ import { formatDate } from '@/helpers/dateFormatter';
 import { cn } from '@/helpers/cn';
 import { Book, Category } from '@/types/books.types';
 import { Button } from '../Button';
+import { useState } from 'react';
+import { BookPreview } from '../previews/BookPreview';
 
 interface BookDetailProps {
   book: Book;
@@ -95,7 +97,7 @@ function BookInformation({ book }: BookInformationProps) {
     },
     { key: 'pageCount', label: 'Páginas', value: book.pageCount },
     // { key: 'language', label: 'Idioma', value: book.language },
-    { key: 'saga', label: 'Saga', value: book.series },
+    { key: 'saga', label: 'Saga', value: book.series?.name },
     { key: 'sagaNumber', label: 'Número en la saga', value: book.seriesOrder },
     {
       key: 'format',
@@ -180,10 +182,12 @@ export function BookDetail({
   onEdit,
 }: BookDetailProps) {
   console.log(book);
+  const [showPreview, setShowPreview] = useState(false);
   return (
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
       onClick={onClose}
+      data-testid="book-detail-modal"
     >
       <div
         className="relative max-h-[90vh] max-w-200 overflow-y-auto rounded-xl bg-amber-200 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
@@ -215,6 +219,21 @@ export function BookDetail({
               //   lastModified={book.lastModified}
             />
           </div>
+          {book.filePath && (
+            <Button
+              variant="primary"
+              className="mt-8"
+              onClick={() => setShowPreview(true)}
+            >
+              Ver vista previa
+            </Button>
+          )}
+          {showPreview && (
+            <BookPreview
+              book={book}
+              apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:3001'}
+            />
+          )}
 
           {(onEdit || onDelete) && (
             <div className="mt-8 flex justify-end gap-3 border-t border-t-gray-500 pt-8">

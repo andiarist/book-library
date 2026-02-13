@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router } from "express";
+
+// Controllers
 import {
-  searchBookByIsbnController,
   getAllBooksController,
   getBookByIdController,
   getBooksByCategoryController,
@@ -9,31 +10,67 @@ import {
   createBookController,
   updateBookController,
   deleteBookController,
+  getAllSeriesController,
+} from "./controllers/books.controller";
+
+import {
+  searchBookByIsbnController,
   searchBooksByTextController,
-  scanLibraryController,
-} from './books.controller';
+} from "./controllers/search.controller";
+
+import {
+  searchBookCoversController,
+  searchBookCoversByQueryController,
+} from "./controllers/covers.controller";
+
+import { scanLibraryController } from "./controllers/scan.controller";
+
+import { getBookFileController } from "./controllers/file.controller";
 
 const router = Router();
 
-// Búsquedas externas
-router.get('/search/isbn/:isbn', searchBookByIsbnController);
-router.get('/search/text', searchBooksByTextController);
+// ==========================================
+// BÚSQUEDAS EXTERNAS
+// ==========================================
+router.get("/search/isbn/:isbn", searchBookByIsbnController);
+router.get("/search/text", searchBooksByTextController);
+router.get("/search/covers", searchBookCoversByQueryController);
 
-// Escaneo de biblioteca local
-router.post('/scan', scanLibraryController);
+// ==========================================
+// ESCANEO DE BIBLIOTECA LOCAL
+// ==========================================
+router.post("/scan", scanLibraryController);
 
-// Filtros por entidades relacionadas
-router.get('/category/:categoryName', getBooksByCategoryController);
-router.get('/author/:authorName', getBooksByAuthorController);
-router.get('/series/:seriesName', getBooksBySeriesController);
+// ==========================================
+// FILTROS POR ENTIDADES RELACIONADAS
+// ==========================================
+router.get("/category/:categoryName", getBooksByCategoryController);
+router.get("/author/:authorName", getBooksByAuthorController);
+router.get("/series/:seriesName", getBooksBySeriesController);
 
-// CRUD de libros
-router.get('/', getAllBooksController);
-router.post('/', createBookController);
+// Obtener todas las series disponibles
+router.get("/series-list", getAllSeriesController);
 
-// Rutas con /:id AL FINAL (para no capturar otras rutas)
-router.get('/:id', getBookByIdController);
-router.patch('/:id', updateBookController);
-router.delete('/:id', deleteBookController);
+// ==========================================
+// CRUD PRINCIPAL
+// ==========================================
+router.get("/", getAllBooksController);
+router.post("/", createBookController);
+
+// ==========================================
+// RUTAS CON :id (al final para evitar conflictos)
+// ==========================================
+
+// Archivos digitales (con extensión .epub para compatibilidad con epubjs)
+router.get("/:id/file.epub", getBookFileController);
+router.get("/:id/file", getBookFileController);
+
+// Búsqueda de portadas
+router.get("/:id/covers", searchBookCoversController);
+
+// CRUD por ID
+router.get("/:id", getBookByIdController);
+router.patch("/:id", updateBookController);
+router.delete("/:id", deleteBookController);
 
 export default router;

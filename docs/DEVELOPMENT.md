@@ -1,373 +1,474 @@
-# 💻 Guía de Desarrollo
+# 🚀 Guía de Desarrollo - Book Library
 
-## 🎯 Flujo de Trabajo Recomendado
+Esta guía te ayudará a configurar y desarrollar en el proyecto Book Library, una aplicación fullstack con backend Express y frontend React.
 
-### 1. Antes de Empezar
+## 📋 Requisitos Previos
+
+- **Node.js** v20 o superior
+- **pnpm** 10 o superior (recomendado) o npm
+- **Git** para control de versiones
+- Editor de código (recomendado: VSCode)
+
+## 🛠️ Configuración Inicial
+
+### 1. Clonar el Repositorio
+
 ```bash
-# Asegúrate de tener la última versión
+git clone <repo-url>
+cd book-library
+```
+
+### 2. Configurar Backend
+
+```bash
+cd backend
+
+# Instalar dependencias
 pnpm install
 
-# Verifica que todo funcione
-pnpm type-check
-pnpm lint
-pnpm test
+# Copiar archivo de configuración
+cp .env.example .env
+
+# Editar .env con tu configuración
+# LIBRARY_PATH=C:/Users/TuUsuario/Books
+# DATABASE_URL="file:./dev.db"
+# PORT=3001
+
+# Generar cliente Prisma
+pnpm prisma generate
+
+# Aplicar migraciones
+pnpm prisma migrate dev
+
+# Iniciar servidor en modo desarrollo
+pnpm dev
 ```
 
-### 2. Durante el Desarrollo
+El backend estará disponible en `http://localhost:3001`
+
+### 3. Configurar Frontend
+
 ```bash
-# Terminal 1: Servidor de desarrollo
+cd frontend
+
+# Instalar dependencias
+pnpm install
+
+# (Opcional) Configurar API keys para búsqueda externa
+cp .env.example .env
+# Editar .env si tienes API keys de Google Books
+
+# Iniciar en modo desarrollo
+pnpm dev
+```
+
+El frontend estará disponible en `http://localhost:5173`
+
+## 🏗️ Estructura del Proyecto
+
+### Backend (`/backend`)
+
+```
+backend/
+├── src/
+│   ├── modules/books/          # Módulo principal de libros
+│   │   ├── books.controller.ts # Maneja requests HTTP
+│   │   ├── books.service.ts    # Lógica de negocio
+│   │   ├── books.repository.ts # Acceso a datos
+│   │   ├── books.routes.ts     # Definición de rutas
+│   │   ├── books.types.ts      # Tipos TypeScript
+│   │   ├── books.external.ts   # APIs externas
+│   │   └── docs/               # Documentación OpenAPI
+│   ├── config/                 # Configuraciones
+│   ├── utils/                  # Utilidades
+│   │   ├── fileScanner.ts      # Escaneo de archivos
+│   │   ├── metadataExtractor.ts # Extracción de metadatos
+│   │   ├── epubCoverExtractor.ts # Portadas EPUB
+│   │   └── ...
+│   ├── lib/
+│   │   └── prisma.ts           # Cliente Prisma
+│   ├── app.ts                  # Configuración Express
+│   └── server.ts               # Punto de entrada
+├── prisma/
+│   ├── schema.prisma           # Schema de base de datos
+│   └── migrations/             # Migraciones
+└── storage/
+    └── covers/                 # Portadas almacenadas
+```
+
+### Frontend (`/frontend`)
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── cards/              # Tarjetas de libros
+│   │   │   ├── BookCardMini.tsx
+│   │   │   └── BookCardSearch.tsx
+│   │   ├── modals/             # Modales
+│   │   │   ├── DetailBookModal.tsx
+│   │   │   ├── EditBookModal.tsx
+│   │   │   ├── EditLibraryBookModal.tsx
+│   │   │   └── ScanResultsModal.tsx
+│   │   ├── previews/           # Visores
+│   │   │   ├── BookPreview.tsx
+│   │   │   ├── EpubViewer.tsx
+│   │   │   └── PdfViewer.tsx
+│   │   ├── Button.tsx          # Componente reutilizable
+│   │   ├── Input.tsx           # Componente reutilizable
+│   │   └── BookInfoItem.tsx    # Componente reutilizable
+│   ├── pages/
+│   │   ├── LibraryPage.tsx     # Página de biblioteca
+│   │   └── SearchPage.tsx      # Página de búsqueda
+│   ├── hooks/
+│   │   └── useBooks.ts         # Hook para gestión de libros
+│   ├── services/               # Servicios externos
+│   │   ├── googleBooksService.ts
+│   │   ├── openLibraryService.ts
+│   │   └── bookMetadataService.ts
+│   ├── api/                    # Cliente API backend
+│   │   ├── books.api.ts        # Endpoints de libros
+│   │   └── http.ts             # Cliente Axios
+│   ├── types/                  # Tipos TypeScript
+│   ├── helpers/                # Utilidades
+│   └── App.tsx                 # Componente principal
+└── public/
+```
+
+## 💻 Comandos de Desarrollo
+
+### Backend
+
+```bash
+# Desarrollo con hot-reload
 pnpm dev
 
-# Terminal 2: Tests en modo watch (opcional)
-pnpm test
+# Build para producción
+pnpm build
 
-# Antes de hacer commit
+# Ejecutar build de producción
+pnpm start
+
+# Prisma Studio (UI para base de datos)
+pnpm prisma studio
+
+# Crear nueva migración
+pnpm prisma migrate dev --name nombre_migracion
+
+# Regenerar cliente Prisma
+pnpm prisma generate
+
+# Resetear base de datos (¡CUIDADO!)
+pnpm prisma migrate reset
+```
+
+### Frontend
+
+```bash
+# Desarrollo con hot-reload
+pnpm dev
+
+# Build para producción
+pnpm build
+
+# Preview del build
+pnpm preview
+
+# Tests
+pnpm test
+pnpm test:ui
+pnpm test:coverage
+
+# Linting
+pnpm lint
 pnpm lint:fix
+
+# Formateo de código
 pnpm format
+pnpm format:check
+
+# Type checking
 pnpm type-check
 ```
+
+## 🎨 Stack Tecnológico
+
+### Backend
+
+- **Express 5**: Framework web
+- **TypeScript**: Tipado estático
+- **Prisma**: ORM y migrations
+- **SQLite**: Base de datos
+- **Swagger**: Documentación API
+- **epub2**: Parser de EPUB
+- **pdf-parse**: Parser de PDF
+- **fast-glob**: Escaneo de archivos
+- **axios**: Cliente HTTP
+
+### Frontend
+
+- **React 18**: Framework UI
+- **TypeScript**: Tipado estático
+- **Vite**: Build tool y dev server
+- **Tailwind CSS 4**: Framework CSS
+- **TanStack Query**: Data fetching y caché
+- **Axios**: Cliente HTTP
+- **epubjs**: Visor de EPUB
+- **pdfjs-dist**: Visor de PDF
+- **Vitest**: Testing framework
+- **React Testing Library**: Testing de componentes
+
+## 🔧 Configuración del Editor (VSCode)
+
+### Extensiones Recomendadas
+
+```json
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "prisma.prisma",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}
+```
+
+### Settings VSCode
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.experimental.classRegex": [
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ]
+}
+```
+
+## 📝 Convenciones de Código
+
+### TypeScript
+
+- Usar tipos explícitos cuando sea necesario
+- Evitar `any`, usar `unknown` si es necesario
+- Interfaces para objetos públicos, types para unions/intersections
+- Named exports sobre default exports
+
+### React
+
+- Componentes funcionales con TypeScript
+- Props con interfaces tipadas
+- Hooks personalizados en `/hooks`
+- Nombres de archivos en PascalCase para componentes
+
+### Estilo
+
+- ESLint y Prettier configurados
+- Ordenación automática de imports
+- Ordenación automática de clases Tailwind
+- 2 espacios de indentación
+- Sin punto y coma (configuración Prettier)
 
 ## 🧪 Testing
 
-### Estructura de Tests
-```typescript
-// Patrón AAA (Arrange, Act, Assert)
-it('should do something', async () => {
-  // Arrange: Preparar datos y mocks
-  const mockData = { /* ... */ };
-  vi.mocked(service.method).mockResolvedValue(mockData);
+### Frontend
 
-  // Act: Ejecutar la acción
-  const { result } = renderHook(() => useCustomHook());
-  await waitFor(() => {
-    expect(result.current.loading).toBe(false);
-  });
-
-  // Assert: Verificar resultados
-  expect(result.current.data).toEqual(mockData);
-});
-```
-
-### Comandos Útiles
 ```bash
-# Tests con cobertura detallada
-pnpm test:coverage
+# Ejecutar todos los tests
+pnpm test
 
-# Tests de un archivo específico
-pnpm test src/hooks/useBookMetadata.test.ts
+# Ejecutar tests en modo watch
+pnpm test -- --watch
 
-# Tests con UI interactiva
+# Ver UI de tests
 pnpm test:ui
 
-# Tests en modo CI (sin watch)
-pnpm vitest run
-```
-
-### Coverage para SonarQube
-El proyecto ya está configurado para generar reportes en formato LCOV:
-
-```bash
+# Generar reporte de cobertura
 pnpm test:coverage
-# Genera: coverage/lcov.info
 ```
 
-Configuración en SonarQube:
-```properties
-# sonar-project.properties
-sonar.javascript.lcov.reportPaths=coverage/lcov.info
-sonar.testExecutionReportPaths=coverage/test-report.xml
-sonar.typescript.tsconfigPath=tsconfig.json
-```
+### Estructura de Tests
 
-## 🎨 Estilo de Código
-
-### TypeScript
 ```typescript
-// ✅ Bueno: Tipos explícitos para funciones públicas
-export function searchByISBN(isbn: string): Promise<BookMetadata | null> {
-  // ...
-}
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import Component from './Component'
 
-// ✅ Bueno: Interfaces para objetos complejos
-interface BookCardProps {
-  book: BookMetadata;
-  onAdd?: () => void;
-}
-
-// ❌ Evitar: any sin justificación
-const data: any = await fetch(); // ❌
-
-// ✅ Mejor: Tipos específicos o unknown
-const data: BookMetadata = await fetch(); // ✅
-```
-
-### React
-```typescript
-// ✅ Bueno: Componentes funcionales con tipos
-export function BookCard({ book, onAdd }: BookCardProps) {
-  return <div>...</div>;
-}
-
-// ✅ Bueno: Hooks personalizados con tipos de retorno claros
-export function useBookMetadata(): UseBookMetadataReturn {
-  // ...
-}
-
-// ✅ Bueno: Manejo de estados loading/error
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState<APIError | null>(null);
-```
-
-### Nombrado
-```typescript
-// Componentes: PascalCase
-export function BookCard() {}
-
-// Hooks: camelCase con prefijo 'use'
-export function useBookMetadata() {}
-
-// Servicios: PascalCase + 'Service' suffix
-export class GoogleBooksService {}
-
-// Constantes: UPPER_SNAKE_CASE
-const API_BASE_URL = 'https://api.example.com';
-
-// Funciones y variables: camelCase
-const searchBooks = () => {};
-const bookData = [];
-```
-
-## 📦 Gestión de Dependencias
-
-### Añadir Dependencias
-```bash
-# Dependencia de producción
-pnpm add lodash
-
-# Dependencia de desarrollo
-pnpm add -D @types/lodash
-
-# Dependencia específica de paquete (monorepo futuro)
-pnpm add axios --filter book-library
-```
-
-### Actualizar Dependencias
-```bash
-# Ver qué está desactualizado
-pnpm outdated
-
-# Actualizar de forma interactiva
-pnpm update -i
-
-# Actualizar todo a latest
-pnpm update --latest
-```
-
-### Verificar Vulnerabilidades
-```bash
-pnpm audit
-pnpm audit --fix
+describe('Component', () => {
+  it('renders correctly', () => {
+    render(<Component />)
+    expect(screen.getByText('Hello')).toBeInTheDocument()
+  })
+})
 ```
 
 ## 🔍 Debugging
 
-### VS Code
-Configuración ya incluida en `.vscode/settings.json`:
+### Backend
 
-1. Coloca breakpoints en el código
-2. Presiona F5 o usa "Run and Debug"
-3. VS Code se conectará al servidor de Vite
-
-### Chrome DevTools
-```bash
-pnpm dev
-# Abre http://localhost:5173
-# F12 para abrir DevTools
-```
-
-### React DevTools
-```bash
-# Instala la extensión de React DevTools en Chrome/Firefox
-# Te permitirá inspeccionar componentes, props, state, etc.
-```
-
-### Vitest UI
-```bash
-pnpm test:ui
-# Abre interfaz visual en el navegador
-# Útil para debugging de tests
-```
-
-## 🚀 Performance
-
-### Analizar Bundle
-```bash
-# Instalar plugin
-pnpm add -D rollup-plugin-visualizer
-
-# Modificar vite.config.ts
-import { visualizer } from 'rollup-plugin-visualizer';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    visualizer({ open: true })
-  ]
-});
-
-# Build y analizar
-pnpm build
-```
-
-### Lazy Loading de Componentes
 ```typescript
-import { lazy, Suspense } from 'react';
+// Usar console.log o debugger
+console.log('Debug:', variable)
 
-// Carga diferida de componentes pesados
-const HeavyComponent = lazy(() => import('./HeavyComponent'));
-
-function App() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <HeavyComponent />
-    </Suspense>
-  );
-}
-```
-
-### Memoización
-```typescript
-import { useMemo, useCallback } from 'react';
-
-// Memoizar cálculos costosos
-const expensiveResult = useMemo(() => {
-  return calculateExpensiveValue(data);
-}, [data]);
-
-// Memoizar callbacks
-const handleClick = useCallback(() => {
-  doSomething(id);
-}, [id]);
-```
-
-## 🔒 Seguridad
-
-### Variables de Entorno
-```typescript
-// ❌ NO exponer claves sensibles en el cliente
-const API_SECRET = 'secret123'; // ❌
-
-// ✅ Usar variables de entorno con prefijo VITE_
-const API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-
-// ✅ Validar que existan (opcional)
-if (!API_KEY && import.meta.env.PROD) {
-  console.warn('API Key not configured');
-}
-```
-
-### Validación de Inputs
-```typescript
-// ✅ Validar y sanitizar inputs de usuario
-function validateISBN(isbn: string): boolean {
-  const cleaned = isbn.replace(/[-\s]/g, '');
-  return /^(97[89])?\d{9}[\dX]$/.test(cleaned);
-}
-```
-
-## 📝 Git Workflow
-
-### Commits Convencionales
-```bash
-# Formato: <type>(<scope>): <subject>
-
-git commit -m "feat(search): add ISBN validation"
-git commit -m "fix(api): handle network errors properly"
-git commit -m "test(hooks): add tests for useBookMetadata"
-git commit -m "docs(readme): update installation instructions"
-git commit -m "refactor(components): simplify BookCard logic"
-git commit -m "chore(deps): update dependencies"
-```
-
-Tipos comunes:
-- `feat`: Nueva funcionalidad
-- `fix`: Corrección de bug
-- `docs`: Documentación
-- `test`: Tests
-- `refactor`: Refactorización
-- `style`: Formateo, sin cambios de código
-- `chore`: Mantenimiento, dependencias
-
-### Pre-commit Hooks (Opcional)
-```bash
-# Instalar husky y lint-staged
-pnpm add -D husky lint-staged
-
-# Configurar en package.json
+// O configurar VSCode launch.json
 {
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  }
+  "type": "node",
+  "request": "launch",
+  "name": "Debug Backend",
+  "runtimeExecutable": "pnpm",
+  "runtimeArgs": ["dev"],
+  "cwd": "${workspaceFolder}/backend"
 }
-
-# Inicializar husky
-pnpm exec husky init
-echo "pnpm lint-staged" > .husky/pre-commit
 ```
 
-## 🎓 Recursos de Aprendizaje
+### Frontend
 
-### React + TypeScript
-- [React TypeScript Cheatsheet](https://react-typescript-cheatsheet.netlify.app/)
-- [Effective TypeScript](https://effectivetypescript.com/)
+- React DevTools en el navegador
+- Usar `console.log()` o `debugger`
+- Redux DevTools para TanStack Query
 
-### Testing
-- [Testing Library Docs](https://testing-library.com/docs/react-testing-library/intro/)
-- [Vitest Best Practices](https://vitest.dev/guide/best-practices.html)
+## 📚 APIs y Servicios
 
-### Performance
-- [React Performance](https://react.dev/learn/render-and-commit)
-- [Web Vitals](https://web.dev/vitals/)
+### Backend API
 
-## 🐛 Troubleshooting Común
+El backend expone una API REST en `http://localhost:3001`:
 
-### Error: Module not found
+- `GET /api/books` - Listar todos los libros
+- `GET /api/books/:id` - Obtener un libro
+- `POST /api/books` - Crear libro
+- `PUT /api/books/:id` - Actualizar libro
+- `DELETE /api/books/:id` - Eliminar libro
+- `POST /api/books/scan` - Escanear biblioteca
+- `POST /api/books/search` - Buscar en APIs externas
+
+Documentación Swagger: `http://localhost:3001/api-docs`
+
+### APIs Externas (Frontend)
+
+El frontend puede usar directamente:
+
+- **Google Books API**: Búsqueda de libros por ISBN
+- **Open Library API**: Metadatos alternativos
+
+## 🚀 Despliegue
+
+### Backend
+
 ```bash
-# Limpiar y reinstalar
-rm -rf node_modules
+# Build
+pnpm build
+
+# Las migraciones se deben aplicar en producción
+pnpm prisma migrate deploy
+
+# Iniciar
+pnpm start
+```
+
+### Frontend
+
+```bash
+# Build
+pnpm build
+
+# Los archivos estarán en /dist
+# Servir con cualquier servidor estático (nginx, vercel, netlify, etc.)
+```
+
+### Variables de Entorno Producción
+
+**Backend (.env):**
+
+```env
+NODE_ENV=production
+PORT=3001
+DATABASE_URL="file:./prod.db"
+LIBRARY_PATH=/path/to/books
+```
+
+**Frontend (.env.production):**
+
+```env
+VITE_API_URL=https://tu-api.com
+VITE_GOOGLE_BOOKS_API_KEY=tu-key-opcional
+```
+
+## 🐛 Solución de Problemas
+
+### Backend no inicia
+
+```bash
+# Regenerar Prisma client
+cd backend
+pnpm prisma generate
+
+# Verificar base de datos
+pnpm prisma studio
+```
+
+### Frontend no conecta con Backend
+
+- Verificar que el backend esté corriendo en puerto 3001
+- Verificar CORS en `backend/src/app.ts`
+- Verificar `VITE_API_URL` en frontend
+
+### Tests fallan
+
+```bash
+# Limpiar caché
+pnpm test -- --clearCache
+
+# Reinstalar dependencias
+rm -rf node_modules pnpm-lock.yaml
 pnpm install
 ```
 
-### TypeScript Errors en IDE
+### TypeScript errors
+
 ```bash
-# Reiniciar TypeScript server en VS Code
-# Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
-
-# O verificar manualmente
-pnpm type-check
-```
-
-### Tests Fallando Inesperadamente
-```bash
-# Limpiar cache de vitest
-pnpm vitest --clearCache
-
-# Verificar mocks
-# Asegúrate de llamar vi.clearAllMocks() en beforeEach
-```
-
-### Hot Reload No Funciona
-```bash
-# Verificar que no haya errores de sintaxis
+# Verificar versiones
 pnpm type-check
 
-# Reiniciar el servidor
-# Ctrl + C, luego pnpm dev
+# Regenerar tipos de Prisma
+cd backend
+pnpm prisma generate
+```
+
+## 📖 Recursos Adicionales
+
+- [Express Docs](https://expressjs.com/)
+- [Prisma Docs](https://www.prisma.io/docs)
+- [React Docs](https://react.dev)
+- [Vite Docs](https://vitejs.dev)
+- [Tailwind CSS Docs](https://tailwindcss.com)
+- [TanStack Query Docs](https://tanstack.com/query)
+- [Vitest Docs](https://vitest.dev)
+
+## 🤝 Contribuir
+
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abrir Pull Request
+
+### Commits Convencionales
+
+```bash
+feat: nueva funcionalidad
+fix: corrección de bug
+docs: cambios en documentación
+style: formateo, sin cambios en código
+refactor: refactorización de código
+test: añadir o corregir tests
+chore: tareas de mantenimiento
 ```
 
 ---
 
-💡 **Tip**: Mantén esta guía actualizada conforme el proyecto evolucione.
+**¡Happy coding! 🚀**

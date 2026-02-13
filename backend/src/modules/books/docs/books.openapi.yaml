@@ -12,26 +12,26 @@ paths:
           schema:
             type: string
           description: ISBN del libro (con o sin guiones)
-          example: '978-0261103252'
+          example: "978-0261103252"
       responses:
-        '200':
+        "200":
           description: Metadatos del libro encontrados
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BookMetadata'
-        '404':
+                $ref: "#/components/schemas/BookMetadata"
+        "404":
           description: Libro no encontrado en bases de datos externas
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Error interno del servidor
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books/search/text:
     get:
@@ -50,63 +50,97 @@ paths:
             type: string
             minLength: 3
           description: Término de búsqueda (mínimo 3 caracteres)
-          example: 'el señor de los anillos'
+          example: "el señor de los anillos"
       responses:
-        '200':
+        "200":
           description: Lista de libros encontrados (deduplicados y ordenados por relevancia)
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BookMetadata'
+                  $ref: "#/components/schemas/BookMetadata"
               example:
-                - title: 'El Señor de los Anillos'
-                  authors: ['J.R.R. Tolkien']
-                  categories: ['Fantasía', 'Aventura']
-                  publisher: 'HarperCollins'
+                - title: "El Señor de los Anillos"
+                  authors: ["J.R.R. Tolkien"]
+                  categories: ["Fantasía", "Aventura"]
+                  publisher: "HarperCollins"
                   publishYear: 1954
-                  imageUrl: 'https://books.google.com/books/content?id=xxx'
-                - title: 'El Hobbit'
-                  authors: ['J.R.R. Tolkien']
-                  categories: ['Fantasía']
-                  publisher: 'HarperCollins'
+                  imageUrl: "https://books.google.com/books/content?id=xxx"
+                - title: "El Hobbit"
+                  authors: ["J.R.R. Tolkien"]
+                  categories: ["Fantasía"]
+                  publisher: "HarperCollins"
                   publishYear: 1937
-                  imageUrl: 'https://books.google.com/books/content?id=yyy'
-        '400':
+                  imageUrl: "https://books.google.com/books/content?id=yyy"
+        "400":
           description: Query inválido (menos de 3 caracteres)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Error interno del servidor
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books:
     get:
-      summary: Obtener todos los libros
-      description: Retorna la lista completa de libros con sus relaciones (autores, categorías, serie). Ordenados por fecha de creación descendente.
       tags:
         - Books
+      summary: Obtener todos los libros
+      description: Devuelve la lista de todos los libros en la biblioteca con paginación
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+          description: Número de página
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Cantidad de libros por página
       responses:
-        '200':
-          description: Lista de libros
+        "200":
+          description: Lista de libros con información de paginación
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Book'
-        '500':
+                type: object
+                properties:
+                  books:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Book"
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        description: Página actual
+                      limit:
+                        type: integer
+                        description: Libros por página
+                      total:
+                        type: integer
+                        description: Total de libros
+                      totalPages:
+                        type: integer
+                        description: Total de páginas
+        "500":
           description: Error al obtener libros
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
     post:
       summary: Crear un nuevo libro
@@ -118,58 +152,58 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBookDTO'
+              $ref: "#/components/schemas/CreateBookDTO"
             examples:
               libroFisico:
                 summary: Libro físico simple
                 value:
-                  title: '1984'
-                  isbn: '978-0451524935'
-                  format: 'PHYSICAL'
-                  authors: ['George Orwell']
-                  categories: ['Distopía', 'Ficción']
-                  publisher: 'Signet Classic'
+                  title: "1984"
+                  isbn: "978-0451524935"
+                  format: "PHYSICAL"
+                  authors: ["George Orwell"]
+                  categories: ["Distopía", "Ficción"]
+                  publisher: "Signet Classic"
                   publishYear: 1949
               libroSaga:
                 summary: Libro de una saga
                 value:
-                  title: 'Harry Potter y la Piedra Filosofal'
-                  isbn: '978-8498382662'
-                  format: 'PHYSICAL'
-                  authors: ['J.K. Rowling']
-                  categories: ['Fantasía', 'Juvenil']
-                  publisher: 'Salamandra'
+                  title: "Harry Potter y la Piedra Filosofal"
+                  isbn: "978-8498382662"
+                  format: "PHYSICAL"
+                  authors: ["J.K. Rowling"]
+                  categories: ["Fantasía", "Juvenil"]
+                  publisher: "Salamandra"
                   publishYear: 1997
-                  seriesName: 'Harry Potter'
+                  seriesName: "Harry Potter"
                   seriesOrder: 1
               ebook:
                 summary: eBook
                 value:
-                  title: 'Clean Code'
-                  format: 'EPUB'
-                  authors: ['Robert C. Martin']
-                  categories: ['Programación', 'Software']
-                  publisher: 'Prentice Hall'
+                  title: "Clean Code"
+                  format: "EPUB"
+                  authors: ["Robert C. Martin"]
+                  categories: ["Programación", "Software"]
+                  publisher: "Prentice Hall"
                   publishYear: 2008
       responses:
-        '201':
+        "201":
           description: Libro creado exitosamente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '400':
+                $ref: "#/components/schemas/Book"
+        "400":
           description: Datos inválidos (faltan campos requeridos)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Error al guardar en la base de datos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books/{id}:
     get:
@@ -186,24 +220,24 @@ paths:
           description: ID del libro
           example: 1
       responses:
-        '200':
+        "200":
           description: Libro encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
-        '404':
+                $ref: "#/components/schemas/Book"
+        "404":
           description: Libro no encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Error al obtener libro
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books/category/{categoryName}:
     get:
@@ -218,22 +252,22 @@ paths:
           schema:
             type: string
           description: Nombre de la categoría
-          example: 'Fantasía'
+          example: "Fantasía"
       responses:
-        '200':
+        "200":
           description: Lista de libros de la categoría
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
-        '500':
+                  $ref: "#/components/schemas/Book"
+        "500":
           description: Error al buscar libros
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books/author/{authorName}:
     get:
@@ -248,22 +282,22 @@ paths:
           schema:
             type: string
           description: Nombre o parte del nombre del autor
-          example: 'tolkien'
+          example: "tolkien"
       responses:
-        '200':
+        "200":
           description: Lista de libros del autor
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
-        '500':
+                  $ref: "#/components/schemas/Book"
+        "500":
           description: Error al buscar libros
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /api/books/series/{seriesName}:
     get:
@@ -278,19 +312,181 @@ paths:
           schema:
             type: string
           description: Nombre de la saga/serie
-          example: 'Harry Potter'
+          example: "Harry Potter"
       responses:
-        '200':
+        "200":
           description: Lista de libros de la saga
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Book'
-        '500':
+                  $ref: "#/components/schemas/Book"
+        "500":
           description: Error al buscar libros
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    BookMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        isbn:
+          type: string
+        publisher:
+          type: string
+        publishYear:
+          type: integer
+        pageCount:
+          type: integer
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+        imageUrl:
+          type: string
+
+    CreateBookDTO:
+      type: object
+      required:
+        - title
+        - authors
+        - format
+      properties:
+        title:
+          type: string
+          description: Título del libro
+        authors:
+          type: array
+          items:
+            type: string
+          description: Lista de autores
+        isbn:
+          type: string
+          description: ISBN del libro
+        publisher:
+          type: string
+          description: Editorial
+        publishYear:
+          type: integer
+          description: Año de publicación
+        pageCount:
+          type: integer
+          description: Número de páginas
+        description:
+          type: string
+          description: Descripción del libro
+        categories:
+          type: array
+          items:
+            type: string
+          description: Categorías del libro
+        format:
+          type: string
+          enum: [EPUB, PDF, MOBI, AZW3, PHYSICAL]
+          description: Formato del libro
+        seriesName:
+          type: string
+          description: Nombre de la saga/serie
+        seriesOrder:
+          type: number
+          description: Número de orden en la saga (permite decimales como 1.5, 2.1, etc.)
+          example: 1.5
+        imageUrl:
+          type: string
+          description: URL de la imagen de portada
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Series:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        nameNormalized:
+          type: string
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        isbn:
+          type: string
+        publisher:
+          type: string
+        publishYear:
+          type: integer
+        pageCount:
+          type: integer
+        description:
+          type: string
+        format:
+          type: string
+          enum: [EPUB, PDF, MOBI, AZW3, PHYSICAL]
+        filePath:
+          type: string
+        coverPath:
+          type: string
+        fileHash:
+          type: string
+        seriesOrder:
+          type: number
+          description: Número de orden en la saga (permite decimales como 1.5, 2.1, etc.)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        authors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+        series:
+          $ref: "#/components/schemas/Series"
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string

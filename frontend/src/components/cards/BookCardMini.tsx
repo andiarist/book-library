@@ -10,6 +10,8 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
     <div
       className="flex h-full cursor-pointer gap-4 rounded-lg bg-amber-200 p-4 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
       onClick={onClick}
+      data-testid="book-card-mini"
+      key={book.id}
     >
       {book.coverPath && (
         <img
@@ -26,9 +28,17 @@ export const BookCardMini = ({ book, onClick }: BookCardMiniProps) => {
           </p>
         )}
         <div className="mt-auto flex flex-col gap-1">
-          {/* {book.pageCount && (
-            <span className="meta-item">📖 {book.pageCount} páginas</span>
-          )} */}
+          {book.series && (
+            <span className="flex items-center gap-1 text-sm font-medium text-purple-700">
+              📚 {book.series.name}
+              {book.seriesOrder && ` #${book.seriesOrder}`}
+            </span>
+          )}
+          {book.pageCount && (
+            <span className="flex items-center gap-1 text-sm text-gray-600">
+              📖 {book.pageCount} páginas
+            </span>
+          )}
           {book.format && (
             <span className="flex items-center gap-1 text-sm text-gray-600">
               📄 {book.format.toUpperCase()}
