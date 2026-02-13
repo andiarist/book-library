@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './App.css';
-import LibraryPage from './pages/LibraryPage';
+import LibraryPage from './pages/library/LibraryPage';
 import { SearchPage } from './pages/SearchPage';
 
 function App() {
