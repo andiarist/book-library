@@ -125,7 +125,6 @@ export const EditLibraryBookModal = ({
   return (
     <div
       className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4"
-      onClick={onClose}
       data-testid="edit-library-book-modal"
     >
       <div
