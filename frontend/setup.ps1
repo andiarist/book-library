@@ -82,7 +82,6 @@ Write-Host ""
 Write-Host "   README.md         - Documentación general" -ForegroundColor White
 Write-Host "   PNPM_GUIDE.md     - Guía de pnpm" -ForegroundColor White
 Write-Host "   DEVELOPMENT.md    - Guía de desarrollo" -ForegroundColor White
-Write-Host "   TAURI_MIGRATION.md - Migración a Tauri (Fase 2)" -ForegroundColor White
 Write-Host ""
 Write-Host "Para empezar, ejecuta: pnpm dev" -ForegroundColor Yellow
 Write-Host ""
