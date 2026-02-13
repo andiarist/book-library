@@ -1,20 +1,38 @@
 import { EmptyLibraryState } from './components/EmptyLibraryState';
+import { ErrorState } from './components/ErrorState';
 import { LibraryContent } from './components/LibraryContent';
 import { LibraryFilters } from './components/LibraryFilters';
 import { LibraryHeader } from './components/LibraryHeader';
 import { LibraryModalHost } from './components/LibraryModalHost';
 import { LibraryPagination } from './components/LibraryPagination';
+import { NoResultsState } from './components/NoResultsState';
 import { useLibraryPage } from './useLibraryPage';
 
 const LibraryPage = () => {
   const vm = useLibraryPage();
 
   if (vm.isLoading) return <div>Cargando libros...</div>;
-  if (vm.isError) return <div>Error al cargar los libros</div>;
+
+  if (vm.isError) {
+    return (
+      <ErrorState
+        onRetry={vm.refetch}
+        onClearFilters={() => {
+          vm.clearFilters();
+          vm.refetch();
+        }}
+      />
+    );
+  }
 
   const total = vm.pagination?.total || 0;
 
-  if (!vm.data || vm.books.length === 0) {
+  // Verificar si hay filtros activos
+  const hasActiveFilters =
+    !!vm.searchTerm || !!vm.formatFilter || !!vm.seriesFilter;
+
+  // Si no hay libros Y no hay filtros activos, mostrar estado vacío
+  if ((!vm.data || vm.books.length === 0) && !hasActiveFilters) {
     return (
       <EmptyLibraryState
         isScanning={vm.isScanning}
@@ -60,30 +78,41 @@ const LibraryPage = () => {
           onClear={vm.clearFilters}
         />
 
-        <LibraryContent
-          viewMode={vm.viewMode}
-          books={vm.books}
-          currentPage={vm.currentPage}
-          itemsPerPage={vm.itemsPerPage}
-          onViewDetail={(b) => vm.setSelectedBook(b)}
-          onEdit={(b) => vm.setEditingBook(b)}
-          onPreview={(b) => vm.setPreviewBook(b)}
-          onDelete={vm.handleDeleteBook}
-        />
-
-        {vm.pagination && (
-          <LibraryPagination
-            currentPage={vm.currentPage}
-            itemsPerPage={vm.itemsPerPage}
-            total={vm.pagination.total}
-            totalPages={vm.pagination.totalPages}
-            onPrev={() => vm.setCurrentPage((p) => Math.max(1, p - 1))}
-            onNext={() =>
-              vm.setCurrentPage((p) =>
-                Math.min(vm.pagination!.totalPages, p + 1)
-              )
-            }
+        {vm.books.length === 0 ? (
+          <NoResultsState
+            onClearFilters={() => {
+              vm.clearFilters();
+              vm.refetch();
+            }}
           />
+        ) : (
+          <>
+            <LibraryContent
+              viewMode={vm.viewMode}
+              books={vm.books}
+              currentPage={vm.currentPage}
+              itemsPerPage={vm.itemsPerPage}
+              onViewDetail={(b) => vm.setSelectedBook(b)}
+              onEdit={(b) => vm.setEditingBook(b)}
+              onPreview={(b) => vm.setPreviewBook(b)}
+              onDelete={vm.handleDeleteBook}
+            />
+
+            {vm.pagination && (
+              <LibraryPagination
+                currentPage={vm.currentPage}
+                itemsPerPage={vm.itemsPerPage}
+                total={vm.pagination.total}
+                totalPages={vm.pagination.totalPages}
+                onPrev={() => vm.setCurrentPage((p) => Math.max(1, p - 1))}
+                onNext={() =>
+                  vm.setCurrentPage((p) =>
+                    Math.min(vm.pagination!.totalPages, p + 1)
+                  )
+                }
+              />
+            )}
+          </>
         )}
       </section>
 

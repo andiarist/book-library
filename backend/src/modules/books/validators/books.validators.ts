@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request } from "express";
 
 export class ValidationError extends Error {
   constructor(
@@ -6,7 +6,7 @@ export class ValidationError extends Error {
     public status: number = 400,
   ) {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 
@@ -17,7 +17,7 @@ export const parseBookId = (req: Request): number => {
   const id = Number(req.params.id);
 
   if (Number.isNaN(id) || id <= 0) {
-    throw new ValidationError('Invalid book ID');
+    throw new ValidationError("Invalid book ID");
   }
 
   return id;
@@ -53,17 +53,23 @@ export const parsePaginationParams = (req: Request) => {
  * Valida parámetros de ordenamiento
  */
 export const parseSortParams = (req: Request) => {
-  const sortBy = (req.query.sortBy as string) || 'createdAt';
-  const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc';
+  const sortBy = (req.query.sortBy as string) || "createdAt";
+  const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
 
   // Whitelist de campos permitidos para ordenar
-  const allowedSortFields = ['createdAt', 'title', 'publishYear', 'author'];
+  const allowedSortFields = [
+    "createdAt",
+    "title",
+    "publishYear",
+    "author",
+    "series",
+  ];
 
   if (!allowedSortFields.includes(sortBy)) {
     throw new ValidationError(`Invalid sortBy field: ${sortBy}`);
   }
 
-  if (sortOrder !== 'asc' && sortOrder !== 'desc') {
+  if (sortOrder !== "asc" && sortOrder !== "desc") {
     throw new ValidationError(`Invalid sortOrder: ${sortOrder}`);
   }
 

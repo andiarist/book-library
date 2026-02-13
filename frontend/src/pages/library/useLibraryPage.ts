@@ -1,48 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useBooks } from '@/hooks/useBooks';
 import { useSeries } from '@/hooks/useSeries';
-import { scanLibrary, ScanLibraryResult, deleteBook } from '@/api/books.api';
+import { deleteBook } from '@/api/books.api';
 import { Book } from '@/types/books.types';
+import { useLibraryFilters } from './hooks/useLibraryFilters';
+import { useLibraryScanner } from './hooks/useLibraryScanner';
+import { useLibraryModals } from './hooks/useLibraryModals';
 
 export type ViewMode = 'grid' | 'table';
 
+const ITEMS_PER_PAGE = 20;
+
 export function useLibraryPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
-
-  const [searchInput, setSearchInput] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [formatFilter, setFormatFilter] = useState('');
-  const [seriesFilter, setSeriesFilter] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResults, setScanResults] = useState<ScanLibraryResult | null>(
-    null
-  );
-  const [showResults, setShowResults] = useState(false);
-
-  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
-  const [previewBook, setPreviewBook] = useState<Book | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
-  const queryParams = useMemo(
-    () => ({
-      search: searchTerm || undefined,
-      format: formatFilter || undefined,
-      seriesId: seriesFilter || undefined,
-      sortBy,
-      sortOrder,
-    }),
-    [searchTerm, formatFilter, seriesFilter, sortBy, sortOrder]
-  );
+  // Compose specialized hooks
+  const filters = useLibraryFilters();
+  const scanner = useLibraryScanner();
+  const modals = useLibraryModals();
 
+  // Data fetching
   const { data, isLoading, isError, refetch } = useBooks(
-    currentPage,
-    itemsPerPage,
-    queryParams
+    filters.currentPage,
+    ITEMS_PER_PAGE,
+    filters.queryParams
   );
 
   const { data: seriesList = [] } = useSeries();
@@ -50,26 +31,9 @@ export function useLibraryPage() {
   const books = data?.books ?? [];
   const pagination = data?.pagination;
 
+  // Actions
   const handleScanLibrary = async () => {
-    try {
-      setIsScanning(true);
-      const results = await scanLibrary();
-      setScanResults(results);
-      setShowResults(true);
-      refetch();
-    } catch (error) {
-      console.error('Error al escanear biblioteca:', error);
-      alert(
-        'Error al escanear la biblioteca. Revisa la consola para más detalles.'
-      );
-    } finally {
-      setIsScanning(false);
-    }
-  };
-
-  const handleSearch = () => {
-    setSearchTerm(searchInput);
-    setCurrentPage(1);
+    await scanner.handleScanLibrary(refetch);
   };
 
   const handleDeleteBook = async (book: Book) => {
@@ -90,16 +54,8 @@ export function useLibraryPage() {
     }
   };
 
-  const clearFilters = () => {
-    setSearchInput('');
-    setSearchTerm('');
-    setFormatFilter('');
-    setSeriesFilter('');
-    setCurrentPage(1);
-  };
-
   return {
-    // data
+    // Data
     data,
     books,
     pagination,
@@ -107,42 +63,49 @@ export function useLibraryPage() {
     isLoading,
     isError,
 
-    // state
-    currentPage,
-    itemsPerPage,
-    searchInput,
-    searchTerm,
-    formatFilter,
-    seriesFilter,
-    sortBy,
-    sortOrder,
+    // View mode
     viewMode,
-    isScanning,
-    scanResults,
-    showResults,
-    selectedBook,
-    editingBook,
-    previewBook,
-
-    // setters
-    setCurrentPage,
-    setSearchInput,
-    setSearchTerm,
-    setFormatFilter,
-    setSeriesFilter,
-    setSortBy,
-    setSortOrder,
     setViewMode,
-    setShowResults,
-    setSelectedBook,
-    setEditingBook,
-    setPreviewBook,
 
-    // actions
-    refetch,
+    // Pagination
+    currentPage: filters.currentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
+    setCurrentPage: filters.setCurrentPage,
+
+    // Search & Filters
+    searchInput: filters.searchInput,
+    setSearchInput: filters.setSearchInput,
+    searchTerm: filters.searchTerm,
+    formatFilter: filters.formatFilter,
+    setFormatFilter: filters.setFormatFilter,
+    seriesFilter: filters.seriesFilter,
+    setSeriesFilter: filters.setSeriesFilter,
+    handleSearch: filters.handleSearch,
+    clearFilters: filters.clearFilters,
+
+    // Sorting
+    sortBy: filters.sortBy,
+    setSortBy: filters.setSortBy,
+    sortOrder: filters.sortOrder,
+    setSortOrder: filters.setSortOrder,
+
+    // Scanner
+    isScanning: scanner.isScanning,
+    scanResults: scanner.scanResults,
+    showResults: scanner.showResults,
+    setShowResults: scanner.setShowResults,
     handleScanLibrary,
-    handleSearch,
+
+    // Modals
+    selectedBook: modals.selectedBook,
+    setSelectedBook: modals.setSelectedBook,
+    editingBook: modals.editingBook,
+    setEditingBook: modals.setEditingBook,
+    previewBook: modals.previewBook,
+    setPreviewBook: modals.setPreviewBook,
+
+    // Actions
+    refetch,
     handleDeleteBook,
-    clearFilters,
   };
 }
