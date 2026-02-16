@@ -9,6 +9,7 @@ import {
   useSearchBookCovers,
   useSearchBookCoversByQuery,
 } from '@/hooks/useBooks';
+import { SeriesSearchInput } from '../SeriesSearchInput';
 
 interface EditLibraryBookModalProps {
   book: Book;
@@ -429,19 +430,13 @@ export const EditLibraryBookModal = ({
             </div>
 
             {/* Saga */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Saga
-              </label>
-              <Input
-                type="text"
-                value={formData.seriesName}
-                onChange={(e) =>
-                  setFormData({ ...formData, seriesName: e.target.value })
-                }
-                placeholder="Nombre de la saga"
-              />
-            </div>
+            <SeriesSearchInput
+              value={formData.seriesName}
+              onChange={(value) =>
+                setFormData({ ...formData, seriesName: value })
+              }
+              placeholder="Nombre de la saga"
+            />
 
             {/* Número de saga */}
             <div>

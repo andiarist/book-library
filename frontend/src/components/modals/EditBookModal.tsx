@@ -9,6 +9,7 @@ import { Button } from '../Button';
 import { cn } from '@/helpers/cn';
 import { Input } from '../Input';
 import { useCreateBook } from '@/hooks/useBooks';
+import { SeriesSearchInput } from '../SeriesSearchInput';
 
 interface EditBookModalProps {
   bookMetadata?: BookMetadata;
@@ -292,19 +293,11 @@ export const EditBookModal = ({
               />
             </div>
             {/* Saga */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Saga
-              </label>
-              <Input
-                type="text"
-                value={formData.saga || ''}
-                onChange={(e) =>
-                  setFormData({ ...formData, saga: e.target.value })
-                }
-                placeholder="Nombre de la saga"
-              />
-            </div>
+            <SeriesSearchInput
+              value={formData.saga || ''}
+              onChange={(value) => setFormData({ ...formData, saga: value })}
+              placeholder="Nombre de la saga"
+            />
 
             {/* Número de saga */}
             <div>
