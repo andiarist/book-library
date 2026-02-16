@@ -1,4 +1,4 @@
-import { BookMetadata, APIError } from '@/types/book';
+import { BookMetadata, APIError } from '@/types/books.types';
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
 
@@ -136,11 +136,11 @@ export class GoogleBooksService {
       publishedDate: volumeInfo.publishedDate,
       description: volumeInfo.description,
       pageCount: volumeInfo.pageCount,
-      categories: volumeInfo.categories,
+      categories: volumeInfo.categories || [],
       imageUrl:
         volumeInfo.imageLinks?.thumbnail ||
         volumeInfo.imageLinks?.smallThumbnail,
-      language: volumeInfo.language,
+      //language: volumeInfo.language,
     };
   }
 }

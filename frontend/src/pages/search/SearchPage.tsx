@@ -1,4 +1,4 @@
-import { EditBookModal } from '@/components/modals/EditBookModal';
+import { EditBookModal } from '@/components/modals/EditNewBookModal';
 import { NoResultsState } from '@/components/NoResultsState';
 import {
   SearchForm,

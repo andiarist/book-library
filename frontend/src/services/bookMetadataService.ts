@@ -1,4 +1,4 @@
-import { BookMetadata, APIError } from '@/types/book';
+import { BookMetadata, APIError } from '@/types/books.types';
 import { GoogleBooksService } from './googleBooksService';
 import { OpenLibraryService } from './openLibraryService';
 

@@ -1,4 +1,4 @@
-import { BookMetadata, APIError } from '@/types/book';
+import { BookMetadata, APIError } from '@/types/books.types';
 
 const OPEN_LIBRARY_API = 'https://openlibrary.org';
 
@@ -85,7 +85,7 @@ export class OpenLibraryService {
       publisher: book.publishers?.[0],
       publishedDate: book.publish_date,
       pageCount: book.number_of_pages,
-      categories: book.subjects?.slice(0, 5), // Limit to first 5 subjects
+      categories: book.subjects?.slice(0, 5) || [], // Limit to first 5 subjects
       imageUrl:
         book.cover?.large || book.cover?.medium || this.getCoverUrl(isbn, 'L'),
     };

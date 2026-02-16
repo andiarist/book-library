@@ -71,9 +71,8 @@ export const useSearchBookCovers = (bookId: number) =>
     enabled: false,
   });
 
-export const useSearchBookCoversByQuery = (query: string) =>
-  useQuery({
-    queryKey: ['searchBookCoversByQuery', query],
-    queryFn: () => searchBookCoversByQuery(query),
-    enabled: false,
+export const useSearchBookCoversByQuery = () => {
+  return useMutation({
+    mutationFn: (query: string) => searchBookCoversByQuery(query),
   });
+};
