@@ -429,19 +429,19 @@ export const EditLibraryBookModal = ({
               />
             </div>
 
-            {/* Saga */}
+            {/* Serie */}
             <SeriesSearchInput
               value={formData.seriesName}
               onChange={(value) =>
                 setFormData({ ...formData, seriesName: value })
               }
-              placeholder="Nombre de la saga"
+              placeholder="Nombre de la serie"
             />
 
-            {/* Número de saga */}
+            {/* Número de serie */}
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Número en la saga
+                Número en la serie
               </label>
               <Input
                 type="number"

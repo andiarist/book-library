@@ -12,8 +12,8 @@ interface SeriesSearchInputProps {
 export const SeriesSearchInput = ({
   value,
   onChange,
-  placeholder = 'Nombre de la saga',
-  label = 'Saga',
+  placeholder = 'Nombre de la serie',
+  label = 'Serie',
 }: SeriesSearchInputProps) => {
   const { data: seriesList, isLoading } = useSeries();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -127,7 +127,7 @@ export const SeriesSearchInput = ({
         seriesList &&
         seriesList.length > 0 && (
           <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-sm text-gray-500 shadow-lg">
-            No se encontró ninguna saga que coincida. Puedes crear una nueva
+            No se encontró ninguna serie que coincida. Puedes crear una nueva
             escribiendo el nombre.
           </div>
         )}
@@ -140,7 +140,7 @@ export const SeriesSearchInput = ({
         !isLoading && (
           <div className="absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg">
             <div className="px-4 py-2 text-xs font-medium text-gray-500">
-              Sagas existentes ({seriesList.length})
+              Series existentes ({seriesList.length})
             </div>
             <div className="py-1">
               {seriesList.map((series) => (

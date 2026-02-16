@@ -14,8 +14,8 @@ export interface Book {
   filePath?: string;
   fileFormat?: 'epub' | 'pdf';
   // Campos adicionales
-  saga?: string;
-  sagaNumber?: number;
+  serie?: string;
+  serieNumber?: number;
   format?: 'digital' | 'fisico';
   addedAt: string;
   lastModified: string;

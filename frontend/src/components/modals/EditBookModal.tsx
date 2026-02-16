@@ -18,8 +18,8 @@ interface EditBookModalProps {
   //onSave: (data: BookEditData) => void;
 }
 export interface BookEditData extends BookMetadata {
-  saga?: string;
-  sagaNumber?: number;
+  serie?: string;
+  serieNumber?: number;
   format?: BookFormat;
 }
 
@@ -39,8 +39,8 @@ export const EditBookModal = ({
     if (bookMetadata) {
       return {
         ...bookMetadata,
-        saga: '',
-        sagaNumber: undefined,
+        serie: '',
+        serieNumber: undefined,
         format: undefined,
       };
     } else {
@@ -49,8 +49,8 @@ export const EditBookModal = ({
         title: '',
         authors: [],
         categories: [],
-        saga: '',
-        sagaNumber: undefined,
+        serie: '',
+        serieNumber: undefined,
         format: undefined,
       };
     }
@@ -79,8 +79,8 @@ export const EditBookModal = ({
       imageUrl: formData.imageUrl || undefined,
       description: formData.description,
 
-      seriesName: formData.saga,
-      seriesOrder: formData.sagaNumber,
+      seriesName: formData.serie,
+      seriesOrder: formData.serieNumber,
     };
     try {
       const book = await mutateAsync(newBook);
@@ -292,26 +292,26 @@ export const EditBookModal = ({
                 placeholder="Ej: Ficción, Aventura, Fantasía"
               />
             </div>
-            {/* Saga */}
+            {/* Serie */}
             <SeriesSearchInput
-              value={formData.saga || ''}
-              onChange={(value) => setFormData({ ...formData, saga: value })}
-              placeholder="Nombre de la saga"
+              value={formData.serie || ''}
+              onChange={(value) => setFormData({ ...formData, serie: value })}
+              placeholder="Nombre de la serie"
             />
 
-            {/* Número de saga */}
+            {/* Número de serie */}
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Número en la saga
+                Número en la serie
               </label>
               <Input
                 type="number"
                 step="0.1"
-                value={formData.sagaNumber || ''}
+                value={formData.serieNumber || ''}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    sagaNumber: e.target.value
+                    serieNumber: e.target.value
                       ? parseFloat(e.target.value)
                       : undefined,
                   })
