@@ -1,4 +1,5 @@
 import { BookMetadata, APIError } from '@/types/books.types';
+import { normalizeCategories } from './categoryNormalizer';
 
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
 
@@ -136,7 +137,7 @@ export class GoogleBooksService {
       publishedDate: volumeInfo.publishedDate,
       description: volumeInfo.description,
       pageCount: volumeInfo.pageCount,
-      categories: volumeInfo.categories || [],
+      categories: normalizeCategories(volumeInfo.categories || []),
       imageUrl:
         volumeInfo.imageLinks?.thumbnail ||
         volumeInfo.imageLinks?.smallThumbnail,

@@ -118,3 +118,13 @@ export const getAllSeriesController = asyncHandler(
     res.json(series);
   },
 );
+
+/**
+ * Obtiene todas las categorías disponibles
+ */
+export const getAllCategoriesController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const categories = await service.getAllCategories();
+    res.json(categories);
+  },
+);

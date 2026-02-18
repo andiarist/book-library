@@ -1,5 +1,6 @@
 import { Input } from '../Input';
 import { SeriesSearchInput } from '../SeriesSearchInput';
+import { CategoriesInput } from '../CategoriesInput';
 import { BookFormat } from '@/types/books.types';
 
 export interface BookFormData {
@@ -147,24 +148,10 @@ export const BookForm = ({
       </div>
 
       {/* Categorías */}
-      <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Categorías (separadas por coma)
-        </label>
-        <Input
-          type="text"
-          value={formData.categories.join(', ')}
-          onChange={(e) =>
-            updateField(
-              'categories',
-              e.target.value
-                ? e.target.value.split(',').map((c) => c.trim())
-                : []
-            )
-          }
-          placeholder="Ej: Ficción, Aventura, Fantasía"
-        />
-      </div>
+      <CategoriesInput
+        value={formData.categories}
+        onChange={(value) => updateField('categories', value)}
+      />
 
       {/* Serie */}
       <SeriesSearchInput

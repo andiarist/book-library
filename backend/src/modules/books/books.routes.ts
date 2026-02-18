@@ -11,6 +11,7 @@ import {
   updateBookController,
   deleteBookController,
   getAllSeriesController,
+  getAllCategoriesController,
 } from "./controllers/books.controller";
 
 import {
@@ -50,6 +51,9 @@ router.get("/series/:seriesName", getBooksBySeriesController);
 
 // Obtener todas las series disponibles
 router.get("/series-list", getAllSeriesController);
+
+// Obtener todas las categorías disponibles
+router.get("/categories-list", getAllCategoriesController);
 
 // ==========================================
 // CRUD PRINCIPAL

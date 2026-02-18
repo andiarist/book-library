@@ -90,3 +90,8 @@ export const getSeries = () =>
   http
     .get<Array<{ id: number; name: string }>>('/api/books/series-list')
     .then((r) => r.data);
+
+export const getCategories = () =>
+  http
+    .get<Array<{ id: number; name: string }>>('/api/books/categories-list')
+    .then((r) => r.data);

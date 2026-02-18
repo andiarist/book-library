@@ -1,16 +1,18 @@
 import { BookFormat } from "../../../generated/prisma/enums";
 import prisma from "../../../lib/prisma";
 
+/**
+ * Configuración de relaciones a incluir en las consultas de libros.
+ * Define qué entidades relacionadas deben cargarse junto con cada libro:
+ * - authors: Lista de autores del libro
+ * - categories: Géneros/categorías asociadas
+ * - series: Información de la serie a la que pertenece (si aplica)
+ */
 const include = {
   authors: true,
   categories: true,
   series: true,
 } as const;
-
-const includeAndOrder = {
-  include,
-  orderBy: { createdAt: "desc" as const },
-};
 
 interface BookFilters {
   search?: string;
@@ -323,4 +325,16 @@ export const findAllSeries = async () => {
   });
 
   return series;
+};
+
+export const findAllCategories = async () => {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return categories;
 };
