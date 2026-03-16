@@ -6,3 +6,4 @@ export { DocumentIcon } from './DocumentIcon';
 export { TrashIcon } from './TrashIcon';
 export { GridIcon } from './GridIcon';
 export { ListIcon } from './ListIcon';
+export { SadFaceIcon } from './SadFaceIcon';

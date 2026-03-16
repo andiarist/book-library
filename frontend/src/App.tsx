@@ -11,8 +11,8 @@ function App() {
   ];
 
   return (
-    <div className="mx-auto my-0 w-full max-w-9/10 p-8">
-      <header className="mb-12 text-center">
+    <div className="mx-auto my-0 w-full max-w-9/10 px-4 py-8">
+      <header className="mb-4 text-center">
         <h1 className="my-2 text-5xl">📚 Biblioteca Personal</h1>
         <p className="text-xl text-gray-400">Gestiona tu colección de libros</p>
       </header>

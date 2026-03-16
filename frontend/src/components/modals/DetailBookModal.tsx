@@ -97,8 +97,12 @@ function BookInformation({ book }: BookInformationProps) {
     },
     { key: 'pageCount', label: 'Páginas', value: book.pageCount },
     // { key: 'language', label: 'Idioma', value: book.language },
-    { key: 'saga', label: 'Saga', value: book.series?.name },
-    { key: 'sagaNumber', label: 'Número en la saga', value: book.seriesOrder },
+    { key: 'series', label: 'Serie', value: book.series?.name },
+    {
+      key: 'seriesNumber',
+      label: 'Número en la serie',
+      value: book.seriesOrder,
+    },
     {
       key: 'format',
       label: 'Formato',

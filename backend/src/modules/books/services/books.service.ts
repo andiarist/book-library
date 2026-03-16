@@ -227,3 +227,10 @@ export const deleteBook = async (bookId: number) => {
 export const getAllSeries = async () => {
   return repo.findAllSeries();
 };
+
+/**
+ * Obtiene todas las categorías disponibles
+ */
+export const getAllCategories = async () => {
+  return repo.findAllCategories();
+};

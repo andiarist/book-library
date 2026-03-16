@@ -73,3 +73,9 @@ export type PaginatedBooks = {
   books: Book[];
   pagination: PaginationInfo;
 };
+
+export interface APIError {
+  message: string;
+  source: 'google-books' | 'open-library' | 'local';
+  statusCode?: number;
+}
