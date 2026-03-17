@@ -1,0 +1,22 @@
+<div class="flex h-full flex-col gap-4 rounded-lg bg-emerald-600 p-6">
+  @if (book().imageUrl) {
+    <img
+      [src]="book().imageUrl"
+      [alt]="book().title"
+      class="mx-auto h-auto w-full max-w-37.5 rounded-sm object-cover shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+    />
+  }
+  <div className="flex-1">
+    <p className="mt-0 mb-3 text-lg leading-5">{{ book().title }}</p>
+
+    @if (book().authors.length > 0) {
+      <book-info-item [label]="'Autor(es)'" [value]="book().authors.join(', ')" />
+    }
+    <book-info-item [label]="'ISBN'" [value]="book().isbn" />
+    <book-info-item [label]="'Editorial'" [value]="book().publisher" />
+    <book-info-item [label]="'Páginas'" [value]="book().pageCount" />
+    <button (click)="addBook()" class="rounded bg-blue-400 px-4 font-semibold text-white">
+      Añadir a mi biblioteca
+    </button>
+  </div>
+</div>
