@@ -1,0 +1,36 @@
+<div
+  class="flex h-full cursor-pointer gap-4 rounded-lg bg-amber-200 p-4 transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+>
+  @if (book().coverPath) {
+    <img
+      [src]="coverUrl()"
+      [alt]="book().title"
+      class="h-32 w-20 shrink-0 rounded-sm object-cover shadow-md shadow-black/20"
+    />
+  }
+
+  <div class="min-w-0 flex-1 flex-col gap-2">
+    <p class="m-0 line-clamp-2 text-lg leading-5">{{ book().title }}</p>
+
+    <p class="m-0 line-clamp-1 text-sm text-gray-400">
+      {{book().authors.map((a) => a.name).join(', ')}}
+    </p>
+    <div class="mt-auto flex flex-col gap-1">
+      @if (book().series) {
+        <span class="flex items-center gap-1 text-sm font-medium text-purple-700">
+          📚 {{ book().series?.name }} #{{ book().seriesOrder }}
+        </span>
+      }
+      @if (book().pageCount) {
+        <span class="flex items-center gap-1 text-sm text-gray-600">
+          📖 {{ book().pageCount }} páginas
+        </span>
+      }
+      @if (book().format) {
+        <span class="flex items-center gap-1 text-sm text-gray-600">
+          📄 {{ book().format.toUpperCase() }}
+        </span>
+      }
+    </div>
+  </div>
+</div>

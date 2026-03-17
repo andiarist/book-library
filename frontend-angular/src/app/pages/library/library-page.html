@@ -1,0 +1,15 @@
+<div class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg">Mi biblioteca</h2>
+
+    <button class="rounded-2xl bg-blue-400 px-4 py-2 font-semibold text-white">
+      Escanear biblioteca
+    </button>
+  </div>
+  <section class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">Formulario</section>
+  <section class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+    @for (book of booksLibraryService.libraryBooks().data; track book.id) {
+      <library-card [book]="book" />
+    }
+  </section>
+</div>
