@@ -7,5 +7,9 @@
     </button>
   </div>
   <section class="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">Formulario</section>
-  <section class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">Resultados</section>
+  <section class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+    @for (book of booksLibraryService.libraryBooks().data; track book.id) {
+      <library-card [book]="book" />
+    }
+  </section>
 </div>

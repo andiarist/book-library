@@ -7,4 +7,5 @@ export const environment = {
 
   //URLs
   baseApiUrl: 'http://localhost:3001',
+  booksUrl: '/api/books',
 };
