@@ -1,0 +1,55 @@
+<div
+  class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+  data-testid="scan-results-modal"
+>
+  <div class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl">
+    <!-- Header -->
+    <div class="border-b p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">📚 Resultados del Escaneo</h2>
+        <button
+          (click)="onCloseModal.emit()"
+          class="rounded text-2xl text-white hover:text-gray-700 p-2 bg-amber-700"
+        >
+          X
+        </button>
+      </div>
+      <p class="mt-2 text-sm text-gray-600">{{ results().libraryPath }}</p>
+    </div>
+    <!-- Summary -->
+    <div class="border-b bg-gray-50 p-6">
+      <div class="grid grid-cols-5 gap-4">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-gray-700">
+            {{ results().total }}
+          </div>
+          <div class="text-sm text-gray-600">Total archivos</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600">
+            {{ results().added }}
+          </div>
+          <div class="text-sm text-gray-600">Añadidos</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-yellow-600">
+            {{ results().skipped }}
+          </div>
+          <div class="text-sm text-gray-600">Omitidos</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-purple-600">
+            {{ results().deleted }}
+          </div>
+          <div class="text-sm text-gray-600">Eliminados</div>
+        </div>
+        <div class="text-center">
+          <div class="text-3xl font-bold text-red-600">
+            {{ results().errors + results().deletionErrors }}
+          </div>
+          <div class="text-sm text-gray-600">Errores</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

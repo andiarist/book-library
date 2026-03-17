@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { environment } from '@environments/environment';
+import { LibraryBooksService } from 'src/app/services/library-books.service';
 import { Book } from 'src/app/types/domain.types';
 
 @Component({

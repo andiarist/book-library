@@ -1,9 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
-import { Book, PAGINATED_BOOK_INIT, PaginatedBookResponse } from '../types/domain.types';
+import {
+  Book,
+  PAGINATED_BOOK_INIT,
+  PaginatedBookResponse,
+  ScanLibraryResult,
+} from '../types/domain.types';
 import { BookMapper } from '../mapper/book.mapper';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { BookDTO, PaginatedBookResponseDTO } from '../types/api.types';
 
 @Injectable({ providedIn: 'root' })
@@ -34,5 +39,11 @@ export class LibraryBooksService {
         this.libraryBooks.set(resp);
         this.libraryBooksLoading.set(false);
       });
+  }
+  scanLibraryBooks(): Observable<ScanLibraryResult> {
+    return this.http.post<ScanLibraryResult>(
+      `${environment.baseApiUrl}${environment.booksUrl}/scan`,
+      {},
+    );
   }
 }
