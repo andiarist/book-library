@@ -93,7 +93,7 @@ export const findAll = async (
     const paginatedBooks = sortedBooks.slice(skip, skip + limit);
 
     return {
-      books: paginatedBooks,
+      data: paginatedBooks,
       pagination: {
         page,
         limit,
@@ -120,7 +120,7 @@ export const findAll = async (
   });
 
   return {
-    books,
+    data: books,
     pagination: {
       page,
       limit,

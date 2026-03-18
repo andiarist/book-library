@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
-import type { BookMetadata, CreateBookDTO } from 'src/app/types/api.types';
-import { BookInfoItemComponent } from '../../book-info-item/book-info-item.component';
-import { SearchBooksService } from 'src/app/services/search.service';
 import { Router } from '@angular/router';
+import { BookInfoItemComponent } from 'src/app/shared/ui/book-info-item/book-info-item.component';
+import { SearchBooksService } from '../../services/search.service';
+import type { BookMetadataDTO, BookAddDTO } from '../../models/search.types';
 
 @Component({
   selector: 'search-result-card',
@@ -12,13 +12,13 @@ import { Router } from '@angular/router';
 export class SearchResultCardComponent {
   private router = inject(Router);
 
-  book = input.required<BookMetadata>();
+  book = input.required<BookMetadataDTO>();
 
   searchBookService = inject(SearchBooksService);
 
   addBook() {
     //transformar BookMetaData en CreateBook
-    const createBook: CreateBookDTO = {
+    const createBook: BookAddDTO = {
       title: this.book().title,
       authors: this.book().authors,
       categories: this.book().categories,

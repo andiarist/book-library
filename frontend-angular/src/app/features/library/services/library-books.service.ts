@@ -1,21 +1,24 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
-import {
-  Book,
-  PAGINATED_BOOK_INIT,
-  PaginatedBookResponse,
-  ScanLibraryResult,
-} from '../types/domain.types';
-import { BookMapper } from '../mapper/book.mapper';
+import { Book, BookDTO, ScanLibraryResponse } from '../models/library.types';
 import { map, Observable } from 'rxjs';
-import { BookDTO, PaginatedBookResponseDTO } from '../types/api.types';
+import { PaginatedResponse } from 'src/app/shared/models/pagination.types';
+import { BookMapper } from '../mappers/book.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class LibraryBooksService {
   private http = inject(HttpClient);
 
-  libraryBooks = signal<PaginatedBookResponse<Book>>(PAGINATED_BOOK_INIT);
+  libraryBooks = signal<PaginatedResponse<Book>>({
+    data: [],
+    pagination: {
+      page: 0,
+      limit: 0,
+      total: 0,
+      totalPages: 0,
+    },
+  });
   libraryBooksLoading = signal(true);
 
   constructor() {
@@ -25,11 +28,11 @@ export class LibraryBooksService {
 
   loadLibraryBooks() {
     this.http
-      .get<PaginatedBookResponseDTO<BookDTO>>(`${environment.baseApiUrl}${environment.booksUrl}`)
+      .get<PaginatedResponse<BookDTO>>(`${environment.baseApiUrl}${environment.booksUrl}`)
       .pipe(
         map((resp) => {
           return {
-            data: BookMapper.mapBookDtoToBookArray(resp.books),
+            data: BookMapper.mapBookDtoToBookArray(resp.data),
             pagination: resp.pagination,
           };
         }),
@@ -40,8 +43,8 @@ export class LibraryBooksService {
         this.libraryBooksLoading.set(false);
       });
   }
-  scanLibraryBooks(): Observable<ScanLibraryResult> {
-    return this.http.post<ScanLibraryResult>(
+  scanLibraryBooks(): Observable<ScanLibraryResponse> {
+    return this.http.post<ScanLibraryResponse>(
       `${environment.baseApiUrl}${environment.booksUrl}/scan`,
       {},
     );

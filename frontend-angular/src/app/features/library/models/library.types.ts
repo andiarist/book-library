@@ -1,4 +1,23 @@
-import type { BookFormat, Author, Category, Series, PaginationInfo } from './shared.types';
+import type { BookFormat, Author, Category, Series } from 'src/app/shared/models/shared.types';
+
+export interface BookDTO {
+  id: number;
+  title: string;
+  isbn?: string | null;
+  format: BookFormat;
+  publisher?: string | null;
+  publishYear?: number | null;
+  pageCount?: number | null;
+  description?: string | null;
+  coverPath?: string | null;
+  seriesOrder?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  authors: Author[];
+  categories: Category[];
+  series?: Series | null;
+  filePath?: string | null;
+}
 
 export interface Book {
   id: number;
@@ -19,22 +38,7 @@ export interface Book {
   filePath: string | null;
 }
 
-export type PaginatedBookResponse<T> = {
-  data: T[];
-  pagination: PaginationInfo;
-};
-
-export const PAGINATED_BOOK_INIT: PaginatedBookResponse<Book> = {
-  data: [],
-  pagination: {
-    page: 0,
-    limit: 0,
-    total: 0,
-    totalPages: 0,
-  },
-};
-
-export interface ScanLibraryResult {
+export interface ScanLibraryResponse {
   message: string;
   libraryPath: string;
   total: number;

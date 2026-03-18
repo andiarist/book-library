@@ -1,5 +1,4 @@
-import { BookDTO } from '../types/api.types';
-import { Book } from '../types/domain.types';
+import type { BookDTO, Book } from '../models/library.types';
 
 export class BookMapper {
   static mapBookDtoToBook(book: BookDTO): Book {

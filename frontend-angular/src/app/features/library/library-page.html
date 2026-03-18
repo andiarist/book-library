@@ -16,6 +16,6 @@
   </section>
 
   @if (scanResults(); as result) {
-    <scan-modal (onCloseModal)="onCloseModal()" [results]="result" />
+    <library-scan-modal (onCloseModal)="onCloseModal()" [results]="result" />
   }
 </div>

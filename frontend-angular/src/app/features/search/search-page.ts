@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { SearchBooksService } from 'src/app/services/search.service';
-import { SearchResultCardComponent } from 'src/app/components/cards/search-result-card/search-result-card.component';
-import { BookMetadata } from 'src/app/types/api.types';
+import { BookMetadataDTO } from './models/search.types';
+import { SearchResultCardComponent } from './components/search-result-card/search-result-card.component';
+import { SearchBooksService } from './services/search.service';
 
 @Component({
   selector: 'search-page',
@@ -14,7 +14,7 @@ export default class SearchPage {
 
   searchText = new FormControl('', { nonNullable: true });
 
-  searchResults = signal<BookMetadata[]>([]);
+  searchResults = signal<BookMetadataDTO[]>([]);
   searchLoading = signal(false);
 
   onSubmit() {

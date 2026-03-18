@@ -1,18 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
-import { LibraryBooksService } from '../../services/library-books.service';
-import { LibraryCardComponent } from 'src/app/components/cards/library-card/library-card.component';
-import { ScanModalComponent } from 'src/app/components/modals/scan-modal/scan-modal.component';
-import { ScanLibraryResult } from 'src/app/types/domain.types';
+import { LibraryCardComponent } from 'src/app/features/library/components/library-card/library-card.component';
+import { LibraryBooksService } from './services/library-books.service';
+import { LibraryScanModalComponent } from './components/library-scan-modal/library-scan-modal.component';
+import { ScanLibraryResponse } from './models/library.types';
 
 @Component({
   selector: 'library-page',
-  imports: [LibraryCardComponent, ScanModalComponent],
+  imports: [LibraryCardComponent, LibraryScanModalComponent],
   templateUrl: './library-page.html',
 })
 export default class LibraryPage {
   booksLibraryService = inject(LibraryBooksService);
   // showScanModal = signal<boolean>(false);
-  scanResults = signal<ScanLibraryResult | null>(null);
+  scanResults = signal<ScanLibraryResponse | null>(null);
 
   onScan() {
     this.booksLibraryService.scanLibraryBooks().subscribe((resp) => {

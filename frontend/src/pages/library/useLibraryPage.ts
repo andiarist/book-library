@@ -28,7 +28,7 @@ export function useLibraryPage() {
 
   const { data: seriesList = [] } = useSeries();
 
-  const books = data?.books ?? [];
+  const books = data?.data ?? [];
   const pagination = data?.pagination;
 
   // Actions
