@@ -15,7 +15,10 @@
     <book-info-item [label]="'ISBN'" [value]="book().isbn" />
     <book-info-item [label]="'Editorial'" [value]="book().publisher" />
     <book-info-item [label]="'Páginas'" [value]="book().pageCount" />
-    <button (click)="addBook()" class="rounded bg-blue-400 px-4 font-semibold text-white">
+    <button
+      (click)="this.selectBook.emit(this.book())"
+      class="rounded bg-blue-400 px-4 font-semibold text-white"
+    >
       Añadir a mi biblioteca
     </button>
   </div>

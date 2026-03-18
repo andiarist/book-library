@@ -4,7 +4,7 @@ import { environment } from '@environments/environment';
 import { Book, BookDTO, ScanLibraryResponse } from '../models/library.types';
 import { map, Observable } from 'rxjs';
 import { PaginatedResponse } from 'src/app/shared/models/pagination.types';
-import { BookMapper } from '../mappers/book.mapper';
+import { LibraryBookMapper } from '../mappers/library-book.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class LibraryBooksService {
@@ -32,7 +32,7 @@ export class LibraryBooksService {
       .pipe(
         map((resp) => {
           return {
-            data: BookMapper.mapBookDtoToBookArray(resp.data),
+            data: LibraryBookMapper.mapBookDtoToBookArray(resp.data),
             pagination: resp.pagination,
           };
         }),
