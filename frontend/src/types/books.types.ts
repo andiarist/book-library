@@ -70,7 +70,7 @@ export type PaginationInfo = {
 };
 
 export type PaginatedBooks = {
-  books: Book[];
+  data: Book[];
   pagination: PaginationInfo;
 };
 

@@ -1,6 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { environment } from '@environments/environment';
-import { Book } from 'src/app/types/domain.types';
+import { Book } from '../../models/library.types';
 
 @Component({
   selector: 'library-card',
