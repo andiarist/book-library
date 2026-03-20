@@ -4,10 +4,13 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { SearchBookMapper } from '../../mappers/search-book.mapper';
 import { SearchBooksService } from '../../services/search.service';
 import { Router } from '@angular/router';
+import { ButtonComponent } from 'src/app/shared/ui/button/button.component';
+import { InputComponent } from 'src/app/shared/ui/form/input/input.component';
+import { TextareaComponent } from 'src/app/shared/ui/form/textarea/textarea.component';
 
 @Component({
   selector: 'search-add-book-modal',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonComponent, InputComponent, TextareaComponent],
   templateUrl: './search-add-book-modal.component.html',
 })
 export class SearchAddBookModalComponent {

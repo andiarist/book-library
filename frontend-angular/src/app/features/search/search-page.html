@@ -8,26 +8,22 @@
     >
       <div class="flex-1">
         <label for="searchText" class="block">Search text:</label>
-        <input
-          id="searchText"
-          type="text"
-          [attr.aria-invalid]="
+        <app-input
+          [id]="'searchText'"
+          [control]="this.searchForm.controls.searchText"
+          [type]="'text'"
+          [ariaInvalid]="
             searchForm.get('searchText')?.invalid && searchForm.get('searchText')?.touched
           "
-          formControlName="searchText"
-          [class]="inputClasses()"
         />
+
         @if (searchForm.get('searchText')?.invalid && searchForm.get('searchText')?.touched) {
           <p class="text-red-500 text-xs mt-1 font-medium">Debes escribir algo para buscar.</p>
         }
       </div>
-
-      <button
-        type="submit"
-        class="py-1 rounded flex items-center justify-center gap-1 bg-blue-400 px-4 font-semibold text-white"
+      <app-button [type]="'submit'" [customClass]="'gap-2'">
+        <i class="fa-solid fa-magnifying-glass"></i>Buscar</app-button
       >
-        <i class="fa-solid fa-magnifying-glass"></i>Buscar
-      </button>
     </form>
   </section>
   <section class="mt-8">

@@ -3,16 +3,22 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { BookMetadataDTO } from './models/search.types';
 import { SearchResultCardComponent } from './components/search-result-card/search-result-card.component';
 import { SearchBooksService } from './services/search.service';
-import { cn } from 'src/app/shared/utils/cn.utils';
 import { SearchAddBookModalComponent } from './components/search-add-book-modal/search-add-book-modal.component';
+import { ButtonComponent } from 'src/app/shared/ui/button/button.component';
+import { InputComponent } from 'src/app/shared/ui/form/input/input.component';
 
 @Component({
   selector: 'search-page',
-  imports: [ReactiveFormsModule, SearchResultCardComponent, SearchAddBookModalComponent],
+  imports: [
+    ReactiveFormsModule,
+    SearchResultCardComponent,
+    SearchAddBookModalComponent,
+    ButtonComponent,
+    InputComponent,
+  ],
   templateUrl: './search-page.html',
 })
 export default class SearchPage {
-  public cn = cn;
   searchBooksService = inject(SearchBooksService);
 
   searchForm = new FormGroup({
@@ -25,14 +31,14 @@ export default class SearchPage {
   searchResults = signal<BookMetadataDTO[]>([]);
   searchLoading = signal(false);
 
-  inputClasses = computed(() => {
-    const isLoading = this.searchLoading();
-    return cn(
-      'w-full px-4 py-2 border rounded-lg transition-all outline-none',
-      'border-gray-300 focus:ring-2 focus:ring-amber-400 bg-white',
-      isLoading && 'opacity-50 cursor-not-allowed bg-gray-100',
-    );
-  });
+  // inputClasses = computed(() => {
+  //   const isLoading = this.searchLoading();
+  //   return cn(
+  //     'w-full px-4 py-2 border rounded-lg transition-all outline-none',
+  //     'border-gray-300 focus:ring-2 focus:ring-amber-400 bg-white',
+  //     isLoading && 'opacity-50 cursor-not-allowed bg-gray-100',
+  //   );
+  // });
 
   onSubmit() {
     if (this.searchForm.invalid) {

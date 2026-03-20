@@ -1,61 +1,62 @@
 <div class="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4">
-  <div class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl">
+  <div
+    class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl py-4 px-6 overflow-y-auto"
+  >
     <!-- Header -->
-    <div class="w-full flex justify-between p-2">
-      <p>Editar Metadata del Libro:</p>
-      <button
-        (click)="closeModal()"
-        class="rounded text-2xl text-white hover:text-gray-700 p-2 bg-amber-200"
+    <div class="w-full flex justify-between items-center mb-4">
+      <h5 class="text-xl font-semibold">Editar Metadata del Libro:</h5>
+      <app-button (click)="closeModal()" [customClass]="'px-2 py-1 bg-white text-bg-black text-xl'"
+        >X</app-button
       >
-        Cerrar
-      </button>
     </div>
     <!-- Form -->
     <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
       <!-- Título -->
-      <div class="">
-        <label for="title" class="">Título *:</label>
-        <input id="title" type="text" class="bg-gray-300" formControlName="title" />
+      <div class="flex flex-col gap-2 pb-3">
+        <label for="title" class="">Título*:</label>
+        <app-input [id]="'title'" [control]="this.bookForm.controls.title" [type]="'text'" />
       </div>
       <!-- Autores -->
-      <div>
+      <div class="flex flex-col gap-2 pb-3">
         <label for="authors" class=""> Autor(es) * (separados por coma):</label>
-        <input id="authors" type="text" class="bg-gray-300" formControlName="authors" />
+        <app-input [id]="'authors'" [control]="this.bookForm.controls.authors" [type]="'text'" />
       </div>
 
       <!-- ISBN -->
-      <div>
+      <div class="flex flex-col gap-2 pb-3">
         <label for="isbn" class="">ISBN:</label>
-        <input id="isbn" type="text" class="bg-gray-300" formControlName="isbn" />
+        <app-input [id]="'isbn'" [control]="this.bookForm.controls.isbn" [type]="'text'" />
       </div>
 
       <!-- Editorial -->
-      <div>
+      <div class="flex flex-col gap-2 pb-3">
         <label for="publisher" class="">Editorial:</label>
-        <input id="publisher" type="text" class="bg-gray-300" formControlName="publisher" />
+        <app-input
+          [id]="'publisher'"
+          [control]="this.bookForm.controls.publisher"
+          [type]="'text'"
+        />
       </div>
 
       <!-- Número de páginas -->
-      <div>
+      <div class="flex flex-col gap-2 pb-3">
         <label for="pageCount" class="">Número de páginas:</label>
-        <input id="pageCount" type="number" class="bg-gray-300" formControlName="pageCount" />
+        <app-input
+          [id]="'pageCount'"
+          [control]="this.bookForm.controls.pageCount"
+          [type]="'number'"
+        />
       </div>
 
       <!-- Descripción -->
-      <div>
+      <div class="flex flex-col gap-2 pb-3">
         <label for="description" class="">Descripción:</label>
-        <textarea id="description" t class="bg-gray-300" formControlName="description"></textarea>
+        <app-textarea [id]="'description'" [control]="this.bookForm.controls.description" />
+        <!-- <textarea id="description" class="bg-gray-300" formControlName="description"></textarea> -->
       </div>
 
-      <button
-        type="submit"
-        class="rounded text-2xl mr-2 text-white hover:text-gray-700 p-2 bg-amber-200"
-      >
-        Enviar
-      </button>
-      <button type="reset" class="rounded text-2xl text-white hover:text-gray-700 p-2 bg-amber-200">
-        Resetar form
-      </button>
+      <app-button [type]="'submit'" [customClass]="'mr-2'">Enviar</app-button>
+      <app-button [type]="'reset'" [customClass]="''"> Resetar form</app-button>
     </form>
   </div>
 </div>
