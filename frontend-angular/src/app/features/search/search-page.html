@@ -1,29 +1,26 @@
 <div class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
   Search page
   <section class="mb-6 border-gray-200 bg-gray-50 p-4">
-    <form
-      [formGroup]="searchForm"
-      (ngSubmit)="onSubmit()"
-      class="flex justify-between gap-3 items-end"
-    >
-      <div class="flex-1">
-        <label for="searchText" class="block">Search text:</label>
+    <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="flex flex-col">
+      <app-form-field
+        [label]="'Búsqueda por texto:'"
+        [for]="'searchText'"
+        [wrapperCustomClass]="''"
+        [errorMsg]="'Debes escribir algo para buscar'"
+        [showError]="showErrorMsg()"
+      >
         <app-input
           [id]="'searchText'"
-          [control]="this.searchForm.controls.searchText"
+          [control]="searchForm.controls.searchText"
           [type]="'text'"
-          [ariaInvalid]="
-            searchForm.get('searchText')?.invalid && searchForm.get('searchText')?.touched
-          "
+          [ariaInvalid]="showErrorMsg()"
         />
-
-        @if (searchForm.get('searchText')?.invalid && searchForm.get('searchText')?.touched) {
-          <p class="text-red-500 text-xs mt-1 font-medium">Debes escribir algo para buscar.</p>
-        }
+      </app-form-field>
+      <div class="flex justify-end">
+        <app-button [type]="'submit'" [customClass]="'gap-2'">
+          <i class="fa-solid fa-magnifying-glass"></i>Buscar</app-button
+        >
       </div>
-      <app-button [type]="'submit'" [customClass]="'gap-2'">
-        <i class="fa-solid fa-magnifying-glass"></i>Buscar</app-button
-      >
     </form>
   </section>
   <section class="mt-8">

@@ -12,51 +12,57 @@
     <!-- Form -->
     <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
       <!-- Título -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="title" class="">Título*:</label>
-        <app-input [id]="'title'" [control]="this.bookForm.controls.title" [type]="'text'" />
-      </div>
+      <app-form-field
+        [label]="'Título*:'"
+        [for]="'title'"
+        [errorMsg]="'Debes escribir un título'"
+        [showError]="showErrorMsg()"
+      >
+        <app-input
+          [id]="'title'"
+          [control]="this.bookForm.controls.title"
+          [type]="'text'"
+          [ariaInvalid]="showErrorMsg()"
+        />
+      </app-form-field>
+
       <!-- Autores -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="authors" class=""> Autor(es) * (separados por coma):</label>
+
+      <app-form-field [label]="'Autor(es) (separados por coma):'" [for]="'authors'">
         <app-input [id]="'authors'" [control]="this.bookForm.controls.authors" [type]="'text'" />
-      </div>
+      </app-form-field>
 
       <!-- ISBN -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="isbn" class="">ISBN:</label>
+      <app-form-field [label]="'ISBN:'" [for]="'isbn'">
         <app-input [id]="'isbn'" [control]="this.bookForm.controls.isbn" [type]="'text'" />
-      </div>
+      </app-form-field>
 
       <!-- Editorial -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="publisher" class="">Editorial:</label>
+      <app-form-field [label]="'Editorial:'" [for]="'publisher'">
         <app-input
           [id]="'publisher'"
           [control]="this.bookForm.controls.publisher"
           [type]="'text'"
         />
-      </div>
+      </app-form-field>
 
       <!-- Número de páginas -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="pageCount" class="">Número de páginas:</label>
+      <app-form-field [label]="'Número de páginas:'" [for]="'pageCount'">
         <app-input
           [id]="'pageCount'"
           [control]="this.bookForm.controls.pageCount"
           [type]="'number'"
         />
-      </div>
+      </app-form-field>
 
       <!-- Descripción -->
-      <div class="flex flex-col gap-2 pb-3">
-        <label for="description" class="">Descripción:</label>
+      <app-form-field [label]="'Descripción:'" [for]="'description'">
         <app-textarea [id]="'description'" [control]="this.bookForm.controls.description" />
-        <!-- <textarea id="description" class="bg-gray-300" formControlName="description"></textarea> -->
+      </app-form-field>
+      <div class="flex gap-4 justify-between">
+        <app-button [type]="'reset'" [customClass]="'bg-gray-600'"> Resetar form</app-button>
+        <app-button [type]="'submit'" [customClass]="''">Enviar</app-button>
       </div>
-
-      <app-button [type]="'submit'" [customClass]="'mr-2'">Enviar</app-button>
-      <app-button [type]="'reset'" [customClass]="''"> Resetar form</app-button>
     </form>
   </div>
 </div>

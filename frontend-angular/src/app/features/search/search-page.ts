@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BookMetadataDTO } from './models/search.types';
 import { SearchResultCardComponent } from './components/search-result-card/search-result-card.component';
@@ -6,6 +6,8 @@ import { SearchBooksService } from './services/search.service';
 import { SearchAddBookModalComponent } from './components/search-add-book-modal/search-add-book-modal.component';
 import { ButtonComponent } from 'src/app/shared/ui/button/button.component';
 import { InputComponent } from 'src/app/shared/ui/form/input/input.component';
+import { FormFieldComponent } from 'src/app/shared/ui/form/form-field/form-field.component';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'search-page',
@@ -15,6 +17,7 @@ import { InputComponent } from 'src/app/shared/ui/form/input/input.component';
     SearchAddBookModalComponent,
     ButtonComponent,
     InputComponent,
+    FormFieldComponent,
   ],
   templateUrl: './search-page.html',
 })
@@ -30,17 +33,23 @@ export default class SearchPage {
 
   searchResults = signal<BookMetadataDTO[]>([]);
   searchLoading = signal(false);
+  showValidationErrors = signal(false);
+  searchText = toSignal(this.searchForm.controls.searchText.valueChanges);
 
-  // inputClasses = computed(() => {
-  //   const isLoading = this.searchLoading();
-  //   return cn(
-  //     'w-full px-4 py-2 border rounded-lg transition-all outline-none',
-  //     'border-gray-300 focus:ring-2 focus:ring-amber-400 bg-white',
-  //     isLoading && 'opacity-50 cursor-not-allowed bg-gray-100',
-  //   );
-  // });
+  efecto = effect(() => {
+    this.searchText();
+    untracked(() => {
+      if (this.showValidationErrors()) this.showValidationErrors.set(false);
+    });
+  });
+
+  showErrorMsg = computed(() => {
+    if (!this.showValidationErrors()) return false;
+    return this.searchForm.controls.searchText.invalid;
+  });
 
   onSubmit() {
+    this.showValidationErrors.set(true);
     if (this.searchForm.invalid) {
       this.searchForm.markAllAsTouched();
       return;
@@ -57,6 +66,7 @@ export default class SearchPage {
         //this.searchForm.reset();
         this.searchLoading.set(false);
         this.searchForm.controls.searchText.enable();
+        this.showValidationErrors.set(false);
       },
       error: () => {
         alert('error en la búsqueda');
