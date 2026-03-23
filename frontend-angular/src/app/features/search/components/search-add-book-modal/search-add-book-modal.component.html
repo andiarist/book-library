@@ -9,6 +9,18 @@
         >X</app-button
       >
     </div>
+
+    <!-- Cover -->
+    @if (book().imageUrl) {
+      <div class="flex justify-center mb-4">
+        <img
+          [src]="book().imageUrl"
+          [alt]="`Portada de ${book().title}`"
+          class="h-auto w-40 rounded-lg object-cover shadow-md"
+        />
+      </div>
+    }
+
     <!-- Form -->
     <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
       <!-- Título -->
@@ -52,6 +64,21 @@
           [id]="'pageCount'"
           [control]="this.bookForm.controls.pageCount"
           [type]="'number'"
+        />
+      </app-form-field>
+
+      <!-- Formato -->
+      <app-form-field [label]="'Format:'" [for]="'format'">
+        <app-select
+          [id]="'format'"
+          [control]="this.bookForm.controls.format"
+          [options]="[
+            { label: 'PHYSICAL', value: 'PHYSICAL' },
+            { label: 'PDF', value: 'PDF' },
+            { label: 'EPUB', value: 'EPUB' },
+            { label: 'MOBI', value: 'MOBI' },
+            { label: 'AZW3', value: 'AZW3' },
+          ]"
         />
       </app-form-field>
 

@@ -18,6 +18,7 @@ import { InputComponent } from 'src/app/shared/ui/form/input/input.component';
 import { TextareaComponent } from 'src/app/shared/ui/form/textarea/textarea.component';
 import { FormFieldComponent } from 'src/app/shared/ui/form/form-field/form-field.component';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { SelectComponent } from 'src/app/shared/ui/form/select/select.component';
 
 @Component({
   selector: 'search-add-book-modal',
@@ -27,6 +28,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
     InputComponent,
     TextareaComponent,
     FormFieldComponent,
+    SelectComponent,
   ],
   templateUrl: './search-add-book-modal.component.html',
 })
@@ -46,6 +48,7 @@ export class SearchAddBookModalComponent {
     publisher: new FormControl('', { nonNullable: true }),
     pageCount: new FormControl(0, { nonNullable: true }),
     description: new FormControl('', { nonNullable: true }),
+    format: new FormControl('', { nonNullable: true }),
   });
 
   ngOnInit(): void {
@@ -56,6 +59,7 @@ export class SearchAddBookModalComponent {
       publisher: this.book().publisher,
       pageCount: this.book().pageCount,
       description: this.book().description,
+      format: 'PHYSICAL',
     });
   }
 
@@ -93,6 +97,7 @@ export class SearchAddBookModalComponent {
         formVal.authors && formVal.authors.length > 0 ? formVal.authors.trim().split(',') : [],
 
       categories: [],
+      imageUrl: this.book().imageUrl,
     };
     console.log('parsedBook: ', parsedBook);
     const newBook: BookAddDTO = SearchBookMapper.mapBookMetadataDTOToBookAddDTO(parsedBook);

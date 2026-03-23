@@ -11,7 +11,6 @@ import { ScanLibraryResponse } from './models/library.types';
 })
 export default class LibraryPage {
   booksLibraryService = inject(LibraryBooksService);
-  // showScanModal = signal<boolean>(false);
   scanResults = signal<ScanLibraryResponse | null>(null);
 
   onScan() {
