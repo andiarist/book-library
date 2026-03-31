@@ -1,0 +1,95 @@
+<div class="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 p-4">
+  <div
+    class="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-lg bg-white shadow-xl py-4 px-6 overflow-y-auto"
+  >
+    <!-- Header -->
+    <div class="w-full flex justify-between items-center mb-4">
+      <h5 class="text-xl font-semibold">Editar Metadata del Libro:</h5>
+      <app-button (click)="closeModal()" [customClass]="'px-2 py-1 bg-white text-bg-black text-xl'"
+        >X</app-button
+      >
+    </div>
+
+    <!-- Cover -->
+    @if (book().imageUrl) {
+      <div class="flex justify-center mb-4">
+        <img
+          [src]="book().imageUrl"
+          [alt]="`Portada de ${book().title}`"
+          class="h-auto w-40 rounded-lg object-cover shadow-md"
+        />
+      </div>
+    }
+
+    <!-- Form -->
+    <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+      <!-- Título -->
+      <app-form-field
+        [label]="'Título*:'"
+        [for]="'title'"
+        [errorMsg]="'Debes escribir un título'"
+        [showError]="showErrorMsg()"
+      >
+        <app-input
+          [id]="'title'"
+          [control]="this.bookForm.controls.title"
+          [type]="'text'"
+          [ariaInvalid]="showErrorMsg()"
+        />
+      </app-form-field>
+
+      <!-- Autores -->
+
+      <app-form-field [label]="'Autor(es) (separados por coma):'" [for]="'authors'">
+        <app-input [id]="'authors'" [control]="this.bookForm.controls.authors" [type]="'text'" />
+      </app-form-field>
+
+      <!-- ISBN -->
+      <app-form-field [label]="'ISBN:'" [for]="'isbn'">
+        <app-input [id]="'isbn'" [control]="this.bookForm.controls.isbn" [type]="'text'" />
+      </app-form-field>
+
+      <!-- Editorial -->
+      <app-form-field [label]="'Editorial:'" [for]="'publisher'">
+        <app-input
+          [id]="'publisher'"
+          [control]="this.bookForm.controls.publisher"
+          [type]="'text'"
+        />
+      </app-form-field>
+
+      <!-- Número de páginas -->
+      <app-form-field [label]="'Número de páginas:'" [for]="'pageCount'">
+        <app-input
+          [id]="'pageCount'"
+          [control]="this.bookForm.controls.pageCount"
+          [type]="'number'"
+        />
+      </app-form-field>
+
+      <!-- Formato -->
+      <app-form-field [label]="'Format:'" [for]="'format'">
+        <app-select
+          [id]="'format'"
+          [control]="this.bookForm.controls.format"
+          [options]="[
+            { label: 'PHYSICAL', value: 'PHYSICAL' },
+            { label: 'PDF', value: 'PDF' },
+            { label: 'EPUB', value: 'EPUB' },
+            { label: 'MOBI', value: 'MOBI' },
+            { label: 'AZW3', value: 'AZW3' },
+          ]"
+        />
+      </app-form-field>
+
+      <!-- Descripción -->
+      <app-form-field [label]="'Descripción:'" [for]="'description'">
+        <app-textarea [id]="'description'" [control]="this.bookForm.controls.description" />
+      </app-form-field>
+      <div class="flex gap-4 justify-between">
+        <app-button [type]="'reset'" [customClass]="'bg-gray-600'"> Resetar form</app-button>
+        <app-button [type]="'submit'" [customClass]="''">Enviar</app-button>
+      </div>
+    </form>
+  </div>
+</div>

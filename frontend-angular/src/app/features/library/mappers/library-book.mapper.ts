@@ -1,6 +1,6 @@
 import type { BookDTO, Book } from '../models/library.types';
 
-export class BookMapper {
+export class LibraryBookMapper {
   static mapBookDtoToBook(book: BookDTO): Book {
     return {
       id: book.id,
@@ -22,6 +22,6 @@ export class BookMapper {
     };
   }
   static mapBookDtoToBookArray(books: BookDTO[]): Book[] {
-    return books.map(BookMapper.mapBookDtoToBook);
+    return books.map(LibraryBookMapper.mapBookDtoToBook);
   }
 }

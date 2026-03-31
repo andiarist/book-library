@@ -1,0 +1,14 @@
+<div [class]="wrapperClass()">
+  <!-- label -->
+  <label [for]="for()" [class]="labelClass()">{{ label() }}</label>
+  <!-- input -->
+  <ng-content></ng-content>
+  <!-- mensaje de error -->
+  <div class="min-h-5">
+    @if (showError() && errorMsg().length > 0) {
+      <p class="text-red-500 text-xs mt-1 font-medium transition-opacity duration-200">
+        {{ errorMsg() }}
+      </p>
+    }
+  </div>
+</div>

@@ -1,21 +1,27 @@
 <div class="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
   Search page
-  <section class="mb-6 border-gray-200 bg-gray-50 p-4 flex justify-between gap-4">
-    <div class="flex flex-col gap-2 w-full">
-      <label for="searchText" class="">Search text:</label>
-      <input
-        id="searchText"
-        type="text"
-        [formControl]="searchText"
-        class="bg-amber-200 px-2 py-1 rounded w-full"
-      />
-    </div>
-    <button
-      (click)="onSubmit()"
-      class="rounded flex items-center justify-center gap-1 bg-blue-400 px-4 font-semibold text-white"
-    >
-      <i class="fa-solid fa-magnifying-glass"></i>Buscar
-    </button>
+  <section class="mb-6 border-gray-200 bg-gray-50 p-4">
+    <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="flex flex-col">
+      <app-form-field
+        [label]="'Búsqueda por texto:'"
+        [for]="'searchText'"
+        [wrapperCustomClass]="''"
+        [errorMsg]="'Debes escribir algo para buscar'"
+        [showError]="showErrorMsg()"
+      >
+        <app-input
+          [id]="'searchText'"
+          [control]="searchForm.controls.searchText"
+          [type]="'text'"
+          [ariaInvalid]="showErrorMsg()"
+        />
+      </app-form-field>
+      <div class="flex justify-end">
+        <app-button [type]="'submit'" [customClass]="'gap-2'">
+          <i class="fa-solid fa-magnifying-glass"></i>Buscar</app-button
+        >
+      </div>
+    </form>
   </section>
   <section class="mt-8">
     <p>Resultados:</p>
@@ -25,9 +31,12 @@
     } @else {
       <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6">
         @for (book of searchResults(); track $index) {
-          <search-result-card [book]="book" />
+          <search-result-card [book]="book" (selectBook)="this.selectBook($event)" />
         }
       </div>
     }
   </section>
+  @if (this.bookForAdd(); as book) {
+    <search-add-book-modal [book]="book" (selectBook)="this.selectBook($event)" />
+  }
 </div>
